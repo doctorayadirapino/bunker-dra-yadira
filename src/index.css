@@ -1,27 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Dark Mode Palette */
-  --bg-primary: #0a0e17;
-  /* Deep dark background */
-  --bg-secondary: #121826;
-  /* Cards and sidebars */
-  --bg-tertiary: #1b2333;
-  /* Hover states */
+  /* Premium Medical Light Palette */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #64748b;
 
   /* Medical & Corporate Accents */
-  --medical-turquoise: #0bdada;
-  --turquoise-glow: rgba(11, 218, 218, 0.2);
-  --corporate-blue: #3b82f6;
+  --medical-turquoise: #0891b2;
+  --turquoise-glow: rgba(8, 145, 178, 0.1);
+  --corporate-blue: #2563eb;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
 
-  --border-color: #1e293b;
+  --border-color: #e2e8f0;
   --border-radius: 12px;
 }
 
@@ -120,26 +117,33 @@ body {
   border-right: 3px solid var(--medical-turquoise);
 }
 
-.new-eval-btn {
-  margin: auto 16px 24px 16px;
+.new-eval-btn-sidebar {
+  width: 100%;
   background: linear-gradient(135deg, var(--medical-turquoise), var(--corporate-blue));
-  color: #fff;
+  color: white;
   border: none;
   padding: 14px;
-  border-radius: var(--border-radius);
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(11, 218, 218, 0.3);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(8, 145, 178, 0.25);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
 }
 
-.new-eval-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(11, 218, 218, 0.4);
+.new-eval-btn-sidebar:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(8, 145, 178, 0.35);
+}
+
+.new-eval-btn-sidebar:active {
+  transform: translateY(0) scale(0.98);
 }
 
 /* Main Content */
