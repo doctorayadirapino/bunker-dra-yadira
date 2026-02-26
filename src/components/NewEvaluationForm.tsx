@@ -21,7 +21,8 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
         dias_reposo: 0,
         observaciones: '',
         discapacidad_detectada: false,
-        referencia_centro_especializado: ''
+        referencia_centro_especializado: '',
+        aptitud_medica: 'APTO'
     });
     const [antecedentes, setAntecedentes] = useState([
         { empresa: '', cargo: '', tiempo_servicio: '', riesgos_expuestos: '' },
@@ -93,7 +94,8 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                 dias_reposo: consulta.dias_reposo,
                 observaciones: consulta.observaciones,
                 discapacidad_detectada: consulta.discapacidad_detectada,
-                referencia_centro_especializado: consulta.referencia_centro_especializado
+                referencia_centro_especializado: consulta.referencia_centro_especializado,
+                aptitud_medica: consulta.aptitud_medica
             }]);
 
             if (errCons) throw errCons;
@@ -227,7 +229,24 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                             <input placeholder="Referenciado a Centro Especializado (Ej: Traumatología Clínica San Antonio)" value={consulta.referencia_centro_especializado} onChange={e => setConsulta({ ...consulta, referencia_centro_especializado: e.target.value })} />
                         </div>
 
-                        <textarea placeholder="Observaciones y Diagnóstico Clínico" rows={3} value={consulta.observaciones} onChange={e => setConsulta({ ...consulta, observaciones: e.target.value })} style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', resize: 'vertical' }} />
+                        <textarea placeholder="Observaciones y Diagnóstico Clínico" rows={3} value={consulta.observaciones} onChange={e => setConsulta({ ...consulta, observaciones: e.target.value })} style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', resize: 'vertical', marginBottom: '16px' }} />
+
+                        {/* SECCIÓN: APTITUD MÉDICA (CERTIFICADO DE APTITUD) */}
+                        <div style={{ padding: '16px', background: 'rgba(11, 218, 218, 0.05)', borderRadius: '8px', border: '1px solid var(--medical-turquoise)' }}>
+                            <label style={{ display: 'block', color: 'var(--medical-turquoise)', fontWeight: 'bold', marginBottom: '8px', fontSize: '0.9rem' }}>
+                                DICTAMEN FINAL: CERTIFICADO DE APTITUD
+                            </label>
+                            <select
+                                value={consulta.aptitud_medica}
+                                onChange={e => setConsulta({ ...consulta, aptitud_medica: e.target.value })}
+                                style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-primary)', color: 'var(--medical-turquoise)', border: '2px solid var(--medical-turquoise)', fontWeight: 'bold' }}
+                            >
+                                <option value="APTO">APTO (Capaz para el cargo)</option>
+                                <option value="APTO CON LIMITACIONES">APTO CON LIMITACIONES (Requiere adecuación)</option>
+                                <option value="NO APTO">NO APTO (Estado de salud no compatible)</option>
+                                <option value="EN EVALUACION">EN EVALUACIÓN (Pendiente paraclinicos)</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>

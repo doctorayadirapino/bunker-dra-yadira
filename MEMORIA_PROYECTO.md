@@ -7,9 +7,9 @@
 - **Despliegue:** Vercel Pro (`doctora-yadira-pino.vercel.app`) [Vínculo Activo]
 - **Seguridad:** Zero Trust / HIPAA Ready / RLS-First
 - **Infraestructura Cloud:** Supabase Project ID: `kbcwvtkstdxdbvygpwzr` (Búnker v23.0 - Salud Laboral)
-- **Estado de Auditoría (2026-02-26 07:18):** 
-    - Arquitectura: v23.2 Estandarización de Consultas (8 Categorías Finales).
-    - Backend: Búnker optimizado con 8 tipos de consulta exactos incluyendo Certificado de Salud.
+- **Estado de Auditoría (2026-02-26 08:05):** 
+    - Arquitectura: v23.3 Implementación de Aptitud Médica (Dictamen Final).
+    - Backend: Búnker actualizado con columna 'aptitud_medica' y validaciones v23.2.
     - Frontend: Dashboard Epidemiológico en Tiempo Real (Realtime Sync) conectado a Supabase.
     - Respaldo: Credenciales actualizadas en `CREDENTIALS_BACKUP.txt`.
 
@@ -29,6 +29,11 @@
 **CERTIFICACIÓN CARLOS FUENTES:** El sistema está preparado para la desconexión. La data ha sido entregada al usuario en formato maestro.
 
 ## 🗓️ Registro Histórico de Evoluciones Clave
+
+- [2026-02-26] **v23.3 - Integración de Aptitud Médica (Petición Carlos Fuentes):**
+    - Creación de la sección "Certificado de Aptitud" al final del formulario institucional.
+    - Migración de base de datos para incluir dictamen médico (Apto, No Apto, etc.).
+    - Ajuste de seguridad en Supabase para sincronizar los 8 tipos de consulta estandarizados.
 
 - [2026-02-26] **v23.2 - Estandarización de Consultas (Hotfix Carlos Fuentes):**
     - Reducción y limpieza del catálogo de tipos de consulta a 8 categorías exactas (incluyendo Certificado de Salud).
