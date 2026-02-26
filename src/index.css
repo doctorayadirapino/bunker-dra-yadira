@@ -1,24 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Premium Medical Light Palette */
-  --bg-primary: #f8fafc;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f5f9;
+  /* Executive Slate Palette (The Perfect Middle Ground) */
+  --bg-primary: #1e293b;
+  /* Slate Navy */
+  --bg-secondary: #0f172a;
+  /* Deep Navy for Sidebar/Cards */
+  --bg-tertiary: #334155;
+  /* Interactive elements */
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
   --text-muted: #64748b;
 
   /* Medical & Corporate Accents */
-  --medical-turquoise: #0891b2;
-  --turquoise-glow: rgba(8, 145, 178, 0.1);
-  --corporate-blue: #2563eb;
+  --medical-turquoise: #22d3ee;
+  --turquoise-glow: rgba(34, 211, 238, 0.2);
+  --corporate-blue: #3b82f6;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
 
-  --border-color: #e2e8f0;
+  --border-color: #334155;
   --border-radius: 12px;
 }
 
@@ -119,27 +122,28 @@ body {
 
 .new-eval-btn-sidebar {
   width: 100%;
-  background: linear-gradient(135deg, var(--medical-turquoise), var(--corporate-blue));
+  background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 14px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(8, 145, 178, 0.25);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  letter-spacing: 0.8px;
+  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.85rem;
 }
 
 .new-eval-btn-sidebar:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 20px rgba(8, 145, 178, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(14, 165, 233, 0.5);
+  filter: brightness(1.1);
 }
 
 .new-eval-btn-sidebar:active {
