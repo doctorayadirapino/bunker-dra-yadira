@@ -24,7 +24,10 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
         referencia_centro_especializado: '',
         aptitud_medica: 'APTO',
         examen_fisico: '',
-        riesgos_ocupacionales: ''
+        riesgos_ocupacionales: '',
+        fecha_inicio_reposo: '',
+        fecha_fin_reposo: '',
+        causa_reposo: ''
     });
     const [antecedentes, setAntecedentes] = useState([
         { empresa: '', cargo: '', tiempo_servicio: '', riesgos_expuestos: '' },
@@ -99,7 +102,10 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                 referencia_centro_especializado: consulta.referencia_centro_especializado,
                 aptitud_medica: consulta.aptitud_medica,
                 examen_fisico: consulta.examen_fisico,
-                riesgos_ocupacionales: consulta.riesgos_ocupacionales
+                riesgos_ocupacionales: consulta.riesgos_ocupacionales,
+                fecha_inicio_reposo: consulta.fecha_inicio_reposo || null,
+                fecha_fin_reposo: consulta.fecha_fin_reposo || null,
+                causa_reposo: consulta.causa_reposo || null
             }]);
 
             if (errCons) throw errCons;
@@ -224,8 +230,30 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                                 <option value="ACCIDENTE COMUN">ACCIDENTE COMÚN</option>
                                 <option value="ACCIDENTE LABORAL">ACCIDENTE LABORAL</option>
                             </select>
-                            <input type="number" min="0" placeholder="Días de Reposo" value={consulta.dias_reposo} onChange={e => setConsulta({ ...consulta, dias_reposo: parseInt(e.target.value) || 0 })} disabled={consulta.categoria_reposo === 'NINGUNO'} />
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <input type="number" min="0" placeholder="Total Días" value={consulta.dias_reposo} onChange={e => setConsulta({ ...consulta, dias_reposo: parseInt(e.target.value) || 0 })} disabled={consulta.categoria_reposo === 'NINGUNO'} style={{ width: '100px' }} />
+                                <span style={{ display: 'flex', alignItems: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Días de reposo</span>
+                            </div>
                         </div>
+
+                        {consulta.categoria_reposo !== 'NINGUNO' && (
+                            <div style={{ padding: '16px', background: 'rgba(245, 158, 11, 0.05)', borderRadius: '8px', border: '1px solid var(--warning)', marginBottom: '16px', animation: 'fadeIn 0.3s ease' }}>
+                                <label style={{ display: 'block', color: 'var(--warning)', fontWeight: 'bold', marginBottom: '12px', fontSize: '0.9rem' }}>
+                                    DETALLES DEL REPOSO (Formato Oficial)
+                                </label>
+                                <div className="form-grid" style={{ marginBottom: '12px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <small style={{ color: 'var(--text-secondary)' }}>Fecha Inicio</small>
+                                        <input type="date" value={consulta.fecha_inicio_reposo} onChange={e => setConsulta({ ...consulta, fecha_inicio_reposo: e.target.value })} />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <small style={{ color: 'var(--text-secondary)' }}>Fecha Fin</small>
+                                        <input type="date" value={consulta.fecha_fin_reposo} onChange={e => setConsulta({ ...consulta, fecha_fin_reposo: e.target.value })} />
+                                    </div>
+                                </div>
+                                <input placeholder="Causa justificativa del reposo (Para el certificado)" value={consulta.causa_reposo} onChange={e => setConsulta({ ...consulta, causa_reposo: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }} />
+                            </div>
+                        )}
 
                         <div className="form-grid" style={{ marginBottom: '16px' }}>
                             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', background: 'var(--bg-secondary)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
@@ -264,7 +292,7 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
