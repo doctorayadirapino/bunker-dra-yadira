@@ -2,12 +2,12 @@
 
 :root {
   /* Serene Pastel Blue Palette (Soft, Medical, Calm) */
-  --bg-primary: #f0f7ff;
-  /* Sky Blue Pastel background */
+  --bg-primary: #e7effb;
+  /* A touch deeper Sky Blue */
   --bg-secondary: #ffffff;
   /* Pure White for card clarity */
-  --bg-tertiary: #e0f2fe;
-  /* Very soft blue for hover states */
+  --bg-tertiary: #d8e6f7;
+  /* Balanced hover state */
 
   --text-primary: #1e3a8a;
   /* Deep Navy for perfect readability */
@@ -24,8 +24,8 @@
   --warning: #f59e0b;
   --danger: #ef4444;
 
-  --border-color: #dbeafe;
-  /* Soft Pastel Blue border */
+  --border-color: #cbdcf7;
+  /* Slightly more defined borders */
   --border-radius: 12px;
   --shadow-sm: 0 1px 3px rgba(30, 58, 138, 0.05);
   --shadow-md: 0 10px 15px -3px rgba(30, 58, 138, 0.1);
