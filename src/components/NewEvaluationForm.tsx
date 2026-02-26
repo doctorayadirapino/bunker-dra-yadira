@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { X } from 'lucide-react';
+import { X, Printer, Mail } from 'lucide-react';
 import './NewEvaluationForm.css';
+import { generarCertificadoPDF } from '../services/pdfService';
 
 interface FormProps {
     onClose: () => void;
@@ -10,10 +11,13 @@ interface FormProps {
 export default function NewEvaluationForm({ onClose }: FormProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [useDigitalSignature, setUseDigitalSignature] = useState(false);
 
     // Form State
     const [paciente, setPaciente] = useState({ nombre_completo: '', cedula: '', sexo: 'Femenino', alergias: '', patologias_previas: '', fecha_nacimiento: '', telefono: '' });
     const [empresa, setEmpresa] = useState({ nombre: '', rif: '' });
+    const [lastAptitud, setLastAptitud] = useState<string | null>(null);
+    const [returningPatient, setReturningPatient] = useState(false);
     const [consulta, setConsulta] = useState({
         tipo_consulta: 'PRE-EMPLEO',
         tipo_patologia: 'Adulto sano',
@@ -34,6 +38,54 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
         { empresa: '', cargo: '', tiempo_servicio: '', riesgos_expuestos: '' },
         { empresa: '', cargo: '', tiempo_servicio: '', riesgos_expuestos: '' }
     ]);
+
+    // Lógica de búsqueda de paciente recurrente
+    const handleCedulaChange = async (cedula: string) => {
+        setPaciente(prev => ({ ...prev, cedula }));
+        if (cedula.length > 5) {
+            const { data: pacData } = await supabase
+                .from('pacientes')
+                .select('*, empresas(nombre, rif)')
+                .eq('cedula', cedula)
+                .single();
+
+            if (pacData) {
+                setReturningPatient(true);
+                setPaciente({
+                    nombre_completo: pacData.nombre_completo,
+                    cedula: pacData.cedula,
+                    sexo: pacData.sexo,
+                    alergias: pacData.alergias || '',
+                    patologias_previas: pacData.patologias_previas || '',
+                    fecha_nacimiento: pacData.fecha_nacimiento || '',
+                    telefono: pacData.telefono || ''
+                });
+
+                if (pacData.empresas) {
+                    setEmpresa({
+                        nombre: pacData.empresas.nombre,
+                        rif: pacData.empresas.rif
+                    });
+                }
+
+                // Buscar última aptitud
+                const { data: lastCons } = await supabase
+                    .from('consultas')
+                    .select('aptitud_medica')
+                    .eq('paciente_id', pacData.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
+
+                if (lastCons) {
+                    setLastAptitud(lastCons.aptitud_medica);
+                }
+            } else {
+                setReturningPatient(false);
+                setLastAptitud(null);
+            }
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -111,6 +163,33 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
             if (errCons) throw errCons;
 
             alert("¡EVALUACIÓN REGISTRADA EN EL BÚNKER DE FORMA EXITOSA!");
+
+            // Generar PDF automáticamente tras el éxito
+            generarCertificadoPDF({
+                paciente: {
+                    nombre: paciente.nombre_completo,
+                    cedula: paciente.cedula
+                },
+                empresa: {
+                    nombre: empresa.nombre,
+                    rif: empresa.rif
+                },
+                consulta: {
+                    tipo: consulta.tipo_consulta,
+                    aptitud: consulta.aptitud_medica,
+                    observaciones: consulta.observaciones,
+                    examen_fisico: consulta.examen_fisico,
+                    causa_reposo: consulta.causa_reposo,
+                    dias_reposo: consulta.dias_reposo
+                },
+                doctora: {
+                    nombre: "YADIRA PINO",
+                    mpps: "42.123",
+                    cmm: "MIR-12345"
+                },
+                conFirmaDigital: useDigitalSignature
+            });
+
             onClose();
 
         } catch (err: any) {
@@ -134,9 +213,31 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                 <form onSubmit={handleSubmit} className="eval-form">
                     {/* SECCIÓN: PACIENTE */}
                     <div className="form-section">
-                        <h3>1. Datos del Paciente</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                            <h3>1. Identificación del Paciente</h3>
+                            {returningPatient && (
+                                <span style={{ background: 'var(--bg-tertiary)', color: 'var(--corporate-blue)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid var(--border-color)', animation: 'pulse 2s infinite' }}>
+                                    ✨ PACIENTE RECURRENTE DETECTADO
+                                </span>
+                            )}
+                        </div>
+
+                        {lastAptitud && (
+                            <div style={{ background: '#f8fafc', border: '1px solid var(--border-color)', padding: '10px 15px', borderRadius: '10px', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: lastAptitud === 'APTO' ? 'var(--success)' : 'var(--warning)' }}></div>
+                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                    Última Aptitud Registrada: <strong>{lastAptitud}</strong>
+                                </span>
+                            </div>
+                        )}
+
                         <div className="form-grid">
-                            <input required placeholder="Cédula de Identidad" value={paciente.cedula} onChange={e => setPaciente({ ...paciente, cedula: e.target.value })} />
+                            <input
+                                required
+                                placeholder="Cédula de Identidad"
+                                value={paciente.cedula}
+                                onChange={e => handleCedulaChange(e.target.value)}
+                            />
                             <input required placeholder="Nombre Completo" value={paciente.nombre_completo} onChange={e => setPaciente({ ...paciente, nombre_completo: e.target.value })} />
                             <select value={paciente.sexo} onChange={e => setPaciente({ ...paciente, sexo: e.target.value })}>
                                 <option value="Femenino">Femenino</option>
@@ -268,20 +369,40 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                         <textarea placeholder="Observaciones y Diagnóstico Clínico" rows={3} value={consulta.observaciones} onChange={e => setConsulta({ ...consulta, observaciones: e.target.value })} style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', resize: 'vertical', marginBottom: '16px' }} />
 
                         {/* SECCIÓN: APTITUD MÉDICA (CERTIFICADO DE APTITUD) */}
-                        <div style={{ padding: '16px', background: 'rgba(11, 218, 218, 0.05)', borderRadius: '8px', border: '1px solid var(--medical-turquoise)' }}>
+                        <div style={{ padding: '16px', background: 'rgba(11, 218, 218, 0.05)', borderRadius: '8px', border: '1px solid var(--medical-turquoise)', marginBottom: '16px' }}>
                             <label style={{ display: 'block', color: 'var(--medical-turquoise)', fontWeight: 'bold', marginBottom: '8px', fontSize: '0.9rem' }}>
                                 DICTAMEN FINAL: CERTIFICADO DE APTITUD
                             </label>
                             <select
                                 value={consulta.aptitud_medica}
                                 onChange={e => setConsulta({ ...consulta, aptitud_medica: e.target.value })}
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-primary)', color: 'var(--medical-turquoise)', border: '2px solid var(--medical-turquoise)', fontWeight: 'bold' }}
+                                style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-primary)', color: 'var(--medical-turquoise)', border: '2px solid var(--medical-turquoise)', fontWeight: 'bold', marginBottom: '12px' }}
                             >
                                 <option value="APTO">APTO (Capaz para el cargo)</option>
                                 <option value="APTO CON LIMITACIONES">APTO CON LIMITACIONES (Requiere adecuación)</option>
                                 <option value="NO APTO">NO APTO (Estado de salud no compatible)</option>
                                 <option value="EN EVALUACION">EN EVALUACIÓN (Pendiente paraclinicos)</option>
                             </select>
+
+                            <div style={{ display: 'flex', gap: '15px', alignItems: 'center', background: 'var(--bg-secondary)', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-primary)', cursor: 'pointer' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={useDigitalSignature}
+                                        onChange={e => setUseDigitalSignature(e.target.checked)}
+                                        style={{ width: '18px', height: '18px' }}
+                                    />
+                                    {useDigitalSignature ? (
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--corporate-blue)', fontWeight: 600 }}>
+                                            <Mail size={16} /> Incluir Firma/Sello Digital (Para E-mail)
+                                        </span>
+                                    ) : (
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            <Printer size={16} /> Sin Firma Digital (Para Firma Humana/Sello Húmedo)
+                                        </span>
+                                    )}
+                                </label>
+                            </div>
                         </div>
                     </div>
 

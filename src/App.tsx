@@ -10,6 +10,9 @@ import {
   LineChart, Line
 } from 'recharts';
 import NewEvaluationForm from './components/NewEvaluationForm';
+import PatientsList from './components/PatientsList';
+import SurveillanceModule from './components/SurveillanceModule';
+import CompaniesModule from './components/CompaniesModule';
 
 // Definición de Interfaces para TypeScript
 interface Paciente {
@@ -37,6 +40,7 @@ interface Consulta {
 export default function App() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState('dashboard');
 
   // Estados de Datos Reales (Búnker Supabase)
   const [kpis, setKpis] = useState({ total_pacientes: 0, consultas_mes: 0, dias_reposo: 0, ausentismo: 0 });
@@ -234,22 +238,34 @@ export default function App() {
             Nueva Evaluación
           </button>
 
-          <a href="#" className="nav-item active">
+          <button
+            className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveView('dashboard')}
+          >
             <Activity size={20} />
             Dashboard
-          </a>
-          <a href="#" className="nav-item">
+          </button>
+          <button
+            className={`nav-item ${activeView === 'patients' ? 'active' : ''}`}
+            onClick={() => setActiveView('patients')}
+          >
             <Users size={20} />
             Pacientes
-          </a>
-          <a href="#" className="nav-item">
+          </button>
+          <button
+            className={`nav-item ${activeView === 'companies' ? 'active' : ''}`}
+            onClick={() => setActiveView('companies')}
+          >
             <BriefcaseMedical size={20} />
             Empresas
-          </a>
-          <a href="#" className="nav-item">
+          </button>
+          <button
+            className={`nav-item ${activeView === 'surveillance' ? 'active' : ''}`}
+            onClick={() => setActiveView('surveillance')}
+          >
             <FileText size={20} />
             Vigilancia
-          </a>
+          </button>
         </nav>
       </aside>
 
@@ -287,217 +303,225 @@ export default function App() {
         </header>
 
         {loading ? (
-          <div style={{ color: 'var(--medical-turquoise)', textAlign: 'center', marginTop: '100px', fontSize: '20px' }}>
+          <div style={{ color: 'var(--corporate-blue)', textAlign: 'center', marginTop: '100px', fontSize: '20px', fontWeight: 600 }}>
             Cargando Búnker de Datos y Calculando BI...
           </div>
         ) : (
-          <>
-            {/* KPIs */}
-            <section className="kpi-grid">
-              <div className="kpi-card" style={{ borderLeft: '4px solid var(--corporate-blue)' }}>
-                <div className="kpi-header">
-                  <span>{selectedCompany === 'GENERAL' ? 'Pacientes (Universo Total)' : `Personal (${selectedCompany})`}</span>
-                  <Users size={20} color="var(--corporate-blue)" />
-                </div>
-                <div className="kpi-value">{kpis.total_pacientes}</div>
-              </div>
+          <div className="view-transition-wrapper">
+            {activeView === 'dashboard' && (
+              <div className="dashboard-view fade-in">
+                {/* KPIs */}
+                <section className="kpi-grid">
+                  <div className="kpi-card" style={{ borderLeft: '4px solid var(--corporate-blue)' }}>
+                    <div className="kpi-header">
+                      <span>{selectedCompany === 'GENERAL' ? 'Pacientes (Universo Total)' : `Personal (${selectedCompany})`}</span>
+                      <Users size={20} color="var(--corporate-blue)" />
+                    </div>
+                    <div className="kpi-value">{kpis.total_pacientes}</div>
+                  </div>
 
-              <div className="kpi-card">
-                <div className="kpi-header">
-                  <span>Consultas (Mes Actual)</span>
-                  <Stethoscope size={20} color="var(--medical-turquoise)" />
-                </div>
-                <div className="kpi-value">{kpis.consultas_mes}</div>
-              </div>
+                  <div className="kpi-card">
+                    <div className="kpi-header">
+                      <span>Consultas (Mes Actual)</span>
+                      <Stethoscope size={20} color="var(--medical-turquoise)" />
+                    </div>
+                    <div className="kpi-value">{kpis.consultas_mes}</div>
+                  </div>
 
-              <div className="kpi-card">
-                <div className="kpi-header">
-                  <span>Días Cómputo Reposo</span>
-                  <CalendarDays size={20} color="var(--warning)" />
-                </div>
-                <div className="kpi-value">{kpis.dias_reposo}</div>
-              </div>
+                  <div className="kpi-card">
+                    <div className="kpi-header">
+                      <span>Días Cómputo Reposo</span>
+                      <CalendarDays size={20} color="var(--warning)" />
+                    </div>
+                    <div className="kpi-value">{kpis.dias_reposo}</div>
+                  </div>
 
-              <div className="kpi-card">
-                <div className="kpi-header">
-                  <span>% Índice Ausentismo</span>
-                  <AlertTriangle size={20} color="var(--danger)" />
-                </div>
-                <div className="kpi-value">{kpis.ausentismo}%</div>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Ecuación referencial LOPCYMAT</span>
-              </div>
-            </section>
+                  <div className="kpi-card">
+                    <div className="kpi-header">
+                      <span>% Índice Ausentismo</span>
+                      <AlertTriangle size={20} color="var(--danger)" />
+                    </div>
+                    <div className="kpi-value">{kpis.ausentismo}%</div>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Ecuación referencial LOPCYMAT</span>
+                  </div>
+                </section>
 
-            {/* CHARTS */}
-            <section className="charts-grid">
-              {/* Chart 1: SEXO */}
-              <div className="chart-card">
-                <h3 className="chart-title">Distribución por Sexo</h3>
-                <div style={{ width: '100%', height: 260 }}>
-                  <ResponsiveContainer>
-                    <PieChart>
-                      <Pie data={genderData} innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value" stroke="none">
-                        {genderData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
+                {/* CHARTS */}
+                <section className="charts-grid">
+                  {/* Chart 1: SEXO */}
+                  <div className="chart-card">
+                    <h3 className="chart-title">Distribución por Sexo</h3>
+                    <div style={{ width: '100%', height: 260 }}>
+                      <ResponsiveContainer>
+                        <PieChart>
+                          <Pie data={genderData} innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value" stroke="none">
+                            {genderData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <RechartsTooltip
+                            contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px', color: '#fff' }}
+                            itemStyle={{ color: '#fff' }}
+                          />
+                          <Legend verticalAlign="bottom" height={36} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Chart 2: TIPO CONSULTA */}
+                  <div className="chart-card">
+                    <h3 className="chart-title">Tipos de Consulta Clave (Top 5)</h3>
+                    <div style={{ width: '100%', height: 260 }}>
+                      <ResponsiveContainer>
+                        <BarChart data={consultationData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                          <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
+                          <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} allowDecimals={false} />
+                          <RechartsTooltip
+                            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                            contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
+                          />
+                          <Bar dataKey="val" fill="var(--medical-turquoise)" radius={[4, 4, 0, 0]} barSize={40} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Chart 3: PATOLOGÍAS OVERVIEW */}
+                  <div className="chart-card">
+                    <h3 className="chart-title">Top 4 Patologías Detectadas</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
+                      {topPathologies.length === 0 && <span style={{ color: 'var(--text-muted)' }}>No hay casos patológicos registrados</span>}
+                      {topPathologies.map((item, i) => {
+                        const maxV = topPathologies[0].v;
+                        const percent = (item.v / maxV) * 100;
+                        return (
+                          <div key={i}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--text-secondary)' }}>
+                              <span>{item.name}</span>
+                              <span>{item.v} casos</span>
+                            </div>
+                            <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                              <div style={{ width: `${percent}%`, height: '100%', backgroundColor: item.c }} />
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Chart 4: REPOSOS TREND */}
+                  <div className="chart-card">
+                    <h3 className="chart-title">Clasificación de Eventos Mensuales</h3>
+                    <div style={{ width: '100%', height: 260 }}>
+                      <ResponsiveContainer>
+                        <LineChart data={trendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                          <XAxis dataKey="month" stroke="var(--text-secondary)" />
+                          <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                          <RechartsTooltip
+                            contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
+                          />
+                          <Legend />
+                          <Line type="monotone" name="Enf. Común" dataKey="enf_comun" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                          <Line type="monotone" name="Acc. Laboral" dataKey="acc_laboral" stroke="var(--danger)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Chart 5: PATOLOGÍAS POR EDAD Y SEXO */}
+                  <div className="chart-card">
+                    <h3 className="chart-title">Distribución de Patologías por Edad y Sexo</h3>
+                    <div style={{ width: '100%', height: 260 }}>
+                      <ResponsiveContainer>
+                        <BarChart data={demographicStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                          <XAxis dataKey="group" stroke="var(--text-secondary)" />
+                          <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                          <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
+                          <Legend />
+                          <Bar dataKey="Masc" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Hombres" />
+                          <Bar dataKey="Fem" fill="#22d3ee" radius={[4, 4, 0, 0]} name="Mujeres" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Chart 6: AUSENTISMO POR EDAD Y SEXO */}
+                  <div className="chart-card">
+                    <h3 className="chart-title">Ausentismo (Días) por Edad y Sexo</h3>
+                    <div style={{ width: '100%', height: 260 }}>
+                      <ResponsiveContainer>
+                        <BarChart data={absenteeismStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                          <XAxis dataKey="group" stroke="var(--text-secondary)" />
+                          <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                          <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
+                          <Legend />
+                          <Bar dataKey="Masc" fill="#2563eb" radius={[4, 4, 0, 0]} name="Total Días Hombres" />
+                          <Bar dataKey="Fem" fill="#0ea5e9" radius={[4, 4, 0, 0]} name="Total Días Mujeres" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </section>
+
+                {/* EPIDEMIOLOGICAL TABLE */}
+                <section className="data-table-card">
+                  <h3 className="chart-title" style={{ marginBottom: 8 }}>
+                    {selectedCompany === 'GENERAL' ? 'Vigilancia Epidemiológica - Histórico General' : `Histórico de Consultas - ${selectedCompany}`}
+                  </h3>
+                  {latestConsultations.length === 0 ? (
+                    <p style={{ color: 'var(--text-secondary)' }}>No se han ingresado consultas médicas al búnker v23.0.</p>
+                  ) : (
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Fecha</th>
+                          <th>Paciente</th>
+                          <th>Empresa (RIF)</th>
+                          <th>Tipo Consulta</th>
+                          <th>Patología Detección</th>
+                          <th>Reposo Registrado</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {latestConsultations.map(cons => (
+                          <tr key={cons.id}>
+                            <td>{new Date(cons.fecha_consulta).toLocaleDateString()}</td>
+                            <td>{cons.pacientes?.nombre_completo || 'Anónimo'}</td>
+                            <td>{cons.empresas?.nombre || 'Independiente'} ({cons.empresas?.rif})</td>
+                            <td>{cons.tipo_consulta}</td>
+                            <td>{cons.tipo_patologia}</td>
+                            <td>
+                              {cons.categoria_reposo === 'NINGUNO' ? (
+                                <span className="badge badge-info">SIN REPOSO</span>
+                              ) : cons.categoria_reposo.includes('ACCIDENTE') ? (
+                                <span className="badge badge-danger">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
+                              ) : (
+                                <span className="badge badge-warning">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
+                              )}
+                            </td>
+                          </tr>
                         ))}
-                      </Pie>
-                      <RechartsTooltip
-                        contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px', color: '#fff' }}
-                        itemStyle={{ color: '#fff' }}
-                      />
-                      <Legend verticalAlign="bottom" height={36} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+                      </tbody>
+                    </table>
+                  )}
+                </section>
               </div>
+            )}
 
-              {/* Chart 2: TIPO CONSULTA */}
-              <div className="chart-card">
-                <h3 className="chart-title">Tipos de Consulta Clave (Top 5)</h3>
-                <div style={{ width: '100%', height: 260 }}>
-                  <ResponsiveContainer>
-                    <BarChart data={consultationData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                      <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
-                      <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} allowDecimals={false} />
-                      <RechartsTooltip
-                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                        contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
-                      />
-                      <Bar dataKey="val" fill="var(--medical-turquoise)" radius={[4, 4, 0, 0]} barSize={40} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Chart 3: PATOLOGÍAS OVERVIEW */}
-              <div className="chart-card">
-                <h3 className="chart-title">Top 4 Patologías Detectadas</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
-                  {topPathologies.length === 0 && <span style={{ color: 'var(--text-muted)' }}>No hay casos patológicos registrados</span>}
-                  {topPathologies.map((item, i) => {
-                    const maxV = topPathologies[0].v;
-                    const percent = (item.v / maxV) * 100;
-                    return (
-                      <div key={i}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--text-secondary)' }}>
-                          <span>{item.name}</span>
-                          <span>{item.v} casos</span>
-                        </div>
-                        <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
-                          <div style={{ width: `${percent}%`, height: '100%', backgroundColor: item.c }} />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Chart 4: REPOSOS TREND */}
-              <div className="chart-card">
-                <h3 className="chart-title">Clasificación de Eventos Mensuales</h3>
-                <div style={{ width: '100%', height: 260 }}>
-                  <ResponsiveContainer>
-                    <LineChart data={trendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                      <XAxis dataKey="month" stroke="var(--text-secondary)" />
-                      <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                      <RechartsTooltip
-                        contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
-                      />
-                      <Legend />
-                      <Line type="monotone" name="Enf. Común" dataKey="enf_comun" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                      <Line type="monotone" name="Acc. Laboral" dataKey="acc_laboral" stroke="var(--danger)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Chart 5: PATOLOGÍAS POR EDAD Y SEXO */}
-              <div className="chart-card">
-                <h3 className="chart-title">Distribución de Patologías por Edad y Sexo</h3>
-                <div style={{ width: '100%', height: 260 }}>
-                  <ResponsiveContainer>
-                    <BarChart data={demographicStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                      <XAxis dataKey="group" stroke="var(--text-secondary)" />
-                      <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                      <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
-                      <Legend />
-                      <Bar dataKey="Masc" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Hombres" />
-                      <Bar dataKey="Fem" fill="#22d3ee" radius={[4, 4, 0, 0]} name="Mujeres" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Chart 6: AUSENTISMO POR EDAD Y SEXO */}
-              <div className="chart-card">
-                <h3 className="chart-title">Ausentismo (Días) por Edad y Sexo</h3>
-                <div style={{ width: '100%', height: 260 }}>
-                  <ResponsiveContainer>
-                    <BarChart data={absenteeismStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                      <XAxis dataKey="group" stroke="var(--text-secondary)" />
-                      <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                      <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
-                      <Legend />
-                      <Bar dataKey="Masc" fill="#2563eb" radius={[4, 4, 0, 0]} name="Total Días Hombres" />
-                      <Bar dataKey="Fem" fill="#0ea5e9" radius={[4, 4, 0, 0]} name="Total Días Mujeres" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </section>
-
-            {/* EPIDEMIOLOGICAL TABLE */}
-            <section className="data-table-card">
-              <h3 className="chart-title" style={{ marginBottom: 8 }}>
-                {selectedCompany === 'GENERAL' ? 'Vigilancia Epidemiológica - Histórico General' : `Histórico de Consultas - ${selectedCompany}`}
-              </h3>
-              {latestConsultations.length === 0 ? (
-                <p style={{ color: 'var(--text-secondary)' }}>No se han ingresado consultas médicas al búnker v23.0.</p>
-              ) : (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Paciente</th>
-                      <th>Empresa (RIF)</th>
-                      <th>Tipo Consulta</th>
-                      <th>Patología Detección</th>
-                      <th>Reposo Registrado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {latestConsultations.map(cons => (
-                      <tr key={cons.id}>
-                        <td>{new Date(cons.fecha_consulta).toLocaleDateString()}</td>
-                        <td>{cons.pacientes?.nombre_completo || 'Anónimo'}</td>
-                        <td>{cons.empresas?.nombre || 'Independiente'} ({cons.empresas?.rif})</td>
-                        <td>{cons.tipo_consulta}</td>
-                        <td>{cons.tipo_patologia}</td>
-                        <td>
-                          {cons.categoria_reposo === 'NINGUNO' ? (
-                            <span className="badge badge-info">SIN REPOSO</span>
-                          ) : cons.categoria_reposo.includes('ACCIDENTE') ? (
-                            <span className="badge badge-danger">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
-                          ) : (
-                            <span className="badge badge-warning">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </section>
-          </>
+            {activeView === 'patients' && <PatientsList key="patients-view" />}
+            {activeView === 'companies' && <CompaniesModule key="companies-view" />}
+            {activeView === 'surveillance' && <SurveillanceModule key="surveillance-view" />}
+          </div>
         )}
       </main>
 
       {/* MODAL DE NUEVA EVALUACIÓN (SUPABASE) */}
       {showForm && <NewEvaluationForm onClose={handleFormClose} />}
-    </div >
+    </div>
   );
 }
