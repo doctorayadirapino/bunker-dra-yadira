@@ -1,34 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Clinical Pearl & Azure Palette (Light, Professional, Clean) */
-  --bg-primary: #f8fafc;
-  /* White-blue background */
+  /* Serene Pastel Blue Palette (Soft, Medical, Calm) */
+  --bg-primary: #f0f7ff;
+  /* Sky Blue Pastel background */
   --bg-secondary: #ffffff;
-  /* Pure white for cards/sidebar */
-  --bg-tertiary: #f1f5f9;
-  /* Light hover state */
+  /* Pure White for card clarity */
+  --bg-tertiary: #e0f2fe;
+  /* Very soft blue for hover states */
 
-  --text-primary: #0f172a;
-  /* Deep Navy for high contrast */
-  --text-secondary: #475569;
-  /* Slate gray for subtitles */
+  --text-primary: #1e3a8a;
+  /* Deep Navy for perfect readability */
+  --text-secondary: #64748b;
+  /* Slate gray */
   --text-muted: #94a3b8;
-  /* Light gray for low priority */
+  /* Soft gray */
 
-  /* Medical & Corporate Accents (Optimized for light mode) */
-  --medical-turquoise: #0891b2;
-  --turquoise-glow: rgba(8, 145, 178, 0.1);
-  --corporate-blue: #2563eb;
-  --success: #059669;
-  --warning: #d97706;
-  --danger: #dc2626;
+  /* Medical Accents in Pastel Context */
+  --medical-turquoise: #0ea5e9;
+  --turquoise-glow: rgba(14, 165, 233, 0.1);
+  --corporate-blue: #3b82f6;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
 
-  --border-color: #e2e8f0;
-  /* Soft elegant borders */
+  --border-color: #dbeafe;
+  /* Soft Pastel Blue border */
   --border-radius: 12px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 1px 3px rgba(30, 58, 138, 0.05);
+  --shadow-md: 0 10px 15px -3px rgba(30, 58, 138, 0.1);
 }
 
 * {
@@ -122,7 +122,7 @@ body {
 }
 
 .nav-item.active {
-  background-color: #eff6ff;
+  background-color: var(--bg-tertiary);
   color: var(--corporate-blue);
   font-weight: 600;
 }
