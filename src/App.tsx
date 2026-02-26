@@ -234,7 +234,7 @@ export default function App() {
             </p>
           </div>
           <div className="user-profile">
-            <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Dra. Yadira Pino</span>
+            <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Dra Yadira Pino</span>
             <div className="user-avatar">YP</div>
             <ChevronDown size={16} color="var(--text-secondary)" />
           </div>
