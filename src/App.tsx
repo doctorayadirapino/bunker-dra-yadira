@@ -199,6 +199,11 @@ export default function App() {
         </div>
 
         <nav className="nav-links">
+          <button className="new-eval-btn-sidebar" onClick={() => setShowForm(true)} style={{ marginBottom: '20px' }}>
+            <PlusCircle size={20} />
+            Nueva Evaluación
+          </button>
+
           <a href="#" className="nav-item active">
             <Activity size={20} />
             Dashboard
@@ -216,11 +221,6 @@ export default function App() {
             Vigilancia
           </a>
         </nav>
-
-        <button className="new-eval-btn" onClick={() => setShowForm(true)}>
-          <PlusCircle size={20} />
-          Nueva Evaluación
-        </button>
       </aside>
 
       {/* MAIN CONTENT */}
@@ -233,10 +233,16 @@ export default function App() {
               Sistema v23.0 conectado a Supabase Cloud (Datos Oficiales LOPCYMAT)
             </p>
           </div>
-          <div className="user-profile">
-            <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Dra. Yadira Pino</span>
-            <div className="user-avatar">YP</div>
-            <ChevronDown size={16} color="var(--text-secondary)" />
+          <div className="user-profile" style={{ gap: '20px' }}>
+            <button className="new-eval-btn-header" onClick={() => setShowForm(true)}>
+              <PlusCircle size={18} />
+              Nueva Evaluación
+            </button>
+            <div className="user-profile-data" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Dra. Yadira Pino</span>
+              <div className="user-avatar">YP</div>
+              <ChevronDown size={16} color="var(--text-secondary)" />
+            </div>
           </div>
         </header>
 
@@ -414,6 +420,6 @@ export default function App() {
 
       {/* MODAL DE NUEVA EVALUACIÓN (SUPABASE) */}
       {showForm && <NewEvaluationForm onClose={handleFormClose} />}
-    </div>
+    </div >
   );
 }
