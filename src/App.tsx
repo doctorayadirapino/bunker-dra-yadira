@@ -15,6 +15,7 @@ import NewEvaluationForm from './components/NewEvaluationForm';
 interface Paciente {
   sexo: string;
   nombre_completo: string;
+  fecha_nacimiento?: string;
 }
 
 interface Empresa {
@@ -44,6 +45,8 @@ export default function App() {
   const [topPathologies, setTopPathologies] = useState<{ name: string, v: number, c: string }[]>([]);
   const [trendData, setTrendData] = useState<any[]>([]);
   const [latestConsultations, setLatestConsultations] = useState<Consulta[]>([]);
+  const [demographicStats, setDemographicStats] = useState<any[]>([]);
+  const [absenteeismStats, setAbsenteeismStats] = useState<any[]>([]);
 
   // Función Core: Extraer y Masticar Datos
   const fetchDashboardData = async () => {
@@ -54,7 +57,7 @@ export default function App() {
         .from('consultas')
         .select(`
           id, tipo_consulta, tipo_patologia, categoria_reposo, dias_reposo, fecha_consulta,
-          pacientes (sexo, nombre_completo),
+          pacientes (sexo, nombre_completo, fecha_nacimiento),
           empresas (nombre, rif)
         `)
         .order('fecha_consulta', { ascending: false });
@@ -90,6 +93,16 @@ export default function App() {
         'Dic': { month: 'Dic', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
       };
 
+      // 3. Mapas demográficos (Edad y Sexo)
+      const ageGroups = ['18-25', '26-35', '36-45', '46-55', '55+'];
+      const demoMap: Record<string, any> = {};
+      const absentMap: Record<string, any> = {};
+
+      ageGroups.forEach(g => {
+        demoMap[g] = { group: g, Masc: 0, Fem: 0 };
+        absentMap[g] = { group: g, Masc: 0, Fem: 0 };
+      });
+
       data.forEach(row => {
         // KPI: Días de reposo general
         diasReposoTotal += row.dias_reposo || 0;
@@ -98,6 +111,33 @@ export default function App() {
         const d = new Date(row.fecha_consulta);
         if (d.getMonth() === mesActual && d.getFullYear() === añoActual) {
           consultasMes++;
+        }
+
+        // Lógica Demográfica
+        let age = 0;
+        if (row.pacientes?.fecha_nacimiento) {
+          const birth = new Date(row.pacientes.fecha_nacimiento);
+          age = new Date().getFullYear() - birth.getFullYear();
+        }
+
+        let group = '55+';
+        if (age < 26) group = '18-25';
+        else if (age < 36) group = '26-35';
+        else if (age < 46) group = '36-45';
+        else if (age < 56) group = '46-55';
+
+        const isMasc = row.pacientes?.sexo === 'Masculino';
+
+        // Patologías por Edad/Sexo
+        if (row.tipo_patologia !== 'Adulto sano') {
+          if (isMasc) demoMap[group].Masc++;
+          else demoMap[group].Fem++;
+        }
+
+        // Ausentismo por Edad/Sexo (Días acumulados)
+        if (row.dias_reposo > 0) {
+          if (isMasc) absentMap[group].Masc += row.dias_reposo;
+          else absentMap[group].Fem += row.dias_reposo;
         }
 
         // Gráfico 1: Sexo
@@ -141,6 +181,8 @@ export default function App() {
       // Calcular solo hasta el mes actual para la tendencia
       const finalTrend = Object.values(monthTrends).slice(0, mesActual + 1);
       setTrendData(finalTrend);
+      setDemographicStats(Object.values(demoMap));
+      setAbsenteeismStats(Object.values(absentMap));
 
       // Ultimas consultas (Máximo 5 para UI)
       setLatestConsultations(data.slice(0, 5));
@@ -362,6 +404,42 @@ export default function App() {
                       <Line type="monotone" name="Enf. Común" dataKey="enf_comun" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                       <Line type="monotone" name="Acc. Laboral" dataKey="acc_laboral" stroke="var(--danger)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                     </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Chart 5: PATOLOGÍAS POR EDAD Y SEXO */}
+              <div className="chart-card">
+                <h3 className="chart-title">Distribución de Patologías por Edad y Sexo</h3>
+                <div style={{ width: '100%', height: 260 }}>
+                  <ResponsiveContainer>
+                    <BarChart data={demographicStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="group" stroke="var(--text-secondary)" />
+                      <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                      <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
+                      <Legend />
+                      <Bar dataKey="Masc" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Hombres" />
+                      <Bar dataKey="Fem" fill="#22d3ee" radius={[4, 4, 0, 0]} name="Mujeres" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Chart 6: AUSENTISMO POR EDAD Y SEXO */}
+              <div className="chart-card">
+                <h3 className="chart-title">Ausentismo (Días) por Edad y Sexo</h3>
+                <div style={{ width: '100%', height: 260 }}>
+                  <ResponsiveContainer>
+                    <BarChart data={absenteeismStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                      <XAxis dataKey="group" stroke="var(--text-secondary)" />
+                      <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                      <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
+                      <Legend />
+                      <Bar dataKey="Masc" fill="#2563eb" radius={[4, 4, 0, 0]} name="Total Días Hombres" />
+                      <Bar dataKey="Fem" fill="#0ea5e9" radius={[4, 4, 0, 0]} name="Total Días Mujeres" />
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
