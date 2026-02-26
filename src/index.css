@@ -1,28 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Executive Slate Palette (The Perfect Middle Ground) */
-  --bg-primary: #1e293b;
-  /* Slate Navy */
-  --bg-secondary: #0f172a;
-  /* Deep Navy for Sidebar/Cards */
-  --bg-tertiary: #334155;
-  /* Interactive elements */
+  /* Clinical Pearl & Azure Palette (Light, Professional, Clean) */
+  --bg-primary: #f8fafc;
+  /* White-blue background */
+  --bg-secondary: #ffffff;
+  /* Pure white for cards/sidebar */
+  --bg-tertiary: #f1f5f9;
+  /* Light hover state */
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #0f172a;
+  /* Deep Navy for high contrast */
+  --text-secondary: #475569;
+  /* Slate gray for subtitles */
+  --text-muted: #94a3b8;
+  /* Light gray for low priority */
 
-  /* Medical & Corporate Accents */
-  --medical-turquoise: #22d3ee;
-  --turquoise-glow: rgba(34, 211, 238, 0.2);
-  --corporate-blue: #3b82f6;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
+  /* Medical & Corporate Accents (Optimized for light mode) */
+  --medical-turquoise: #0891b2;
+  --turquoise-glow: rgba(8, 145, 178, 0.1);
+  --corporate-blue: #2563eb;
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
 
-  --border-color: #334155;
+  --border-color: #e2e8f0;
+  /* Soft elegant borders */
   --border-radius: 12px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 * {
@@ -70,6 +76,7 @@ body {
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
 }
 
 .sidebar-header {
@@ -80,14 +87,14 @@ body {
 .brand-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--corporate-blue);
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
 .brand-icon {
-  color: var(--medical-turquoise);
+  color: var(--corporate-blue);
 }
 
 .nav-links {
@@ -111,20 +118,20 @@ body {
 
 .nav-item:hover {
   background-color: var(--bg-tertiary);
-  color: var(--text-primary);
+  color: var(--corporate-blue);
 }
 
 .nav-item.active {
-  background-color: var(--turquoise-glow);
-  color: var(--medical-turquoise);
-  border-right: 3px solid var(--medical-turquoise);
+  background-color: #eff6ff;
+  color: var(--corporate-blue);
+  font-weight: 600;
 }
 
 .new-eval-btn-sidebar {
   width: 100%;
-  background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none;
   padding: 14px;
   border-radius: 14px;
   font-weight: 700;
@@ -133,11 +140,12 @@ body {
   justify-content: center;
   gap: 12px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
-  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-  letter-spacing: 0.8px;
-  font-size: 0.8rem;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
   text-transform: uppercase;
+  margin-bottom: 24px;
 }
 
 .new-eval-btn-sidebar:hover {
@@ -209,12 +217,14 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .kpi-card:hover {
   transform: translateY(-4px);
-  border-color: var(--medical-turquoise);
+  box-shadow: var(--shadow-md);
+  border-color: var(--corporate-blue);
 }
 
 .kpi-header {
@@ -243,6 +253,7 @@ body {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 24px;
+  box-shadow: var(--shadow-sm);
 }
 
 .chart-title {
@@ -258,6 +269,7 @@ body {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 24px;
+  box-shadow: var(--shadow-sm);
 }
 
 .data-table {
@@ -268,10 +280,14 @@ body {
 
 .data-table th {
   text-align: left;
-  padding: 12px 16px;
+  padding: 14px 16px;
   color: var(--text-secondary);
-  font-weight: 600;
-  border-bottom: 1px solid var(--border-color);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  background-color: var(--bg-tertiary);
+  border-bottom: 2px solid var(--border-color);
 }
 
 .data-table td {
