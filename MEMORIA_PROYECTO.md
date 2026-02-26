@@ -7,9 +7,9 @@
 - **Despliegue:** Vercel Pro (`doctora-yadira-pino.vercel.app`) [Vínculo Activo]
 - **Seguridad:** Zero Trust / HIPAA Ready / RLS-First
 - **Infraestructura Cloud:** Supabase Project ID: `kbcwvtkstdxdbvygpwzr` (Búnker v23.0 - Salud Laboral)
-- **Estado de Auditoría (2026-02-26 08:26):** 
-    - Arquitectura: v23.4 Adición de Examen Físico (Transcripción Libre).
-    - Backend: Tabla 'consultas' ampliada con columna 'examen_fisico'.
+- **Estado de Auditoría (2026-02-26 08:30):** 
+    - Arquitectura: v23.5 Nuevos campos de contacto (Teléfono) y Riesgos Actuales.
+    - Backend: Sincronización de 'pacientes' y 'consultas' con nuevos metadatos.
     - Frontend: Dashboard Epidemiológico en Tiempo Real (Realtime Sync) conectado a Supabase.
     - Respaldo: Credenciales actualizadas en `CREDENTIALS_BACKUP.txt`.
 
@@ -29,6 +29,11 @@
 **CERTIFICACIÓN CARLOS FUENTES:** El sistema está preparado para la desconexión. La data ha sido entregada al usuario en formato maestro.
 
 ## 🗓️ Registro Histórico de Evoluciones Clave
+
+- [2026-02-26] **v23.5 - Integración de Contacto y Riesgos (Fase Final Carlos Fuentes):**
+    - Adición del campo "Número de Teléfono" en los datos del paciente.
+    - Implementación de "Riesgos a los que está expuesto" en los datos laborales actuales.
+    - Expansión de la base de datos Supabase para persistir estos nuevos datos de auditoría clínica.
 
 - [2026-02-26] **v23.4 - Módulo de Examen Físico (Requerimiento Carlos Fuentes):**
     - Implementación de un campo de texto enriquecido para Examen Físico antes de las observaciones.

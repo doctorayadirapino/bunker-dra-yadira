@@ -12,7 +12,7 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
     const [error, setError] = useState<string | null>(null);
 
     // Form State
-    const [paciente, setPaciente] = useState({ nombre_completo: '', cedula: '', sexo: 'Femenino', alergias: '', patologias_previas: '', fecha_nacimiento: '' });
+    const [paciente, setPaciente] = useState({ nombre_completo: '', cedula: '', sexo: 'Femenino', alergias: '', patologias_previas: '', fecha_nacimiento: '', telefono: '' });
     const [empresa, setEmpresa] = useState({ nombre: '', rif: '' });
     const [consulta, setConsulta] = useState({
         tipo_consulta: 'PRE-EMPLEO',
@@ -23,7 +23,8 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
         discapacidad_detectada: false,
         referencia_centro_especializado: '',
         aptitud_medica: 'APTO',
-        examen_fisico: ''
+        examen_fisico: '',
+        riesgos_ocupacionales: ''
     });
     const [antecedentes, setAntecedentes] = useState([
         { empresa: '', cargo: '', tiempo_servicio: '', riesgos_expuestos: '' },
@@ -97,7 +98,8 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                 discapacidad_detectada: consulta.discapacidad_detectada,
                 referencia_centro_especializado: consulta.referencia_centro_especializado,
                 aptitud_medica: consulta.aptitud_medica,
-                examen_fisico: consulta.examen_fisico
+                examen_fisico: consulta.examen_fisico,
+                riesgos_ocupacionales: consulta.riesgos_ocupacionales
             }]);
 
             if (errCons) throw errCons;
@@ -142,6 +144,7 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                         <div className="form-grid">
                             <input placeholder="Alergias Conocidas" value={paciente.alergias} onChange={e => setPaciente({ ...paciente, alergias: e.target.value })} />
                             <input placeholder="Patologías Previas" value={paciente.patologias_previas} onChange={e => setPaciente({ ...paciente, patologias_previas: e.target.value })} />
+                            <input placeholder="Número de Teléfono" value={paciente.telefono} onChange={e => setPaciente({ ...paciente, telefono: e.target.value })} />
                         </div>
                     </div>
 
@@ -151,6 +154,7 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                         <div className="form-grid">
                             <input required placeholder="Nombre de la Empresa" value={empresa.nombre} onChange={e => setEmpresa({ ...empresa, nombre: e.target.value })} />
                             <input required placeholder="RIF de la Empresa" value={empresa.rif} onChange={e => setEmpresa({ ...empresa, rif: e.target.value })} />
+                            <input placeholder="Riesgos a los que está expuesto (Actual)" value={consulta.riesgos_ocupacionales} onChange={e => setConsulta({ ...consulta, riesgos_ocupacionales: e.target.value })} />
                         </div>
                     </div>
 
