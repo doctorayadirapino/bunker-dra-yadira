@@ -7,9 +7,9 @@
 - **Despliegue:** Vercel Pro (`doctora-yadira-pino.vercel.app`) [Vínculo Activo]
 - **Seguridad:** Zero Trust / HIPAA Ready / RLS-First
 - **Infraestructura Cloud:** Supabase Project ID: `kbcwvtkstdxdbvygpwzr` (Búnker v23.0 - Salud Laboral)
-- **Estado de Auditoría (2026-02-26 08:05):** 
-    - Arquitectura: v23.3 Implementación de Aptitud Médica (Dictamen Final).
-    - Backend: Búnker actualizado con columna 'aptitud_medica' y validaciones v23.2.
+- **Estado de Auditoría (2026-02-26 08:26):** 
+    - Arquitectura: v23.4 Adición de Examen Físico (Transcripción Libre).
+    - Backend: Tabla 'consultas' ampliada con columna 'examen_fisico'.
     - Frontend: Dashboard Epidemiológico en Tiempo Real (Realtime Sync) conectado a Supabase.
     - Respaldo: Credenciales actualizadas en `CREDENTIALS_BACKUP.txt`.
 
@@ -29,6 +29,11 @@
 **CERTIFICACIÓN CARLOS FUENTES:** El sistema está preparado para la desconexión. La data ha sido entregada al usuario en formato maestro.
 
 ## 🗓️ Registro Histórico de Evoluciones Clave
+
+- [2026-02-26] **v23.4 - Módulo de Examen Físico (Requerimiento Carlos Fuentes):**
+    - Implementación de un campo de texto enriquecido para Examen Físico antes de las observaciones.
+    - Configuración de transcripción libre sin limitaciones de caracteres para la doctora.
+    - Sincronización de base de datos y despliegue forzado.
 
 - [2026-02-26] **v23.3 - Integración de Aptitud Médica (Petición Carlos Fuentes):**
     - Creación de la sección "Certificado de Aptitud" al final del formulario institucional.
