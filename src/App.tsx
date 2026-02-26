@@ -48,11 +48,126 @@ export default function App() {
   const [demographicStats, setDemographicStats] = useState<any[]>([]);
   const [absenteeismStats, setAbsenteeismStats] = useState<any[]>([]);
 
+  // Estados para Multi-Empresa
+  const [allConsultations, setAllConsultations] = useState<Consulta[]>([]);
+  const [availableCompanies, setAvailableCompanies] = useState<string[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<string>('GENERAL');
+
   // Función Core: Extraer y Masticar Datos
+  // Función para procesar reportes por segmento (General o Empresa específica)
+  const processAnalytics = (data: Consulta[], filterCompany: string) => {
+    const filtered = filterCompany === 'GENERAL'
+      ? data
+      : data.filter(c => c.empresas?.nombre === filterCompany);
+
+    const mesActual = new Date().getMonth();
+    const añoActual = new Date().getFullYear();
+    let consultasMes = 0;
+    let diasReposoTotal = 0;
+
+    // Agrupadores
+    let mCount = 0, fCount = 0;
+    const consulMap: Record<string, number> = {};
+    const patMap: Record<string, number> = {};
+    const monthTrends: Record<string, any> = {
+      'Ene': { month: 'Ene', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'Feb': { month: 'Feb', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'Mar': { month: 'Mar', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'Abr': { month: 'Abr', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'May': { month: 'May', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'Jun': { month: 'Jun', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'Jul': { month: 'Jul', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'Ago': { month: 'Ago', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'Sep': { month: 'Sep', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'Oct': { month: 'Oct', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'Nov': { month: 'Nov', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+      'Dic': { month: 'Dic', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
+    };
+
+    const ageGroups = ['18-25', '26-35', '36-45', '46-55', '55+'];
+    const demoMap: Record<string, any> = {};
+    const absentMap: Record<string, any> = {};
+    ageGroups.forEach(g => {
+      demoMap[g] = { group: g, Masc: 0, Fem: 0 };
+      absentMap[g] = { group: g, Masc: 0, Fem: 0 };
+    });
+
+    const uniquePatients = new Set();
+
+    filtered.forEach(row => {
+      diasReposoTotal += row.dias_reposo || 0;
+      const d = new Date(row.fecha_consulta);
+      if (d.getMonth() === mesActual && d.getFullYear() === añoActual) consultasMes++;
+
+      // Paciente Único (Simulando conteo por filtrado)
+      uniquePatients.add(row.pacientes?.nombre_completo);
+
+      // Demografía
+      let age = 0;
+      if (row.pacientes?.fecha_nacimiento) {
+        const birth = new Date(row.pacientes.fecha_nacimiento);
+        age = new Date().getFullYear() - birth.getFullYear();
+      }
+      let group = '55+';
+      if (age < 26) group = '18-25';
+      else if (age < 36) group = '26-35';
+      else if (age < 46) group = '36-45';
+      else if (age < 56) group = '46-55';
+
+      const isMasc = row.pacientes?.sexo === 'Masculino';
+      if (isMasc) mCount++; else fCount++;
+
+      if (row.tipo_patologia !== 'Adulto sano') {
+        if (isMasc) demoMap[group].Masc++; else demoMap[group].Fem++;
+      }
+      if (row.dias_reposo > 0) {
+        if (isMasc) absentMap[group].Masc += row.dias_reposo; else absentMap[group].Fem += row.dias_reposo;
+      }
+
+      consulMap[row.tipo_consulta] = (consulMap[row.tipo_consulta] || 0) + 1;
+      patMap[row.tipo_patologia] = (patMap[row.tipo_patologia] || 0) + 1;
+
+      const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      const mName = monthNames[d.getMonth()];
+      if (monthTrends[mName]) {
+        if (row.categoria_reposo === 'ENFERMEDAD COMUN') monthTrends[mName].enf_comun++;
+        if (row.categoria_reposo === 'ACCIDENTE LABORAL') monthTrends[mName].acc_laboral++;
+        if (row.categoria_reposo === 'ENFERMEDAD OCUPACIONAL') monthTrends[mName].enf_ocupacional++;
+        if (row.categoria_reposo === 'ACCIDENTE COMUN') monthTrends[mName].acc_comun++;
+      }
+    });
+
+    // Seteo de Estados de Gráficos
+    setGenderData([
+      { name: 'Masculino', value: mCount, color: '#3b82f6' },
+      { name: 'Femenino', value: fCount, color: '#0bdada' }
+    ]);
+
+    const cData = Object.keys(consulMap).map(k => ({ name: k, val: consulMap[k] })).sort((a, b) => b.val - a.val).slice(0, 5);
+    setConsultationData(cData.length ? cData : [{ name: 'Sin Datos', val: 0 }]);
+
+    const colorsArr = ['#ef4444', '#f59e0b', '#3b82f6', '#22d3ee'];
+    const pData = Object.keys(patMap).map(k => ({ name: k, v: patMap[k] })).sort((a, b) => b.v - a.v).slice(0, 4).map((item, idx) => ({ ...item, c: colorsArr[idx % 4] }));
+    setTopPathologies(pData);
+    setTrendData(Object.values(monthTrends).slice(0, mesActual + 1));
+    setDemographicStats(Object.values(demoMap));
+    setAbsenteeismStats(Object.values(absentMap));
+    setLatestConsultations(filtered.slice(0, 10));
+
+    const totalPac = filterCompany === 'GENERAL' ? uniquePatients.size : uniquePatients.size;
+    const ausent = ((diasReposoTotal / ((totalPac || 1) * 20)) * 100).toFixed(1);
+
+    setKpis({
+      total_pacientes: totalPac,
+      consultas_mes: consultasMes,
+      dias_reposo: diasReposoTotal,
+      ausentismo: parseFloat(ausent)
+    });
+  };
+
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // Pedimos todas las consultas con las relaciones de pacientes y empresas
       const { data: rawData, error } = await supabase
         .from('consultas')
         .select(`
@@ -64,140 +179,12 @@ export default function App() {
 
       if (error) throw error;
       const data = (rawData || []) as unknown as Consulta[];
+      setAllConsultations(data);
 
-      // 1. Calcular KPIs
-      const mesActual = new Date().getMonth();
-      const añoActual = new Date().getFullYear();
-      let consultasMes = 0;
-      let diasReposoTotal = 0;
+      const comps = Array.from(new Set(data.map(c => c.empresas?.nombre).filter(Boolean)));
+      setAvailableCompanies(comps as string[]);
 
-      // Contar pacientes únicos (Simulación rápida vía Set)
-      const { count: pacientesCount } = await supabase.from('pacientes').select('*', { count: 'exact', head: true });
-
-      // 2. Agrupadores
-      let mCount = 0, fCount = 0;
-      const consulMap: Record<string, number> = {};
-      const patMap: Record<string, number> = {};
-      const monthTrends: Record<string, any> = {
-        'Ene': { month: 'Ene', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'Feb': { month: 'Feb', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'Mar': { month: 'Mar', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'Abr': { month: 'Abr', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'May': { month: 'May', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'Jun': { month: 'Jun', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'Jul': { month: 'Jul', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'Ago': { month: 'Ago', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'Sep': { month: 'Sep', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'Oct': { month: 'Oct', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'Nov': { month: 'Nov', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-        'Dic': { month: 'Dic', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
-      };
-
-      // 3. Mapas demográficos (Edad y Sexo)
-      const ageGroups = ['18-25', '26-35', '36-45', '46-55', '55+'];
-      const demoMap: Record<string, any> = {};
-      const absentMap: Record<string, any> = {};
-
-      ageGroups.forEach(g => {
-        demoMap[g] = { group: g, Masc: 0, Fem: 0 };
-        absentMap[g] = { group: g, Masc: 0, Fem: 0 };
-      });
-
-      data.forEach(row => {
-        // KPI: Días de reposo general
-        diasReposoTotal += row.dias_reposo || 0;
-
-        // KPI: Consultas del Mes
-        const d = new Date(row.fecha_consulta);
-        if (d.getMonth() === mesActual && d.getFullYear() === añoActual) {
-          consultasMes++;
-        }
-
-        // Lógica Demográfica
-        let age = 0;
-        if (row.pacientes?.fecha_nacimiento) {
-          const birth = new Date(row.pacientes.fecha_nacimiento);
-          age = new Date().getFullYear() - birth.getFullYear();
-        }
-
-        let group = '55+';
-        if (age < 26) group = '18-25';
-        else if (age < 36) group = '26-35';
-        else if (age < 46) group = '36-45';
-        else if (age < 56) group = '46-55';
-
-        const isMasc = row.pacientes?.sexo === 'Masculino';
-
-        // Patologías por Edad/Sexo
-        if (row.tipo_patologia !== 'Adulto sano') {
-          if (isMasc) demoMap[group].Masc++;
-          else demoMap[group].Fem++;
-        }
-
-        // Ausentismo por Edad/Sexo (Días acumulados)
-        if (row.dias_reposo > 0) {
-          if (isMasc) absentMap[group].Masc += row.dias_reposo;
-          else absentMap[group].Fem += row.dias_reposo;
-        }
-
-        // Gráfico 1: Sexo
-        if (row.pacientes?.sexo === 'Masculino') mCount++;
-        if (row.pacientes?.sexo === 'Femenino') fCount++;
-
-        // Gráfico 2: Tipo Consulta
-        consulMap[row.tipo_consulta] = (consulMap[row.tipo_consulta] || 0) + 1;
-
-        // Gráfico 3: Patologías
-        patMap[row.tipo_patologia] = (patMap[row.tipo_patologia] || 0) + 1;
-
-        // Gráfico 4: Tendencias (Mes a Mes)
-        const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        const mName = monthNames[d.getMonth()];
-        if (monthTrends[mName]) {
-          if (row.categoria_reposo === 'ENFERMEDAD COMUN') monthTrends[mName].enf_comun++;
-          if (row.categoria_reposo === 'ACCIDENTE LABORAL') monthTrends[mName].acc_laboral++;
-          if (row.categoria_reposo === 'ENFERMEDAD OCUPACIONAL') monthTrends[mName].enf_ocupacional++;
-          if (row.categoria_reposo === 'ACCIDENTE COMUN') monthTrends[mName].acc_comun++;
-        }
-      });
-
-      // Formatear para Recharts
-      setGenderData([
-        { name: 'Masculino', value: mCount, color: '#3b82f6' },
-        { name: 'Femenino', value: fCount, color: '#0bdada' }
-      ]);
-
-      const cData = Object.keys(consulMap).map(k => ({ name: k, val: consulMap[k] })).sort((a, b) => b.val - a.val).slice(0, 5);
-      setConsultationData(cData.length ? cData : [{ name: 'Sin Datos', val: 0 }]);
-
-      const colors = ['var(--danger)', 'var(--warning)', 'var(--corporate-blue)', 'var(--medical-turquoise)'];
-      const pData = Object.keys(patMap)
-        .map(k => ({ name: k, v: patMap[k] }))
-        .sort((a, b) => b.v - a.v)
-        .slice(0, 4)
-        .map((item, idx) => ({ ...item, c: colors[idx % 4] }));
-      setTopPathologies(pData);
-
-      // Calcular solo hasta el mes actual para la tendencia
-      const finalTrend = Object.values(monthTrends).slice(0, mesActual + 1);
-      setTrendData(finalTrend);
-      setDemographicStats(Object.values(demoMap));
-      setAbsenteeismStats(Object.values(absentMap));
-
-      // Ultimas consultas (Máximo 5 para UI)
-      setLatestConsultations(data.slice(0, 5));
-
-      // Simulamos Ausentismo (Ecuación rápida: Días Reposo / (Pacientes * 20 días hábiles)) * 100
-      const totalPac = pacientesCount || 0;
-      const pacForAusentismo = totalPac === 0 ? 1 : totalPac;
-      const ausent = ((diasReposoTotal / (pacForAusentismo * 20)) * 100).toFixed(1);
-
-      setKpis({
-        total_pacientes: totalPac,
-        consultas_mes: consultasMes,
-        dias_reposo: diasReposoTotal,
-        ausentismo: parseFloat(ausent)
-      });
+      processAnalytics(data, selectedCompany);
 
     } catch (err) {
       console.error("Error cargando Búnker Data:", err);
@@ -208,19 +195,20 @@ export default function App() {
 
   useEffect(() => {
     fetchDashboardData();
-
-    // Sincronización en Tiempo Real: Si alguien agrega consulta, refrescar!
     const channel = supabase.channel('schema-db-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
-        console.log("Detectado nuevo ingreso en el Búnker. Recalculando Inteligencia...");
         fetchDashboardData();
       })
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
+
+  // Efecto para re-procesar cuando cambie el filtro
+  useEffect(() => {
+    if (allConsultations.length > 0) {
+      processAnalytics(allConsultations, selectedCompany);
+    }
+  }, [selectedCompany]);
 
   const handleFormClose = () => {
     setShowForm(false);
@@ -269,11 +257,28 @@ export default function App() {
       <main className="main-content">
         {/* HEADER */}
         <header className="top-bar">
-          <div>
-            <h2 className="page-title">Centro de Mando Epidemiológico</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
-              Sistema v23.0 conectado a Supabase Cloud (Datos Oficiales LOPCYMAT)
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div>
+              <h2 className="page-title">Centro de Mando Epidemiológico</h2>
+              <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
+                Sistema v23.0 conectado a Supabase Cloud (Oficial)
+              </p>
+            </div>
+
+            {/* Filtro Maestro de Empresa */}
+            <div style={{ marginLeft: '20px', padding: '4px 12px', background: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <BriefcaseMedical size={18} color="var(--medical-turquoise)" />
+              <select
+                value={selectedCompany}
+                onChange={(e) => setSelectedCompany(e.target.value)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 600, outline: 'none', cursor: 'pointer', minWidth: '150px' }}
+              >
+                <option value="GENERAL" style={{ background: 'var(--bg-primary)' }}>📊 VISTA GENERAL</option>
+                {availableCompanies.map(c => (
+                  <option key={c} value={c} style={{ background: 'var(--bg-primary)' }}>🏢 {c}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="user-profile">
             <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Dra Yadira Pino</span>
@@ -289,9 +294,9 @@ export default function App() {
           <>
             {/* KPIs */}
             <section className="kpi-grid">
-              <div className="kpi-card">
+              <div className="kpi-card" style={{ borderLeft: '4px solid var(--corporate-blue)' }}>
                 <div className="kpi-header">
-                  <span>Total Pacientes (Nativos)</span>
+                  <span>{selectedCompany === 'GENERAL' ? 'Pacientes (Universo Total)' : `Personal (${selectedCompany})`}</span>
                   <Users size={20} color="var(--corporate-blue)" />
                 </div>
                 <div className="kpi-value">{kpis.total_pacientes}</div>
@@ -447,7 +452,9 @@ export default function App() {
 
             {/* EPIDEMIOLOGICAL TABLE */}
             <section className="data-table-card">
-              <h3 className="chart-title" style={{ marginBottom: 8 }}>Vigilancia Epidemiológica - Histórico Oficial</h3>
+              <h3 className="chart-title" style={{ marginBottom: 8 }}>
+                {selectedCompany === 'GENERAL' ? 'Vigilancia Epidemiológica - Histórico General' : `Histórico de Consultas - ${selectedCompany}`}
+              </h3>
               {latestConsultations.length === 0 ? (
                 <p style={{ color: 'var(--text-secondary)' }}>No se han ingresado consultas médicas al búnker v23.0.</p>
               ) : (
