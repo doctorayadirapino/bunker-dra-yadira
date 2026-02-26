@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import {
   Activity, Users, FileText, CalendarDays, AlertTriangle,
-  PlusCircle, BriefcaseMedical, Stethoscope, ChevronDown
+  PlusCircle, BriefcaseMedical, Stethoscope
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip as RechartsTooltip,
@@ -236,7 +236,6 @@ export default function App() {
           <div className="user-profile">
             <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Dra Yadira Pino</span>
             <div className="user-avatar">YP</div>
-            <ChevronDown size={16} color="var(--text-secondary)" />
           </div>
         </header>
 
