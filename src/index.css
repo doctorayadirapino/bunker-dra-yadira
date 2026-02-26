@@ -2,14 +2,17 @@
 
 :root {
   /* Dark Mode Palette */
-  --bg-primary: #0a0e17;     /* Deep dark background */
-  --bg-secondary: #121826;   /* Cards and sidebars */
-  --bg-tertiary: #1b2333;    /* Hover states */
-  
+  --bg-primary: #0a0e17;
+  /* Deep dark background */
+  --bg-secondary: #121826;
+  /* Cards and sidebars */
+  --bg-tertiary: #1b2333;
+  /* Hover states */
+
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  
+
   /* Medical & Corporate Accents */
   --medical-turquoise: #0bdada;
   --turquoise-glow: rgba(11, 218, 218, 0.2);
@@ -40,13 +43,16 @@ body {
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--bg-tertiary);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
@@ -290,4 +296,67 @@ body {
 .badge-info {
   background-color: var(--turquoise-glow);
   color: var(--medical-turquoise);
+}
+
+/* RESPONSIVE DESIGN (BUNKER MOBILE) */
+@media (max-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .nav-links {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .nav-item {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .new-eval-btn-sidebar {
+    margin: 12px;
+    width: auto;
+  }
+
+  .main-content {
+    padding: 20px 16px;
+  }
+
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .data-table-card {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 600px;
+  }
 }
