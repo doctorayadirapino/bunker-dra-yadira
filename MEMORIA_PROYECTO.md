@@ -155,22 +155,25 @@
 2. **Hard-Mount de Módulos:** Inyección de `key` props en componentes para forzar destrucción de DOM y evitar congelamientos.
 3. **Smooth Transitions:** Implementación de `.view-transition-wrapper` con animación `fadeIn`.
 
-### 📌 Sesión Nocturna (20:00 - Actual VET) — Conexión Vercel/GitHub y Null-Safety (v30.2)
+### 📌 Sesión Nocturna (20:00 - Actual VET) — Conexión Vercel/GitHub, Null-Safety (v30.2) y MCP (v30.3)
 1. **Restauración de CI/CD (Despliegue Continuo):** Se re-inicializó el repositorio local con Git y se vinculó exitosamente a `https://github.com/doctorayadirapino/bunker-dra-yadira.git` utilizando un Fine-Grained Personal Access Token (PAT) con permisos de Lectura/Escritura. Esto rehabilitó los despliegues automáticos a Vercel.
 2. **Fijación de Z-Index:** Se corrigió el solapamiento de capas inyectando `position: relative` y `z-index: 50` al Sidebar en `index.css`.
 3. **Null-Safety Architect (Escudo Anti-Cuelgues):** Se detectó que el render colapsaba silenciosamente al interactuar con datos de prueba nulos o incompletos provenientes del backend. Se inyectó _Optional Chaining_ (`?.`) y conversiones forzadas a String `(c.nombre || '').toString()` en las funciones de filtro e iteración en `App.tsx`, `PatientsList.tsx`, `CompaniesModule.tsx` y `SurveillanceModule.tsx`.
+4. **Configuración Inicial MCP Supabase:** Se inyectó el token PAT y el servidor `@supabase/mcp-server-supabase` en `mcp_config.json`. La sincronización GitHub->Vercel fue exitosa, pero **el arranque del servidor MCP local reporta fallas (no funciona)**.
 
 ### 🚨 ¿Qué quedó pendiente? (CONTROL PARA EL SIGUIENTE CICLO)
+- **Diagnóstico MCP Supabase (PRIORIDAD 0):** La configuración añadida en `mcp_config.json` para invocar `@supabase/mcp-server-supabase` a través de npx no está funcionando. Se debe revisar la documentación de MCP, verificar si faltan propiedades en el JSON (ej. `SUPABASE_URL`, `SUPABASE_ANON_KEY`) o si existe algún conflicto de versión en NPM.
 - **Validación Externa:** Confirmar que la versión en Vercel opera fluidamente tras el último despliegue automático.
 - **Preparar Backup de Producción:** Asegurar las copias de seguridad una vez la versión 30.2 del UI esté validada.
 
 ### 🧠 Notas para el próximo agente:
-- **ESTADO DE LA ARQUITECTURA:** Sistema de navegación blindado y protegido contra colapsos por Data Nula (v30.2). Despliegue CI/CD restablecido al 100% mediante GitHub.
+- **ESTADO DE LA ARQUITECTURA:** Sistema de navegación blindado (v30.2). Despliegue CI/CD restablecido al 100% mediante GitHub y fluyendo hacia Vercel en tiempo real.
+- **ESTADO MCP (ROTO):** El archivo local `mcp_config.json` contiene un token válido de Supabase, **pero el servidor no arranca**. Empieza tu sesión investigando el CLI de Supabase MCP e intenta correrlo por terminal por tu cuenta para capturar el error. No expongas el archivo a GitHub.
 - **ESTADO MULTI-EMPRESA:** El Búnker está lleno de datos de prueba inyectados (Pacientes, Consultas, Empresas). El selector superior filtra todo. NO TOCAR ESTOS DATOS a menos que sea estrictamente necesario.
-- **VERSIÓN ACTUAL ANTES DEL REINICIO:** v30.3 (Configuración MCP Supabase).
+- **VERSIÓN ACTUAL ANTES DEL REINICIO:** v30.3 (Configuración MCP Supabase - Pendiente Debug).
 
 ---
-**CERTIFICACIÓN DE SESIÓN (MODIFICACIÓN DE ARQUITECTURA): 26/02/2026**
-**"Arquitectura v30.3. Servidor MCP de Supabase habilitado y asegurado vía Personal Access Token con npx. Autorización afirmativa de Carlos Fuentes confirmada."**
+**CERTIFICACIÓN DE CIERRE DE SESIÓN: 26/02/2026**
+**"Arquitectura v30.3. Pipelines de despliegue garantizados. La integración MCP local reporta fallo de inicio y queda registrada como Objetivo Primario del siguiente turno. Todo el trabajo fue consolidado y guardado en memoria."**
 **Firmado: Syntax Software (Arquitecto AI Senior)**
 
