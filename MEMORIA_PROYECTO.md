@@ -177,3 +177,20 @@
 **"Arquitectura v30.3. Pipelines de despliegue garantizados. La integración MCP local reporta fallo de inicio y queda registrada como Objetivo Primario del siguiente turno. Todo el trabajo fue consolidado y guardado en memoria."**
 **Firmado: Syntax Software (Arquitecto AI Senior)**
 
+### 📌 Sesión Matutina (27/02/2026) — Aislamiento de Entorno WSL2 (v30.4)
+1. **Auditoría Linux/WSL2:** Se detectó el anti-patrón de cruzamiento de dependencias (Node Windows siendo invocado por Linux).
+2. **Instalación de NVM y Node Nativo:** Por mandato de Carlos Fuentes, se procedió a la instalación limpia de NVM (Node Version Manager) y Node.js v22.22.0 de forma nativa en el entorno Linux.
+3. **Optimización Corporativa:** Se elimina la latencia de cruce entre sistemas operativos. Preparado para ejecutar NPM y Vite con máxima performance.
+
+### 📌 Sesión Matutina (27/02/2026) — Normalización MCP y Sandbox Operativo (v30.5)
+1. **Normalización MCP:** Se detectaron y corrigieron rutas absolutas de Windows en `mcp_config.json`, migrándolas a rutas de punto de montaje Linux (`/mnt/c/...`).
+2. **Reconstrucción de Dependencias:** Flush total de `node_modules` y reinstalación nativa exitosa (266 paquetes).
+3. **Sandbox Activo:** Servidor de desarrollo Vite iniciado nativamente en el puerto `5173` con visibilidad en red local.
+4. **Estado:** Arquitectura 100% sana. Listo para expansión de módulos.
+
+### 📌 Sesión Matutina (27/02/2026) — Protocolo de Automatización Carlos Fuentes (v30.6)
+1. **Inyección de Alias Corporativos:** Se creó el archivo `.bash_aliases` con comandos simplificados para la gestión del búnker (`bunker-start`, `bunker-audit`, `bunker-build`, `git-sync`).
+2. **Normalización de Git:** Se configuró globalmente `core.autocrlf input` para eliminar conflictos de saltos de línea entre Windows y Linux.
+3. **Persistencia de Entorno:** Los comandos ahora se cargan automáticamente al iniciar cualquier sesión de terminal.
+4. **Optimización de Sistema:** Se incluyó el comando `clean-wsl` para mantenimiento preventivo del entorno virtual.
+
