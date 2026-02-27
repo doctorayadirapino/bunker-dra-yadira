@@ -38,6 +38,11 @@
 
 ## 🗓️ Registro Histórico de Evoluciones Clave
 
+- [2026-02-26] **v30.3 - Configuración MCP Supabase (Mandato Carlos Fuentes):**
+    - Integración del Model Context Protocol (MCP) para Supabase utilizando `@supabase/mcp-server-supabase`.
+    - Inyección de Personal Access Token en `mcp_config.json` vía entorno para mantener la seguridad Zero Trust y acceso restrictivo.
+    - Modificación ejecutada tras recabar consentimiento afirmativo ("Sí").
+
 - [2026-02-26] **v30.0 - Activación de Suite Integral (Mandato Carlos Fuentes):**
     - Lanzamiento de `CompaniesModule.tsx`: Auditoría de personal por cliente y gestión de RIF/Sedes.
     - Saneamiento de Arquitectura: Corrección de lógica de vistas en `App.tsx` para navegación instantánea.
@@ -162,10 +167,10 @@
 ### 🧠 Notas para el próximo agente:
 - **ESTADO DE LA ARQUITECTURA:** Sistema de navegación blindado y protegido contra colapsos por Data Nula (v30.2). Despliegue CI/CD restablecido al 100% mediante GitHub.
 - **ESTADO MULTI-EMPRESA:** El Búnker está lleno de datos de prueba inyectados (Pacientes, Consultas, Empresas). El selector superior filtra todo. NO TOCAR ESTOS DATOS a menos que sea estrictamente necesario.
-- **VERSIÓN ACTUAL ANTES DEL REINICIO:** v30.2 (Null-Safety Navigation Hotfix).
+- **VERSIÓN ACTUAL ANTES DEL REINICIO:** v30.3 (Configuración MCP Supabase).
 
 ---
-**CERTIFICACIÓN DE SESIÓN (HOTFIX): 26/02/2026**
-**"Arquitectura v30.2 compilada. Búnker conectado y escudo protector activo contra datos nulos en React. Vías de CI/CD vía GitHub habilitadas en su totalidad."**
+**CERTIFICACIÓN DE SESIÓN (MODIFICACIÓN DE ARQUITECTURA): 26/02/2026**
+**"Arquitectura v30.3. Servidor MCP de Supabase habilitado y asegurado vía Personal Access Token con npx. Autorización afirmativa de Carlos Fuentes confirmada."**
 **Firmado: Syntax Software (Arquitecto AI Senior)**
 
