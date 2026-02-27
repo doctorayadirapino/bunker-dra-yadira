@@ -498,7 +498,7 @@ export default function App() {
                             <td>
                               {cons.categoria_reposo === 'NINGUNO' ? (
                                 <span className="badge badge-info">SIN REPOSO</span>
-                              ) : cons.categoria_reposo.includes('ACCIDENTE') ? (
+                              ) : (cons.categoria_reposo || '').includes('ACCIDENTE') ? (
                                 <span className="badge badge-danger">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
                               ) : (
                                 <span className="badge badge-warning">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>

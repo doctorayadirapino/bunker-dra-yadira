@@ -30,8 +30,8 @@ export default function CompaniesModule() {
     };
 
     const filtered = companies.filter(c =>
-        c.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        c.rif.toLowerCase().includes(search.toLowerCase())
+        (c.nombre || '').toString().toLowerCase().includes(search.toLowerCase()) ||
+        (c.rif || '').toString().toLowerCase().includes(search.toLowerCase())
     );
 
     return (

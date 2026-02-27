@@ -26,8 +26,8 @@ export default function PatientsList() {
     };
 
     const filteredPatients = patients.filter(p =>
-        p.nombre_completo.toLowerCase().includes(search.toLowerCase()) ||
-        p.cedula.includes(search)
+        (p.nombre_completo || '').toString().toLowerCase().includes(search.toLowerCase()) ||
+        (p.cedula || '').toString().includes(search)
     );
 
     return (
