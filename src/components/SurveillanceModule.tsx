@@ -174,7 +174,7 @@ export default function SurveillanceModule() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {analytics?.topPathologies.map((p: any, i: number) => (
+                                {analytics?.topPathologies?.map((p: any, i: number) => (
                                     <tr key={i} style={{ borderBottom: '1px solid var(--border-color)' }}>
                                         <td style={{ padding: '15px', color: 'var(--text-primary)', fontWeight: 600 }}>{p.name}</td>
                                         <td style={{ padding: '15px', color: 'var(--text-primary)', textAlign: 'center' }}>{p.value}</td>

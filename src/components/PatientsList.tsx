@@ -171,7 +171,7 @@ export default function PatientsList() {
                         <h4 style={{ color: 'var(--text-primary)', marginBottom: '15px', borderBottom: '2px solid var(--border-color)', paddingBottom: '8px' }}>Evolución de Aptitud Médica</h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {selectedPatient.consultas?.length > 0 ? (
-                                [...selectedPatient.consultas].sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map((c: any, i: number) => (
+                                [...(selectedPatient.consultas || [])].sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map((c: any, i: number) => (
                                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '15px', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                                         <div>
                                             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>{new Date(c.created_at).toLocaleDateString()}</span>
