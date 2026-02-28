@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import {
   Activity, Users, FileText, CalendarDays, AlertTriangle,
-  PlusCircle, BriefcaseMedical, Stethoscope
+  PlusCircle, BriefcaseMedical, Stethoscope, Printer, LogOut
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip as RechartsTooltip,
@@ -13,6 +13,10 @@ import NewEvaluationForm from './components/NewEvaluationForm';
 import PatientsList from './components/PatientsList';
 import SurveillanceModule from './components/SurveillanceModule';
 import CompaniesModule from './components/CompaniesModule';
+import ConsultasModule from './components/ConsultasModule';
+import ReposoModulo from './components/ReposoModulo';
+import Login from './components/Login';
+import type { Session } from '@supabase/supabase-js';
 
 // Definición de Interfaces para TypeScript
 interface Paciente {
@@ -41,8 +45,9 @@ export default function App() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState('dashboard');
+  const [session, setSession] = useState<Session | null>(null);
 
-  // Estados de Datos Reales (Búnker Supabase)
+  // Estados de Datos Reales (Supabase Cloud)
   const [kpis, setKpis] = useState({ total_pacientes: 0, consultas_mes: 0, dias_reposo: 0, ausentismo: 0 });
   const [genderData, setGenderData] = useState<{ name: string, value: number, color: string }[]>([]);
   const [consultationData, setConsultationData] = useState<{ name: string, val: number }[]>([]);
@@ -191,21 +196,37 @@ export default function App() {
       processAnalytics(data, selectedCompany);
 
     } catch (err) {
-      console.error("Error cargando Búnker Data:", err);
+      console.error("Error cargando datos:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDashboardData();
-    const channel = supabase.channel('schema-db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
-        fetchDashboardData();
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    // 1. Obtener sesión inicial
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // 2. Escuchar cambios de autenticación
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (session) {
+      fetchDashboardData();
+      const channel = supabase.channel('schema-db-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
+          fetchDashboardData();
+        })
+        .subscribe();
+      return () => { supabase.removeChannel(channel); };
+    }
+  }, [session]);
 
   // Efecto para re-procesar cuando cambie el filtro
   useEffect(() => {
@@ -219,6 +240,15 @@ export default function App() {
     // El realtime trigger recargará la data automáticamente, pero forzamos por si acaso
     fetchDashboardData();
   };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error("Error al salir del sistema:", error);
+  };
+
+  if (!session) {
+    return <Login />;
+  }
 
   // Renderización UI
   return (
@@ -266,6 +296,31 @@ export default function App() {
             <FileText size={20} />
             Vigilancia
           </button>
+          <button
+            className={`nav-item ${activeView === 'consultas' ? 'active' : ''}`}
+            onClick={() => setActiveView('consultas')}
+          >
+            <Printer size={20} />
+            Consultas
+          </button>
+          <button
+            className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`}
+            onClick={() => setActiveView('reposo')}
+          >
+            <CalendarDays size={20} />
+            Reposo Médico
+          </button>
+
+          <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
+            <button
+              className="nav-item"
+              onClick={handleLogout}
+              style={{ color: 'var(--danger)', width: '100%', marginBottom: 0 }}
+            >
+              <LogOut size={20} />
+              Cerrar Sesión
+            </button>
+          </div>
         </nav>
       </aside>
 
@@ -277,7 +332,7 @@ export default function App() {
             <div>
               <h2 className="page-title">Centro de Mando Epidemiológico</h2>
               <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
-                Sistema v23.0 conectado a Supabase Cloud (Oficial)
+                Conectado a Cloud (Oficial)
               </p>
             </div>
 
@@ -297,14 +352,17 @@ export default function App() {
             </div>
           </div>
           <div className="user-profile">
-            <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Dra Yadira Pino</span>
-            <div className="user-avatar">YP</div>
+            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Dra. Yadira Pino</span>
+              <span style={{ color: 'var(--medical-turquoise)', fontSize: '0.7rem', fontWeight: 700 }}>FISIATRA CMDMC</span>
+            </div>
+            <div className="user-avatar" style={{ background: 'linear-gradient(135deg, var(--doctora-pink), var(--corporate-blue))', color: 'white' }}>YP</div>
           </div>
         </header>
 
         {loading ? (
           <div style={{ color: 'var(--corporate-blue)', textAlign: 'center', marginTop: '100px', fontSize: '20px', fontWeight: 600 }}>
-            Cargando Búnker de Datos y Calculando BI...
+            Cargando Datos y Calculando BI...
           </div>
         ) : (
           <div className="view-transition-wrapper">
@@ -474,7 +532,7 @@ export default function App() {
                     {selectedCompany === 'GENERAL' ? 'Vigilancia Epidemiológica - Histórico General' : `Histórico de Consultas - ${selectedCompany}`}
                   </h3>
                   {latestConsultations.length === 0 ? (
-                    <p style={{ color: 'var(--text-secondary)' }}>No se han ingresado consultas médicas al búnker v23.0.</p>
+                    <p style={{ color: 'var(--text-secondary)' }}>No se han ingresado consultas médicas.</p>
                   ) : (
                     <table className="data-table">
                       <thead>
@@ -516,6 +574,8 @@ export default function App() {
             {activeView === 'patients' && <PatientsList key="patients-view" />}
             {activeView === 'companies' && <CompaniesModule key="companies-view" />}
             {activeView === 'surveillance' && <SurveillanceModule key="surveillance-view" />}
+            {activeView === 'consultas' && <ConsultasModule key="consultas-view" />}
+            {activeView === 'reposo' && <ReposoModulo key="reposo-view" />}
           </div>
         )}
       </main>

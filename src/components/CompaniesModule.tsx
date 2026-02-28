@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { BriefcaseMedical, Search, Building2, Users, MapPin, Phone } from 'lucide-react';
+import { BriefcaseMedical, Search, Building2, Users, MapPin, Phone, Trash2 } from 'lucide-react';
 
 export default function CompaniesModule() {
     const [companies, setCompanies] = useState<any[]>([]);
@@ -27,6 +27,29 @@ export default function CompaniesModule() {
             setCompanies(processed);
         }
         setLoading(false);
+    };
+
+    const handleDeleteCompany = async (id: string, nombre: string) => {
+        const confirmed = window.confirm(`⚠️ ADVERTENCIA DE SEGURIDAD ⚠️\n\n¿Carlos Fuentes, está totalmente seguro de eliminar a la empresa ${nombre} del Búnker?\n\nLos trabajadores asociados no se borrarán, sino que pasarán a ser pacientes particulares.`);
+
+        if (confirmed) {
+            try {
+                setLoading(true);
+                const { error } = await supabase
+                    .from('empresas')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                alert("Empresa eliminada del sistema.");
+                fetchCompanies();
+            } catch (err: any) {
+                console.error(err);
+                alert("Error al eliminar empresa: " + err.message);
+                setLoading(false);
+            }
+        }
     };
 
     const filtered = companies.filter(c =>
@@ -97,7 +120,14 @@ export default function CompaniesModule() {
                                 )}
                             </div>
 
-                            <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end' }}>
+                            <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <button
+                                    onClick={() => handleDeleteCompany(emp.id, emp.nombre)}
+                                    style={{ background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '5px', borderRadius: '8px', transition: 'all 0.2s' }}
+                                    title="Eliminar empresa"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
                                 <button style={{ background: 'transparent', border: 'none', color: 'var(--corporate-blue)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                     Ver Auditoría <ChevronRight size={16} />
                                 </button>

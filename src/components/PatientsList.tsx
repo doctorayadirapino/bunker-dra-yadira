@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Search, User, Briefcase, ChevronRight } from 'lucide-react';
+import { Search, User, Briefcase, ChevronRight, Trash2 } from 'lucide-react';
 
 export default function PatientsList() {
     const [patients, setPatients] = useState<any[]>([]);
@@ -23,6 +23,30 @@ export default function PatientsList() {
             setPatients(data);
         }
         setLoading(false);
+    };
+
+    const handleDelete = async (id: string, nombre: string) => {
+        const confirmed = window.confirm(`⚠️ ADVERTENCIA DE SEGURIDAD ⚠️\n\n¿Carlos Fuentes, está totalmente seguro de eliminar el EXPEDIENTE COMPLETO de ${nombre}?\n\nEsta acción borrará permanentemente sus datos personales y TODAS sus consultas médicas del Búnker de forma irreversible.`);
+
+        if (confirmed) {
+            try {
+                setLoading(true);
+                const { error } = await supabase
+                    .from('pacientes')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                alert("Expediente médico eliminado definitivamente.");
+                setSelectedPatient(null);
+                fetchPatients();
+            } catch (err: any) {
+                console.error(err);
+                alert("Error al eliminar el expediente: " + err.message);
+                setLoading(false);
+            }
+        }
     };
 
     const filteredPatients = patients.filter(p =>
@@ -187,12 +211,23 @@ export default function PatientsList() {
                             )}
                         </div>
 
-                        <button
-                            onClick={() => setSelectedPatient(null)}
-                            style={{ width: '100%', marginTop: '30px', padding: '15px', borderRadius: '12px', background: 'var(--corporate-blue)', color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer' }}
-                        >
-                            Cerrar Expediente
-                        </button>
+                        <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
+                            <button
+                                onClick={() => setSelectedPatient(null)}
+                                style={{ flex: 1, padding: '15px', borderRadius: '12px', background: 'var(--corporate-blue)', color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer' }}
+                            >
+                                Cerrar Expediente
+                            </button>
+                            <button
+                                onClick={() => {
+                                    handleDelete(selectedPatient.id, selectedPatient.nombre_completo);
+                                }}
+                                style={{ padding: '15px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', border: '1px solid var(--danger)', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                title="Eliminar definitivamente"
+                            >
+                                <Trash2 size={20} /> Eliminar
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

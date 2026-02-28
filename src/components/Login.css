@@ -1,0 +1,303 @@
+:root {
+    --corporate-blue: #1e40af;
+    --medical-turquoise: #0bcbcb;
+    --doctora-pink: #FF69B4;
+    --danger: #ef4444;
+    --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --text-white: #f8fafc;
+    --text-muted: #94a3b8;
+}
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-gradient);
+    font-family: 'Outfit', 'Inter', sans-serif;
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+}
+
+/* Esferas decorativas con desenfoque (Glassmorphism) */
+.decorative-sphere {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 1;
+    opacity: 0.6;
+    animation: pulse-sphere 8s infinite alternate;
+}
+
+.sphere-1 {
+    width: 400px;
+    height: 400px;
+    background: var(--doctora-pink);
+    top: -100px;
+    left: -100px;
+}
+
+.sphere-2 {
+    width: 350px;
+    height: 350px;
+    background: var(--corporate-blue);
+    bottom: -100px;
+    right: -100px;
+}
+
+@keyframes pulse-sphere {
+    0% {
+        transform: scale(1) translate(0, 0);
+        opacity: 0.4;
+    }
+
+    100% {
+        transform: scale(1.2) translate(10%, 10%);
+        opacity: 0.7;
+    }
+}
+
+.login-card-wrapper {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 480px;
+}
+
+.login-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--card-border);
+    border-radius: 36px;
+    padding: 50px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.login-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.login-logo-container {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--doctora-pink), var(--corporate-blue));
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
+}
+
+.pulse-icon {
+    animation: heart-beat 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@keyframes heart-beat {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+.login-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-white);
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.login-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding-left: 5px;
+}
+
+.input-group label svg {
+    color: var(--medical-turquoise);
+}
+
+.input-group input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 16px 20px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--doctora-pink);
+    box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.1);
+}
+
+.login-error-alert {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    text-align: center;
+}
+
+.login-success-alert {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--medical-turquoise);
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    text-align: center;
+}
+
+.forgot-password-link {
+    background: none;
+    border: none;
+    color: var(--medical-turquoise);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.3s;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+.back-to-login-btn {
+    background: none;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.back-to-login-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.login-submit-btn {
+    background: linear-gradient(135deg, var(--doctora-pink) 0%, var(--corporate-blue) 100%);
+    color: white;
+    border: none;
+    border-radius: 18px;
+    padding: 18px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    box-shadow: 0 15px 35px rgba(30, 64, 175, 0.3);
+}
+
+.login-submit-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 20px 45px rgba(255, 105, 180, 0.3);
+}
+
+.login-submit-btn:active {
+    transform: scale(0.98);
+}
+
+.login-submit-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.login-footer {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.security-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--medical-turquoise);
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(11, 203, 203, 0.1);
+    padding: 6px 14px;
+    border-radius: 30px;
+    margin-bottom: 20px;
+}
+
+.login-footer p {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.fade-in {
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

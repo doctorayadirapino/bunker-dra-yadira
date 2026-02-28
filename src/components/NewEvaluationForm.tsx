@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { X, Printer, Mail } from 'lucide-react';
 import './NewEvaluationForm.css';
@@ -6,10 +6,12 @@ import { generarCertificadoPDF } from '../services/pdfService';
 
 interface FormProps {
     onClose: () => void;
+    editConsultaId?: string;
 }
 
-export default function NewEvaluationForm({ onClose }: FormProps) {
+export default function NewEvaluationForm({ onClose, editConsultaId }: FormProps) {
     const [loading, setLoading] = useState(false);
+    const [isEditing, setIsEditing] = useState(!!editConsultaId);
     const [error, setError] = useState<string | null>(null);
     const [useDigitalSignature, setUseDigitalSignature] = useState(false);
 
@@ -80,12 +82,116 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                 if (lastCons) {
                     setLastAptitud(lastCons.aptitud_medica);
                 }
+
+                // --- NUEVO: RECUPERAR ANTECEDENTES LABORALES HISTÓRICOS ---
+                const { data: antData } = await supabase
+                    .from('antecedentes_laborales')
+                    .select('*')
+                    .eq('paciente_id', pacData.id)
+                    .order('orden', { ascending: true });
+
+                if (antData && antData.length > 0) {
+                    const mappedAnts = antData.map(a => ({
+                        empresa: a.empresa_anterior || '',
+                        cargo: a.cargo_ocupado || '',
+                        tiempo_servicio: a.tiempo_servicio || '',
+                        riesgos_expuestos: a.riesgos_expuestos || ''
+                    }));
+
+                    // Rellenar hasta 3 campos si hay menos
+                    while (mappedAnts.length < 3) {
+                        mappedAnts.push({ empresa: '', cargo: '', tiempo_servicio: '', riesgos_expuestos: '' });
+                    }
+                    setAntecedentes(mappedAnts.slice(0, 3));
+                }
             } else {
                 setReturningPatient(false);
                 setLastAptitud(null);
             }
         }
     };
+
+    // --- LÓGICA DE CARGA PARA EDICIÓN ---
+    const loadEditData = async () => {
+        if (!editConsultaId) return;
+        setLoading(true);
+        try {
+            const { data: c, error: errC } = await supabase
+                .from('consultas')
+                .select(`
+                    *,
+                    pacientes (*),
+                    empresas (*)
+                `)
+                .eq('id', editConsultaId)
+                .single();
+
+            if (errC) throw errC;
+
+            // Mapear datos al estado
+            setPaciente({
+                nombre_completo: c.pacientes.nombre_completo || '',
+                cedula: c.pacientes.cedula || '',
+                sexo: c.pacientes.sexo || 'Femenino',
+                alergias: c.pacientes.alergias || '',
+                patologias_previas: c.pacientes.patologias_previas || '',
+                fecha_nacimiento: c.pacientes.fecha_nacimiento || '',
+                telefono: c.pacientes.telefono || ''
+            });
+
+            setEmpresa({
+                nombre: c.empresas?.nombre || '',
+                rif: c.empresas?.rif || ''
+            });
+
+            setConsulta({
+                tipo_consulta: c.tipo_consulta,
+                tipo_patologia: c.tipo_patologia,
+                categoria_reposo: c.categoria_reposo || 'NINGUNO',
+                dias_reposo: c.dias_reposo || 0,
+                observaciones: c.observaciones || '',
+                discapacidad_detectada: c.discapacidad_detectada || false,
+                referencia_centro_especializado: c.referencia_centro_especializado || '',
+                aptitud_medica: c.aptitud_medica || 'APTO',
+                examen_fisico: c.examen_fisico || '',
+                riesgos_ocupacionales: c.riesgos_ocupacionales || '',
+                fecha_inicio_reposo: c.fecha_inicio_reposo || '',
+                fecha_fin_reposo: c.fecha_fin_reposo || '',
+                causa_reposo: c.causa_reposo || ''
+            });
+
+            // Recuperar antecedentes para este paciente
+            const { data: antData } = await supabase
+                .from('antecedentes_laborales')
+                .select('*')
+                .eq('paciente_id', c.paciente_id)
+                .order('orden', { ascending: true });
+
+            if (antData && antData.length > 0) {
+                const mappedAnts = antData.map(a => ({
+                    empresa: a.empresa_anterior || '',
+                    cargo: a.cargo_ocupado || '',
+                    tiempo_servicio: a.tiempo_servicio || '',
+                    riesgos_expuestos: a.riesgos_expuestos || ''
+                }));
+                while (mappedAnts.length < 3) mappedAnts.push({ empresa: '', cargo: '', tiempo_servicio: '', riesgos_expuestos: '' });
+                setAntecedentes(mappedAnts.slice(0, 3));
+            }
+
+        } catch (err: any) {
+            console.error(err);
+            setError("Error al cargar los datos para edición: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (editConsultaId) {
+            setIsEditing(true);
+            loadEditData();
+        }
+    }, [editConsultaId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -132,7 +238,7 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                         paciente_id: pacId,
                         orden: index + 1,
                         empresa_anterior: a.empresa,
-                        cargo_desempenado: a.cargo,
+                        cargo_ocupado: a.cargo,
                         tiempo_servicio: a.tiempo_servicio,
                         riesgos_expuestos: a.riesgos_expuestos
                     }))
@@ -140,8 +246,8 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                 if (errAnt) throw errAnt;
             }
 
-            // 3. Insertar Consulta Epidemiologica
-            const { error: errCons } = await supabase.from('consultas').insert([{
+            // 3. Insertar o ACTUALIZAR Consulta Epidemiologica
+            const consultaPayload = {
                 paciente_id: pacId,
                 empresa_id: empId,
                 tipo_consulta: consulta.tipo_consulta,
@@ -158,13 +264,23 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                 fecha_inicio_reposo: consulta.fecha_inicio_reposo || null,
                 fecha_fin_reposo: consulta.fecha_fin_reposo || null,
                 causa_reposo: consulta.causa_reposo || null
-            }]);
+            };
 
-            if (errCons) throw errCons;
+            if (isEditing && editConsultaId) {
+                const { error: errUpd } = await supabase
+                    .from('consultas')
+                    .update(consultaPayload)
+                    .eq('id', editConsultaId);
+                if (errUpd) throw errUpd;
+            } else {
+                const { error: errCons } = await supabase
+                    .from('consultas')
+                    .insert([consultaPayload]);
+                if (errCons) throw errCons;
+            }
 
-            alert("¡EVALUACIÓN REGISTRADA EN EL BÚNKER DE FORMA EXITOSA!");
+            alert(isEditing ? "¡EVALUACIÓN ACTUALIZADA EXITOSAMENTE!" : "¡EVALUACIÓN REGISTRADA EXITOSAMENTE!");
 
-            // Generar PDF automáticamente tras el éxito
             generarCertificadoPDF({
                 paciente: {
                     nombre: paciente.nombre_completo,
@@ -184,8 +300,10 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                 },
                 doctora: {
                     nombre: "YADIRA PINO",
-                    mpps: "42.123",
-                    cmm: "MIR-12345"
+                    especialidad: "Fisiatra",
+                    ci: "6.871.964",
+                    mpps: "41.171",
+                    cmm: "13.012"
                 },
                 conFirmaDigital: useDigitalSignature
             });
@@ -204,7 +322,7 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
         <div className="modal-overlay">
             <div className="modal-content">
                 <div className="modal-header">
-                    <h2>Nueva Evaluación Médica</h2>
+                    <h2>{isEditing ? 'Editar Evaluación Médica' : 'Nueva Evaluación Médica'}</h2>
                     <button onClick={onClose} className="close-btn"><X size={24} /></button>
                 </div>
 
@@ -409,7 +527,7 @@ export default function NewEvaluationForm({ onClose }: FormProps) {
                     <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                         <button type="button" onClick={onClose} className="btn-cancel">Cancelar</button>
                         <button type="submit" className="btn-save" disabled={loading}>
-                            {loading ? 'Guardando en Búnker...' : 'Registrar Evaluación'}
+                            {loading ? 'Procesando...' : isEditing ? 'Guardar Cambios' : 'Registrar Evaluación'}
                         </button>
                     </div>
                 </form>

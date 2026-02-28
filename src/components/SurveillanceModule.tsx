@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { FileBarChart, Download, Filter, TrendingUp, Users, AlertCircle } from 'lucide-react';
-import { generarReporteVigilanciaPDF } from '../services/pdfService';
+import { FileBarChart, Download, Filter, TrendingUp, Users, AlertCircle, FileText } from 'lucide-react';
+import { generarReporteVigilanciaPDF, generarListadoEmpresaPDF } from '../services/pdfService';
 
 export default function SurveillanceModule() {
     const [loading, setLoading] = useState(true);
     const [empresas, setEmpresas] = useState<any[]>([]);
     const [selectedEmpresa, setSelectedEmpresa] = useState('GENERAL');
     const [analytics, setAnalytics] = useState<any>(null);
+    const [downloading, setDownloading] = useState(false);
+    const [rawConsultas, setRawConsultas] = useState<any[]>([]);
 
     useEffect(() => {
         fetchInitialData();
@@ -28,70 +30,109 @@ export default function SurveillanceModule() {
 
     const calculateSurveillance = async () => {
         setLoading(true);
-        let query = supabase.from('consultas').select('*, pacientes(*), empresas(*)');
+        try {
+            let query = supabase.from('consultas').select('*, pacientes(*), empresas(*)');
 
-        const { data, error } = await query;
-        if (error || !data) return;
-
-        const filtered = selectedEmpresa === 'GENERAL'
-            ? data
-            : data.filter(c => c.empresas?.nombre === selectedEmpresa);
-
-        // --- LÓGICA DE PROCESAMIENTO BI ---
-        const patMap: Record<string, number> = {};
-        const typeMap: Record<string, number> = {};
-        const demoMap: Record<string, any> = {
-            '18-25': { group: '18-25', Masc: 0, Fem: 0 },
-            '26-35': { group: '26-35', Masc: 0, Fem: 0 },
-            '36-45': { group: '36-45', Masc: 0, Fem: 0 },
-            '46-55': { group: '46-55', Masc: 0, Fem: 0 },
-            '55+': { group: '55+', Masc: 0, Fem: 0 }
-        };
-
-        let totalReposodays = 0;
-        const uniquePatients = new Set();
-
-        filtered.forEach(row => {
-            uniquePatients.add(row.paciente_id);
-            totalReposodays += row.dias_reposo || 0;
-            patMap[row.tipo_patologia] = (patMap[row.tipo_patologia] || 0) + 1;
-            typeMap[row.tipo_consulta] = (typeMap[row.tipo_consulta] || 0) + 1;
-
-            // Demografía
-            let age = 30; // Default
-            if (row.pacientes?.fecha_nacimiento) {
-                const birth = new Date(row.pacientes.fecha_nacimiento);
-                age = new Date().getFullYear() - birth.getFullYear();
+            const { data, error } = await query;
+            if (error || !data) {
+                setLoading(false);
+                return;
             }
-            let group = '55+';
-            if (age < 26) group = '18-25';
-            else if (age < 36) group = '26-35';
-            else if (age < 46) group = '36-45';
-            else if (age < 56) group = '46-55';
+            setRawConsultas(data);
 
-            if (row.pacientes?.sexo === 'Masculino') demoMap[group].Masc++; else demoMap[group].Fem++;
-        });
+            const filtered = selectedEmpresa === 'GENERAL'
+                ? data
+                : data.filter(c => c.empresas?.nombre === selectedEmpresa);
 
-        const stats = {
-            totalPatients: uniquePatients.size,
-            totalConsultations: filtered.length,
-            absenteeismRate: ((totalReposodays / ((uniquePatients.size || 1) * 20)) * 100).toFixed(2),
-            topPathologies: Object.entries(patMap).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 10),
-            consultationTypes: Object.entries(typeMap).map(([name, value]) => ({ name, value })),
-            demographics: Object.values(demoMap)
-        };
+            // --- LÓGICA DE PROCESAMIENTO BI ---
+            const patMap: Record<string, number> = {};
+            const typeMap: Record<string, number> = {};
+            const demoMap: Record<string, any> = {
+                '18-25': { group: '18-25', Masc: 0, Fem: 0 },
+                '26-35': { group: '26-35', Masc: 0, Fem: 0 },
+                '36-45': { group: '36-45', Masc: 0, Fem: 0 },
+                '46-55': { group: '46-55', Masc: 0, Fem: 0 },
+                '55+': { group: '55+', Masc: 0, Fem: 0 }
+            };
 
-        setAnalytics(stats);
-        setLoading(false);
+            let totalReposodays = 0;
+            const uniquePatients = new Set();
+
+            filtered.forEach(row => {
+                uniquePatients.add(row.paciente_id);
+                totalReposodays += row.dias_reposo || 0;
+                patMap[row.tipo_patologia] = (patMap[row.tipo_patologia] || 0) + 1;
+                typeMap[row.tipo_consulta] = (typeMap[row.tipo_consulta] || 0) + 1;
+
+                // Demografía
+                let age = 30; // Default
+                if (row.pacientes?.fecha_nacimiento) {
+                    const birth = new Date(row.pacientes.fecha_nacimiento);
+                    age = new Date().getFullYear() - birth.getFullYear();
+                }
+                let group = '55+';
+                if (age < 26) group = '18-25';
+                else if (age < 36) group = '26-35';
+                else if (age < 46) group = '36-45';
+                else if (age < 56) group = '46-55';
+
+                if (row.pacientes?.sexo === 'Masculino') demoMap[group].Masc++; else demoMap[group].Fem++;
+            });
+
+            const stats = {
+                totalPatients: uniquePatients.size || 0,
+                totalConsultations: filtered.length || 0,
+                absenteeismRate: uniquePatients.size > 0
+                    ? ((totalReposodays / (uniquePatients.size * 20)) * 100).toFixed(2)
+                    : "0.00",
+                topPathologies: Object.entries(patMap).length > 0
+                    ? Object.entries(patMap).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 10)
+                    : [],
+                consultationTypes: Object.entries(typeMap).length > 0
+                    ? Object.entries(typeMap).map(([name, value]) => ({ name, value }))
+                    : [],
+                demographics: Object.values(demoMap)
+            };
+
+            console.log('Analytics procesado con éxito:', stats);
+            setAnalytics(stats);
+            setLoading(false);
+        } catch (err) {
+            console.error('CRITICAL ERROR CALCULATING BI:', err);
+            setLoading(false);
+        }
     };
 
-    const handleDownloadReport = () => {
+    const handleDownloadReport = async () => {
         if (!analytics) return;
-        generarReporteVigilanciaPDF({
-            companyName: selectedEmpresa,
-            month: new Date().toLocaleDateString('es-VE', { month: 'long', year: 'numeric' }).toUpperCase(),
-            stats: analytics
-        });
+        setDownloading(true);
+        try {
+            await generarReporteVigilanciaPDF({
+                companyName: selectedEmpresa,
+                month: new Date().toLocaleDateString('es-VE', { month: 'long', year: 'numeric' }).toUpperCase(),
+                stats: analytics
+            });
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Error al generar el PDF. Revise la consola para más detalles.');
+        } finally {
+            setDownloading(false);
+        }
+    };
+
+    const handleDownloadList = async () => {
+        setDownloading(true);
+        try {
+            const listData = selectedEmpresa === 'GENERAL'
+                ? rawConsultas
+                : rawConsultas.filter(c => c.empresas?.nombre === selectedEmpresa);
+
+            await generarListadoEmpresaPDF(selectedEmpresa, listData);
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            setDownloading(false);
+        }
     };
 
     return (
@@ -117,10 +158,18 @@ export default function SurveillanceModule() {
 
                     <button
                         onClick={handleDownloadReport}
-                        disabled={loading}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--corporate-blue)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s ease' }}
+                        disabled={loading || downloading}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: downloading ? 'var(--text-secondary)' : 'var(--corporate-blue)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading) ? 0.7 : 1 }}
                     >
-                        <Download size={18} /> Informe Mensual PDF
+                        {downloading ? "Procesando..." : <><Download size={18} /> Resumen Estadístico</>}
+                    </button>
+
+                    <button
+                        onClick={handleDownloadList}
+                        disabled={loading || downloading}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: downloading ? 'var(--text-secondary)' : 'var(--medical-turquoise)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading) ? 0.7 : 1 }}
+                    >
+                        {downloading ? "Buscando..." : <><FileText size={18} /> Listado Detallado</>}
                     </button>
                 </div>
             </div>
