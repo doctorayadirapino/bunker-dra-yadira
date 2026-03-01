@@ -148,7 +148,9 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 85, lineY - 35, 45, 45);
+                // Ajuste computacional: Subimos la imagen y reducimos el alto para que repose sobre la línea (lineY)
+                // y no se superponga al texto inferior
+                doc.addImage(img, 'PNG', 86, lineY - 38, 45, 35);
             } catch (e) {
                 console.error('Error firma:', e);
             }

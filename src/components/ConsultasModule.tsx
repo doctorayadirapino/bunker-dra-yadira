@@ -31,6 +31,8 @@ export default function ConsultasModule() {
     };
 
     const handlePrint = (c: any) => {
+        const conFirma = window.confirm("¿Desea incluir la FIRMA DIGITAL en el certificado?\n\n• [Aceptar]: Para enviar por correo electrónico.\n• [Cancelar]: Para imprimir y sellar físicamente.");
+
         generarCertificadoPDF({
             paciente: {
                 nombre: c.pacientes.nombre_completo,
@@ -55,7 +57,7 @@ export default function ConsultasModule() {
                 mpps: "41.171",
                 cmm: "13.012"
             },
-            conFirmaDigital: true // Por defecto para reimpresión
+            conFirmaDigital: conFirma
         });
     };
 
