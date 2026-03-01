@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { BriefcaseMedical, Search, Building2, Users, MapPin, Phone, Trash2 } from 'lucide-react';
 
-export default function CompaniesModule() {
+export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: string) => void }) {
     const [companies, setCompanies] = useState<any[]>([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
@@ -128,7 +128,7 @@ export default function CompaniesModule() {
                                 >
                                     <Trash2 size={18} />
                                 </button>
-                                <button style={{ background: 'transparent', border: 'none', color: 'var(--corporate-blue)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <button onClick={() => onAudit && onAudit(emp.nombre)} style={{ background: 'transparent', border: 'none', color: 'var(--corporate-blue)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                     Ver Auditoría <ChevronRight size={16} />
                                 </button>
                             </div>

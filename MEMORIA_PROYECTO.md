@@ -37,6 +37,10 @@ El día de hoy se ejecutó un protocolo de asistencia técnica profunda, logrand
     2. Se reemplazó el string estático de la ciudad. Ahora, las vistas `NewEvaluationForm.tsx` y `ConsultasModule.tsx` ejecutan un macro automático interactivo (`window.prompt`) pidiéndole la ciudad en tiempo real al generar los PDF (ej: Caracas, Guarenas, Maracay), manteniendo Guarenas como opción sugerida base.
     3. Se habilitó un botón global de seguridad "**Cambiar Contraseña**" sobre "Cerrar Sesión" de la barra lateral. Este levanta un Modal que permite mutar la llave de cifrado directamente en la base de datos de Supabase sin necesidad de desloguearse, con una opción de "*Cancelar*" si cambió de opinión.
 
+### 7. 🔗 REDIRECCIÓN DE AUDITORÍA OPERATIVA EN EMPRESAS
+*   **Problema:** Al estar en el módulo de "Empresas", el botón "Ver Auditoría" estaba inoperativo. No enviaba a ningún lado.
+*   **Solución Computacional:** Se enlazó la propiedad reactiva `onAudit` desde `App.tsx` transfundiéndola hacia `CompaniesModule.tsx`. Ahora, al hacer clic sobre "Ver Auditoría" en una empresa específica, el sistema captura su nombre, auto-selecciona el filtro maestro de empresas y muta la vista central hacia el módulo de "Vigilancia Epidemiológica" en una fracción de segundo, logrando un flujo sin fricciones para la Doctora.
+
 ---
 
 ## 📋 RESUMEN DE LA SESIÓN ANTERIOR (2026-02-28)
