@@ -105,12 +105,16 @@ export default function SurveillanceModule() {
 
     const handleDownloadReport = async () => {
         if (!analytics) return;
+
+        const conFirma = window.confirm("¿Desea incluir la FIRMA DIGITAL en el Resumen Estadístico?\n\n• [Aceptar]: Para enviar por correo corporativo o WhatsApp.\n• [Cancelar]: Para imprimir y sellar físicamente.");
+
         setDownloading(true);
         try {
             await generarReporteVigilanciaPDF({
                 companyName: selectedEmpresa,
                 month: new Date().toLocaleDateString('es-VE', { month: 'long', year: 'numeric' }).toUpperCase(),
-                stats: analytics
+                stats: analytics,
+                conFirmaDigital: conFirma
             });
         } catch (error) {
             console.error('Error generating PDF:', error);

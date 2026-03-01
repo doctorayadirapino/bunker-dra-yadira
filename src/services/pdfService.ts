@@ -177,7 +177,8 @@ interface SurveillanceData {
         topPathologies: { name: string; value: number }[];
         demographics: { group: string; Masc: number; Fem: number }[];
         consultationTypes: { name: string; value: number }[];
-    }
+    };
+    conFirmaDigital?: boolean;
 }
 
 export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
@@ -286,6 +287,17 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
         doc.text(`M.P.PS 41171 / C.M.M 13012 RIF: V-6871964-6`, 108, finalY + 11, { align: 'center' });
+
+        if (data.conFirmaDigital) {
+            try {
+                const img = await loadImage('/firma_doctora.png');
+                // Ajuste computacional: Subimos la imagen y reducimos el alto para que repose sobre la línea (finalY)
+                // y no se superponga al texto inferior
+                doc.addImage(img, 'PNG', 86, finalY - 38, 45, 35);
+            } catch (e) {
+                console.error('Error firma:', e);
+            }
+        }
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {

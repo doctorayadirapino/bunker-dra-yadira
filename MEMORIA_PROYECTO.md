@@ -23,11 +23,11 @@ El día de hoy se ejecutó un protocolo de asistencia técnica profunda, logrand
 *   **Regla Zero Trust:** Este archivo está rigurosamente ignorado por `.gitignore` (Módulo: Dr. Yadira's Private Data). Otro agente o Carlos Fuentes puede consultar dicho documento `.txt` para redesplegar el Búnker en una nueva PC sin riesgo de exposición al internet.
 
 ### 5. ✒️ AJUSTE GEOMÉTRICO Y LÓGICO (FIRMA DIGITAL EN PDF)
-*   **Problema de Renderizado:** Al imprimir el "Certificado de Aptitud Médica", la imagen `.png` de la firma digital pisaba o se superponía con la línea divisoria y la información legal de identificación de la Dra. Yadira Pino (Nombre y MPPS).
-*   **Problema de Estado Booleano:** La opción de imprimir "Sin Firma" desde el Historial de Consultas no estaba siendo respetada, ya que la variable `conFirmaDigital` estaba forzada (`true`) estáticamente en el motor de reimpresión.
-*   **Solución Computacional:** 
-    1. Se procesó un recálculo a nivel de motor de renderizado `jsPDF` (`src/services/pdfService.ts`). Se han optimizado las coordenadas `(x, y)` y reescalado el vector gráfico para que la imagen enarbole simétricamente sobre la línea.
-    2. Se ha inyectado un motor de decisión nativo (`window.confirm`) en el módulo de Historial de Consultas (`ConsultasModule.tsx`) para que el sistema consulte interactivamente a la doctora si desea o no inyectar la firma antes de procesar el renderizado del PDF, respetando su autoridad jerárquica en todo momento.
+*   **Problema de Renderizado:** Al imprimir el "Certificado de Aptitud Médica" y el "Resumen Estadístico", la imagen `.png` de la firma digital pisaba o se superponía con la línea divisoria y la información legal de identificación de la Dra. Yadira Pino (Nombre y MPPS).
+*   **Problema de Estado Booleano:** La opción de imprimir "Sin Firma" desde el Historial de Consultas o el panel de Vigilancia Epidemiológica no estaba siendo respetada, ya que la variable `conFirmaDigital` estaba forzada (`true`) estáticamente o simplemente omitida en los motores de reimpresión.
+*   **Solución Computacional (Global):** 
+    1. Se procesó un recálculo a nivel de motor de renderizado `jsPDF` (`src/services/pdfService.ts`). Se han optimizado las coordenadas `(x, y)` y reescalado el vector gráfico para que la imagen enarbole simétricamente sobre la línea, tanto para certificados como para el reporte estadístico (LOPCYMAT).
+    2. Se ha inyectado un motor de decisión nativo (`window.confirm`) en el módulo de Historial de Consultas (`ConsultasModule.tsx`) y en el de Vigilancia Epidemiológica (`SurveillanceModule.tsx`) para que el sistema consulte interactivamente a la doctora si desea o no inyectar la firma antes de procesar el renderizado del PDF, respetando su autoridad jerárquica en todo momento (para envío digital vía correo/whatsapp vs. impresión para sellado físico).
 
 ---
 
