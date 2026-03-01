@@ -221,11 +221,12 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         doc.setFont('helvetica', 'normal');
         const subtitulo = 'LOPCYMAT DIPLOMADO EN SALUD OCUPACIONAL DIPLOMADO DE ERGONOMIA';
         doc.text(subtitulo, 105, 38, { align: 'center' });
-        doc.text(`M.P.PS 41171 / C.M.M: 13012 RIF: V-6871964-6`, 105, 43, { align: 'center' });
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 42, { align: 'center' });
+        doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 46, { align: 'center' });
 
         doc.setDrawColor(blueColor);
         doc.setLineWidth(0.5);
-        doc.line(15, 48, 195, 48);
+        doc.line(15, 50, 195, 50);
 
         // --- TÍTULO REPORTE ---
         doc.setTextColor(blueColor);
@@ -290,7 +291,8 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         doc.text(`Dra. YADIRA PINO R.`, 108, finalY + 6, { align: 'center' });
         doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
-        doc.text(`M.P.PS 41171 / C.M.M 13012 RIF: V-6871964-6`, 108, finalY + 11, { align: 'center' });
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, finalY + 11, { align: 'center' });
+        doc.text(`INPSASEL: MIR116871964`, 108, finalY + 15, { align: 'center' });
 
         if (data.conFirmaDigital) {
             try {
@@ -336,7 +338,7 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
         doc.setTextColor(blueColor);
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
-        doc.text('Fisiatra / Medico Ocupacional | MPPS 41171 / CMM 13012', 140, 20, { align: 'center' });
+        doc.text('Fisiatra / Medico Ocupacional | C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964', 140, 20, { align: 'center' });
 
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(13);
@@ -427,12 +429,13 @@ export const generarReposoPDF = (data: ReposoData) => {
     doc.setFont('helvetica', 'normal');
     const subtitulo = 'LOPCYMAT DIPLOMADO EN SALUD OCUPACIONAL DIPLOMADO DE ERGONOMIA';
     doc.text(subtitulo, 105, 38, { align: 'center' });
-    doc.text(`M.P.PS 41171 / C.M.M: 13012 RIF: V-6871964-6`, 105, 43, { align: 'center' });
+    doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 42, { align: 'center' });
+    doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 46, { align: 'center' });
 
     // Línea separadora
     doc.setDrawColor(blueColor);
     doc.setLineWidth(0.5);
-    doc.line(15, 48, 195, 48);
+    doc.line(15, 50, 195, 50);
 
     // --- TÍTULOS DE TIPO (CÓDIGO UNIFICADO) ---
     doc.setFontSize(22);
@@ -543,6 +546,8 @@ export const generarReposoPDF = (data: ReposoData) => {
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
     doc.text(`Dra. ${data.doctora.nombre} R.`, 160, 260, { align: 'center' });
+    doc.setFontSize(6);
+    doc.text(`C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964`, 160, 264, { align: 'center' });
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
 };

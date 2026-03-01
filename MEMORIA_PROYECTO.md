@@ -41,6 +41,10 @@ El día de hoy se ejecutó un protocolo de asistencia técnica profunda, logrand
 *   **Problema:** Al estar en el módulo de "Empresas", el botón "Ver Auditoría" estaba inoperativo. No enviaba a ningún lado.
 *   **Solución Computacional:** Se enlazó la propiedad reactiva `onAudit` desde `App.tsx` transfundiéndola hacia `CompaniesModule.tsx`. Ahora, al hacer clic sobre "Ver Auditoría" en una empresa específica, el sistema captura su nombre, auto-selecciona el filtro maestro de empresas y muta la vista central hacia el módulo de "Vigilancia Epidemiológica" en una fracción de segundo, logrando un flujo sin fricciones para la Doctora.
 
+### 8. 🛡️ INTEGRACIÓN TOTAL DE IDENTIDAD MÉDICA (INPSASEL + CI)
+*   **Problema:** Se detectó que los reportes de "Informe Epidemiológico" (Vigilancia), "Listado de Evaluaciones" y "Constancia de Reposo/Asistencia" no incluían la Cédula de Identidad de la Dra. Yadira Pino ni su registro obligatorio de INPSASEL. Solo el Certificado de Aptitud lo tenía.
+*   **Solución Computacional:** Se realizó una inyección masiva en los 4 motores de renderizado de `pdfService.ts`. Ahora, cualquier documento emitido por el Búnker (Certificado, Reposo, Epidemiología o Listado) porta con orgullo la C.I. `V-6.871.964` y el registro `MIR116871964`, garantizando la validez legal absoluta ante los entes gubernamentales (MPPS e INPSASEL).
+
 ---
 
 ## 📋 RESUMEN DE LA SESIÓN ANTERIOR (2026-02-28)
