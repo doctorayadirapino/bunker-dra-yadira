@@ -202,6 +202,11 @@ export default function App() {
     }
   };
 
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [resetError, setResetError] = useState<string | null>(null);
+  const [resetLoading, setResetLoading] = useState(false);
+
   useEffect(() => {
     // 1. Obtener sesión inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -209,12 +214,43 @@ export default function App() {
     });
 
     // 2. Escuchar cambios de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      if (event === 'PASSWORD_RECOVERY') {
+        setShowResetPassword(true);
+      }
     });
+
+    // Detectar hash en URL por si el evento no dispara rápidamente
+    if (window.location.hash && window.location.hash.includes('type=recovery')) {
+      setShowResetPassword(true);
+    }
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      setResetError('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+    setResetLoading(true);
+    setResetError(null);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setShowResetPassword(false);
+      setNewPassword('');
+      alert('Contraseña actualizada de forma segura. Bienvenido al sistema.');
+      // Limpiamos la URL
+      window.history.replaceState(null, '', window.location.pathname);
+    } catch (error: any) {
+      setResetError(error.message || 'Error al actualizar la contraseña');
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (session) {
@@ -246,342 +282,367 @@ export default function App() {
     if (error) console.error("Error al salir del sistema:", error);
   };
 
-  if (!session) {
-    return <Login />;
-  }
-
-  // Renderización UI
   return (
-    <div className="app-container">
-      {/* SIDEBAR */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <h1 className="brand-title">
-            <Activity className="brand-icon" size={28} />
-            Salud Laboral
-          </h1>
+    <>
+      {showResetPassword && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 99999 }}>
+          <div style={{ backgroundColor: 'var(--bg-secondary)', padding: 30, borderRadius: 15, border: '1px solid var(--border-color)', width: 400 }}>
+            <h2 style={{ color: 'white', marginBottom: 20 }}>Actualización de Seguridad</h2>
+            <form onSubmit={handleUpdatePassword}>
+              <label style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>Nueva Contraseña de Acceso:</label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                style={{ width: '100%', padding: 12, borderRadius: 8, marginBottom: 15, background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'white' }}
+              />
+              {resetError && <p style={{ color: 'var(--danger)', marginBottom: 15, fontSize: '0.9rem' }}>{resetError}</p>}
+              <button type="submit" disabled={resetLoading} style={{ width: '100%', padding: 12, background: 'var(--corporate-blue)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 'bold' }}>
+                {resetLoading ? 'Procesando...' : 'Cambiar Contraseña y Entrar'}
+              </button>
+            </form>
+          </div>
         </div>
+      )}
 
-        <nav className="nav-links">
-          <button className="new-eval-btn-sidebar" onClick={() => setShowForm(true)} style={{ marginBottom: '20px' }}>
-            <PlusCircle size={20} />
-            Nueva Evaluación
-          </button>
-
-          <button
-            className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveView('dashboard')}
-          >
-            <Activity size={20} />
-            Dashboard
-          </button>
-          <button
-            className={`nav-item ${activeView === 'patients' ? 'active' : ''}`}
-            onClick={() => setActiveView('patients')}
-          >
-            <Users size={20} />
-            Pacientes
-          </button>
-          <button
-            className={`nav-item ${activeView === 'companies' ? 'active' : ''}`}
-            onClick={() => setActiveView('companies')}
-          >
-            <BriefcaseMedical size={20} />
-            Empresas
-          </button>
-          <button
-            className={`nav-item ${activeView === 'surveillance' ? 'active' : ''}`}
-            onClick={() => setActiveView('surveillance')}
-          >
-            <FileText size={20} />
-            Vigilancia
-          </button>
-          <button
-            className={`nav-item ${activeView === 'consultas' ? 'active' : ''}`}
-            onClick={() => setActiveView('consultas')}
-          >
-            <Printer size={20} />
-            Consultas
-          </button>
-          <button
-            className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`}
-            onClick={() => setActiveView('reposo')}
-          >
-            <CalendarDays size={20} />
-            Reposo Médico
-          </button>
-
-          <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
-            <button
-              className="nav-item"
-              onClick={handleLogout}
-              style={{ color: 'var(--danger)', width: '100%', marginBottom: 0 }}
-            >
-              <LogOut size={20} />
-              Cerrar Sesión
-            </button>
-          </div>
-        </nav>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="main-content">
-        {/* HEADER */}
-        <header className="top-bar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div>
-              <h2 className="page-title">Centro de Mando Epidemiológico</h2>
-              <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
-                Conectado a Cloud (Oficial)
-              </p>
+      {!session ? (
+        <Login />
+      ) : (
+        <div className="app-container">
+          {/* SIDEBAR */}
+          <aside className="sidebar">
+            <div className="sidebar-header">
+              <h1 className="brand-title">
+                <Activity className="brand-icon" size={28} />
+                Salud Laboral
+              </h1>
             </div>
 
-            {/* Filtro Maestro de Empresa */}
-            <div style={{ marginLeft: '20px', padding: '4px 12px', background: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <BriefcaseMedical size={18} color="var(--medical-turquoise)" />
-              <select
-                value={selectedCompany}
-                onChange={(e) => setSelectedCompany(e.target.value)}
-                style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 600, outline: 'none', cursor: 'pointer', minWidth: '150px' }}
+            <nav className="nav-links">
+
+              <button className="new-eval-btn-sidebar" onClick={() => setShowForm(true)} style={{ marginBottom: '20px' }}>
+                <PlusCircle size={20} />
+                Nueva Evaluación
+              </button>
+
+              <button
+                className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
+                onClick={() => setActiveView('dashboard')}
               >
-                <option value="GENERAL" style={{ background: 'var(--bg-primary)' }}>📊 VISTA GENERAL</option>
-                {availableCompanies.map(c => (
-                  <option key={c} value={c} style={{ background: 'var(--bg-primary)' }}>🏢 {c}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="user-profile">
-            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-              <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Dra. Yadira Pino</span>
-              <span style={{ color: 'var(--medical-turquoise)', fontSize: '0.7rem', fontWeight: 700 }}>FISIATRA CMDMC</span>
-            </div>
-            <div className="user-avatar" style={{ background: 'linear-gradient(135deg, var(--doctora-pink), var(--corporate-blue))', color: 'white' }}>YP</div>
-          </div>
-        </header>
+                <Activity size={20} />
+                Dashboard
+              </button>
+              <button
+                className={`nav-item ${activeView === 'patients' ? 'active' : ''}`}
+                onClick={() => setActiveView('patients')}
+              >
+                <Users size={20} />
+                Pacientes
+              </button>
+              <button
+                className={`nav-item ${activeView === 'companies' ? 'active' : ''}`}
+                onClick={() => setActiveView('companies')}
+              >
+                <BriefcaseMedical size={20} />
+                Empresas
+              </button>
+              <button
+                className={`nav-item ${activeView === 'surveillance' ? 'active' : ''}`}
+                onClick={() => setActiveView('surveillance')}
+              >
+                <FileText size={20} />
+                Vigilancia
+              </button>
+              <button
+                className={`nav-item ${activeView === 'consultas' ? 'active' : ''}`}
+                onClick={() => setActiveView('consultas')}
+              >
+                <Printer size={20} />
+                Consultas
+              </button>
+              <button
+                className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`}
+                onClick={() => setActiveView('reposo')}
+              >
+                <CalendarDays size={20} />
+                Reposo Médico
+              </button>
 
-        {loading ? (
-          <div style={{ color: 'var(--corporate-blue)', textAlign: 'center', marginTop: '100px', fontSize: '20px', fontWeight: 600 }}>
-            Cargando Datos y Calculando BI...
-          </div>
-        ) : (
-          <div className="view-transition-wrapper">
-            {activeView === 'dashboard' && (
-              <div className="dashboard-view fade-in">
-                {/* KPIs */}
-                <section className="kpi-grid">
-                  <div className="kpi-card" style={{ borderLeft: '4px solid var(--corporate-blue)' }}>
-                    <div className="kpi-header">
-                      <span>{selectedCompany === 'GENERAL' ? 'Pacientes (Universo Total)' : `Personal (${selectedCompany})`}</span>
-                      <Users size={20} color="var(--corporate-blue)" />
-                    </div>
-                    <div className="kpi-value">{kpis.total_pacientes}</div>
-                  </div>
+              <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
+                <button
+                  className="nav-item"
+                  onClick={handleLogout}
+                  style={{ color: 'var(--danger)', width: '100%', marginBottom: 0 }}
+                >
+                  <LogOut size={20} />
+                  Cerrar Sesión
+                </button>
+              </div>
+            </nav>
+          </aside>
 
-                  <div className="kpi-card">
-                    <div className="kpi-header">
-                      <span>Consultas (Mes Actual)</span>
-                      <Stethoscope size={20} color="var(--medical-turquoise)" />
-                    </div>
-                    <div className="kpi-value">{kpis.consultas_mes}</div>
-                  </div>
+          {/* MAIN CONTENT */}
+          <main className="main-content">
+            {/* HEADER */}
+            <header className="top-bar">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div>
+                  <h2 className="page-title">Centro de Mando Epidemiológico</h2>
+                  <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
+                    Conectado a Cloud (Oficial)
+                  </p>
+                </div>
 
-                  <div className="kpi-card">
-                    <div className="kpi-header">
-                      <span>Días Cómputo Reposo</span>
-                      <CalendarDays size={20} color="var(--warning)" />
-                    </div>
-                    <div className="kpi-value">{kpis.dias_reposo}</div>
-                  </div>
+                {/* Filtro Maestro de Empresa */}
+                <div style={{ marginLeft: '20px', padding: '4px 12px', background: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <BriefcaseMedical size={18} color="var(--medical-turquoise)" />
+                  <select
+                    value={selectedCompany}
+                    onChange={(e) => setSelectedCompany(e.target.value)}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 600, outline: 'none', cursor: 'pointer', minWidth: '150px' }}
+                  >
+                    <option value="GENERAL" style={{ background: 'var(--bg-primary)' }}>📊 VISTA GENERAL</option>
+                    {availableCompanies.map(c => (
+                      <option key={c} value={c} style={{ background: 'var(--bg-primary)' }}>🏢 {c}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="user-profile">
+                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Dra. Yadira Pino</span>
+                  <span style={{ color: 'var(--medical-turquoise)', fontSize: '0.7rem', fontWeight: 700 }}>FISIATRA CMDMC</span>
+                </div>
+                <div className="user-avatar" style={{ background: 'linear-gradient(135deg, var(--doctora-pink), var(--corporate-blue))', color: 'white' }}>YP</div>
+              </div>
+            </header>
 
-                  <div className="kpi-card">
-                    <div className="kpi-header">
-                      <span>% Índice Ausentismo</span>
-                      <AlertTriangle size={20} color="var(--danger)" />
-                    </div>
-                    <div className="kpi-value">{kpis.ausentismo}%</div>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Ecuación referencial LOPCYMAT</span>
-                  </div>
-                </section>
+            {loading ? (
+              <div style={{ color: 'var(--corporate-blue)', textAlign: 'center', marginTop: '100px', fontSize: '20px', fontWeight: 600 }}>
+                Cargando Datos y Calculando BI...
+              </div>
+            ) : (
+              <div className="view-transition-wrapper">
+                {activeView === 'dashboard' && (
+                  <div className="dashboard-view fade-in">
+                    {/* KPIs */}
+                    <section className="kpi-grid">
+                      <div className="kpi-card" style={{ borderLeft: '4px solid var(--corporate-blue)' }}>
+                        <div className="kpi-header">
+                          <span>{selectedCompany === 'GENERAL' ? 'Pacientes (Universo Total)' : `Personal (${selectedCompany})`}</span>
+                          <Users size={20} color="var(--corporate-blue)" />
+                        </div>
+                        <div className="kpi-value">{kpis.total_pacientes}</div>
+                      </div>
 
-                {/* CHARTS */}
-                <section className="charts-grid">
-                  {/* Chart 1: SEXO */}
-                  <div className="chart-card">
-                    <h3 className="chart-title">Distribución por Sexo</h3>
-                    <div style={{ width: '100%', height: 260 }}>
-                      <ResponsiveContainer>
-                        <PieChart>
-                          <Pie data={genderData} innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value" stroke="none">
-                            {genderData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
+                      <div className="kpi-card">
+                        <div className="kpi-header">
+                          <span>Consultas (Mes Actual)</span>
+                          <Stethoscope size={20} color="var(--medical-turquoise)" />
+                        </div>
+                        <div className="kpi-value">{kpis.consultas_mes}</div>
+                      </div>
+
+                      <div className="kpi-card">
+                        <div className="kpi-header">
+                          <span>Días Cómputo Reposo</span>
+                          <CalendarDays size={20} color="var(--warning)" />
+                        </div>
+                        <div className="kpi-value">{kpis.dias_reposo}</div>
+                      </div>
+
+                      <div className="kpi-card">
+                        <div className="kpi-header">
+                          <span>% Índice Ausentismo</span>
+                          <AlertTriangle size={20} color="var(--danger)" />
+                        </div>
+                        <div className="kpi-value">{kpis.ausentismo}%</div>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Ecuación referencial LOPCYMAT</span>
+                      </div>
+                    </section>
+
+                    {/* CHARTS */}
+                    <section className="charts-grid">
+                      {/* Chart 1: SEXO */}
+                      <div className="chart-card">
+                        <h3 className="chart-title">Distribución por Sexo</h3>
+                        <div style={{ width: '100%', height: 260 }}>
+                          <ResponsiveContainer>
+                            <PieChart>
+                              <Pie data={genderData} innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value" stroke="none">
+                                {genderData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                              </Pie>
+                              <RechartsTooltip
+                                contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px', color: '#fff' }}
+                                itemStyle={{ color: '#fff' }}
+                              />
+                              <Legend verticalAlign="bottom" height={36} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      {/* Chart 2: TIPO CONSULTA */}
+                      <div className="chart-card">
+                        <h3 className="chart-title">Tipos de Consulta Clave (Top 5)</h3>
+                        <div style={{ width: '100%', height: 260 }}>
+                          <ResponsiveContainer>
+                            <BarChart data={consultationData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                              <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
+                              <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} allowDecimals={false} />
+                              <RechartsTooltip
+                                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                                contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
+                              />
+                              <Bar dataKey="val" fill="var(--medical-turquoise)" radius={[4, 4, 0, 0]} barSize={40} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      {/* Chart 3: PATOLOGÍAS OVERVIEW */}
+                      <div className="chart-card">
+                        <h3 className="chart-title">Top 4 Patologías Detectadas</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
+                          {topPathologies.length === 0 && <span style={{ color: 'var(--text-muted)' }}>No hay casos patológicos registrados</span>}
+                          {topPathologies.map((item, i) => {
+                            const maxV = topPathologies[0].v;
+                            const percent = (item.v / maxV) * 100;
+                            return (
+                              <div key={i}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--text-secondary)' }}>
+                                  <span>{item.name}</span>
+                                  <span>{item.v} casos</span>
+                                </div>
+                                <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                                  <div style={{ width: `${percent}%`, height: '100%', backgroundColor: item.c }} />
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Chart 4: REPOSOS TREND */}
+                      <div className="chart-card">
+                        <h3 className="chart-title">Clasificación de Eventos Mensuales</h3>
+                        <div style={{ width: '100%', height: 260 }}>
+                          <ResponsiveContainer>
+                            <LineChart data={trendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                              <XAxis dataKey="month" stroke="var(--text-secondary)" />
+                              <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                              <RechartsTooltip
+                                contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
+                              />
+                              <Legend />
+                              <Line type="monotone" name="Enf. Común" dataKey="enf_comun" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                              <Line type="monotone" name="Acc. Laboral" dataKey="acc_laboral" stroke="var(--danger)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      {/* Chart 5: PATOLOGÍAS POR EDAD Y SEXO */}
+                      <div className="chart-card">
+                        <h3 className="chart-title">Distribución de Patologías por Edad y Sexo</h3>
+                        <div style={{ width: '100%', height: 260 }}>
+                          <ResponsiveContainer>
+                            <BarChart data={demographicStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                              <XAxis dataKey="group" stroke="var(--text-secondary)" />
+                              <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                              <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
+                              <Legend />
+                              <Bar dataKey="Masc" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Hombres" />
+                              <Bar dataKey="Fem" fill="#22d3ee" radius={[4, 4, 0, 0]} name="Mujeres" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      {/* Chart 6: AUSENTISMO POR EDAD Y SEXO */}
+                      <div className="chart-card">
+                        <h3 className="chart-title">Ausentismo (Días) por Edad y Sexo</h3>
+                        <div style={{ width: '100%', height: 260 }}>
+                          <ResponsiveContainer>
+                            <BarChart data={absenteeismStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                              <XAxis dataKey="group" stroke="var(--text-secondary)" />
+                              <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                              <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
+                              <Legend />
+                              <Bar dataKey="Masc" fill="#2563eb" radius={[4, 4, 0, 0]} name="Total Días Hombres" />
+                              <Bar dataKey="Fem" fill="#0ea5e9" radius={[4, 4, 0, 0]} name="Total Días Mujeres" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* EPIDEMIOLOGICAL TABLE */}
+                    <section className="data-table-card">
+                      <h3 className="chart-title" style={{ marginBottom: 8 }}>
+                        {selectedCompany === 'GENERAL' ? 'Vigilancia Epidemiológica - Histórico General' : `Histórico de Consultas - ${selectedCompany}`}
+                      </h3>
+                      {latestConsultations.length === 0 ? (
+                        <p style={{ color: 'var(--text-secondary)' }}>No se han ingresado consultas médicas.</p>
+                      ) : (
+                        <table className="data-table">
+                          <thead>
+                            <tr>
+                              <th>Fecha</th>
+                              <th>Paciente</th>
+                              <th>Empresa (RIF)</th>
+                              <th>Tipo Consulta</th>
+                              <th>Patología Detección</th>
+                              <th>Reposo Registrado</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {latestConsultations.map(cons => (
+                              <tr key={cons.id}>
+                                <td>{new Date(cons.fecha_consulta).toLocaleDateString()}</td>
+                                <td>{cons.pacientes?.nombre_completo || 'Anónimo'}</td>
+                                <td>{cons.empresas?.nombre || 'Independiente'} ({cons.empresas?.rif})</td>
+                                <td>{cons.tipo_consulta}</td>
+                                <td>{cons.tipo_patologia}</td>
+                                <td>
+                                  {cons.categoria_reposo === 'NINGUNO' ? (
+                                    <span className="badge badge-info">SIN REPOSO</span>
+                                  ) : cons.categoria_reposo.includes('ACCIDENTE') ? (
+                                    <span className="badge badge-danger">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
+                                  ) : (
+                                    <span className="badge badge-warning">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
+                                  )}
+                                </td>
+                              </tr>
                             ))}
-                          </Pie>
-                          <RechartsTooltip
-                            contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px', color: '#fff' }}
-                            itemStyle={{ color: '#fff' }}
-                          />
-                          <Legend verticalAlign="bottom" height={36} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
+                          </tbody>
+                        </table>
+                      )}
+                    </section>
                   </div>
+                )}
 
-                  {/* Chart 2: TIPO CONSULTA */}
-                  <div className="chart-card">
-                    <h3 className="chart-title">Tipos de Consulta Clave (Top 5)</h3>
-                    <div style={{ width: '100%', height: 260 }}>
-                      <ResponsiveContainer>
-                        <BarChart data={consultationData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                          <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
-                          <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} allowDecimals={false} />
-                          <RechartsTooltip
-                            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                            contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
-                          />
-                          <Bar dataKey="val" fill="var(--medical-turquoise)" radius={[4, 4, 0, 0]} barSize={40} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* Chart 3: PATOLOGÍAS OVERVIEW */}
-                  <div className="chart-card">
-                    <h3 className="chart-title">Top 4 Patologías Detectadas</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
-                      {topPathologies.length === 0 && <span style={{ color: 'var(--text-muted)' }}>No hay casos patológicos registrados</span>}
-                      {topPathologies.map((item, i) => {
-                        const maxV = topPathologies[0].v;
-                        const percent = (item.v / maxV) * 100;
-                        return (
-                          <div key={i}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--text-secondary)' }}>
-                              <span>{item.name}</span>
-                              <span>{item.v} casos</span>
-                            </div>
-                            <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
-                              <div style={{ width: `${percent}%`, height: '100%', backgroundColor: item.c }} />
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Chart 4: REPOSOS TREND */}
-                  <div className="chart-card">
-                    <h3 className="chart-title">Clasificación de Eventos Mensuales</h3>
-                    <div style={{ width: '100%', height: 260 }}>
-                      <ResponsiveContainer>
-                        <LineChart data={trendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                          <XAxis dataKey="month" stroke="var(--text-secondary)" />
-                          <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                          <RechartsTooltip
-                            contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
-                          />
-                          <Legend />
-                          <Line type="monotone" name="Enf. Común" dataKey="enf_comun" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                          <Line type="monotone" name="Acc. Laboral" dataKey="acc_laboral" stroke="var(--danger)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* Chart 5: PATOLOGÍAS POR EDAD Y SEXO */}
-                  <div className="chart-card">
-                    <h3 className="chart-title">Distribución de Patologías por Edad y Sexo</h3>
-                    <div style={{ width: '100%', height: 260 }}>
-                      <ResponsiveContainer>
-                        <BarChart data={demographicStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                          <XAxis dataKey="group" stroke="var(--text-secondary)" />
-                          <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                          <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
-                          <Legend />
-                          <Bar dataKey="Masc" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Hombres" />
-                          <Bar dataKey="Fem" fill="#22d3ee" radius={[4, 4, 0, 0]} name="Mujeres" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* Chart 6: AUSENTISMO POR EDAD Y SEXO */}
-                  <div className="chart-card">
-                    <h3 className="chart-title">Ausentismo (Días) por Edad y Sexo</h3>
-                    <div style={{ width: '100%', height: 260 }}>
-                      <ResponsiveContainer>
-                        <BarChart data={absenteeismStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                          <XAxis dataKey="group" stroke="var(--text-secondary)" />
-                          <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                          <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
-                          <Legend />
-                          <Bar dataKey="Masc" fill="#2563eb" radius={[4, 4, 0, 0]} name="Total Días Hombres" />
-                          <Bar dataKey="Fem" fill="#0ea5e9" radius={[4, 4, 0, 0]} name="Total Días Mujeres" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                </section>
-
-                {/* EPIDEMIOLOGICAL TABLE */}
-                <section className="data-table-card">
-                  <h3 className="chart-title" style={{ marginBottom: 8 }}>
-                    {selectedCompany === 'GENERAL' ? 'Vigilancia Epidemiológica - Histórico General' : `Histórico de Consultas - ${selectedCompany}`}
-                  </h3>
-                  {latestConsultations.length === 0 ? (
-                    <p style={{ color: 'var(--text-secondary)' }}>No se han ingresado consultas médicas.</p>
-                  ) : (
-                    <table className="data-table">
-                      <thead>
-                        <tr>
-                          <th>Fecha</th>
-                          <th>Paciente</th>
-                          <th>Empresa (RIF)</th>
-                          <th>Tipo Consulta</th>
-                          <th>Patología Detección</th>
-                          <th>Reposo Registrado</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {latestConsultations.map(cons => (
-                          <tr key={cons.id}>
-                            <td>{new Date(cons.fecha_consulta).toLocaleDateString()}</td>
-                            <td>{cons.pacientes?.nombre_completo || 'Anónimo'}</td>
-                            <td>{cons.empresas?.nombre || 'Independiente'} ({cons.empresas?.rif})</td>
-                            <td>{cons.tipo_consulta}</td>
-                            <td>{cons.tipo_patologia}</td>
-                            <td>
-                              {cons.categoria_reposo === 'NINGUNO' ? (
-                                <span className="badge badge-info">SIN REPOSO</span>
-                              ) : cons.categoria_reposo.includes('ACCIDENTE') ? (
-                                <span className="badge badge-danger">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
-                              ) : (
-                                <span className="badge badge-warning">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </section>
+                {activeView === 'patients' && <PatientsList key="patients-view" />}
+                {activeView === 'companies' && <CompaniesModule key="companies-view" />}
+                {activeView === 'surveillance' && <SurveillanceModule key="surveillance-view" />}
+                {activeView === 'consultas' && <ConsultasModule key="consultas-view" />}
+                {activeView === 'reposo' && <ReposoModulo key="reposo-view" />}
               </div>
             )}
+          </main>
 
-            {activeView === 'patients' && <PatientsList key="patients-view" />}
-            {activeView === 'companies' && <CompaniesModule key="companies-view" />}
-            {activeView === 'surveillance' && <SurveillanceModule key="surveillance-view" />}
-            {activeView === 'consultas' && <ConsultasModule key="consultas-view" />}
-            {activeView === 'reposo' && <ReposoModulo key="reposo-view" />}
-          </div>
-        )}
-      </main>
-
-      {/* MODAL DE NUEVA EVALUACIÓN (SUPABASE) */}
-      {showForm && <NewEvaluationForm onClose={handleFormClose} />}
-    </div>
+          {/* MODAL DE NUEVA EVALUACIÓN (SUPABASE) */}
+          {showForm && <NewEvaluationForm onClose={handleFormClose} />}
+        </div>
+      )}
+    </>
   );
 }
