@@ -142,10 +142,10 @@ export default function Login() {
                     )}
 
                     <div className="login-footer">
-                        <div className="security-badge">
-                            <Shield size={14} /> Conexión con cifrado de grado militar activo
+                        <div className="developer-badge" style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <Shield size={14} color="var(--medical-turquoise)" /> Desarrollador: LIC CARLOS FUENTES | 04129581040
                         </div>
-                        <p>© {new Date().getFullYear()} Syntax Software Corp venezolana.</p>
+                        <p>© {new Date().getFullYear()} Syntax Software Corp Venezolana.</p>
                     </div>
                 </div>
             </div>

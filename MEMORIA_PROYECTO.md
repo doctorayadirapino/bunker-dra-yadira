@@ -45,6 +45,10 @@ El día de hoy se ejecutó un protocolo de asistencia técnica profunda, logrand
 *   **Problema:** Se detectó que los reportes de "Informe Epidemiológico" (Vigilancia), "Listado de Evaluaciones" y "Constancia de Reposo/Asistencia" no incluían la Cédula de Identidad de la Dra. Yadira Pino ni su registro obligatorio de INPSASEL. Solo el Certificado de Aptitud lo tenía.
 *   **Solución Computacional:** Se realizó una inyección masiva en los 4 motores de renderizado de `pdfService.ts`. Ahora, cualquier documento emitido por el Búnker (Certificado, Reposo, Epidemiología o Listado) porta con orgullo la C.I. `V-6.871.964` y el registro `MIR116871964`, garantizando la validez legal absoluta ante los entes gubernamentales (MPPS e INPSASEL).
 
+### 9. 🎖️ ATRIBUCIÓN Y AUTORIA (CREDITOS DEL DESARROLLADOR)
+*   **Problema:** El footer del portal de acceso (Login) mostraba una leyenda técnica genérica de seguridad.
+*   **Solución Corporativa:** Se actualizó la firma de autoridad en el Login. Ahora, en el pie de página, se muestra oficialmente: **"Desarrollador: LIC CARLOS FUENTES | 04129581040"**, reconociendo la autoría intelectual y el soporte técnico directo del sistema bajo una estética de transparencia y confianza.
+
 ---
 
 ## 📋 RESUMEN DE LA SESIÓN ANTERIOR (2026-02-28)
