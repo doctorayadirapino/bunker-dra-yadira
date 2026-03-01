@@ -299,9 +299,14 @@ export default function App() {
                 style={{ width: '100%', padding: 12, borderRadius: 8, marginBottom: 15, background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'white' }}
               />
               {resetError && <p style={{ color: 'var(--danger)', marginBottom: 15, fontSize: '0.9rem' }}>{resetError}</p>}
-              <button type="submit" disabled={resetLoading} style={{ width: '100%', padding: 12, background: 'var(--corporate-blue)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 'bold' }}>
-                {resetLoading ? 'Procesando...' : 'Cambiar Contraseña y Entrar'}
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="button" onClick={() => setShowResetPassword(false)} disabled={resetLoading} style={{ width: '100%', padding: 12, background: 'var(--bg-primary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: 8, cursor: 'pointer', fontWeight: 'bold' }}>
+                  Cancelar
+                </button>
+                <button type="submit" disabled={resetLoading} style={{ width: '100%', padding: 12, background: 'var(--corporate-blue)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 'bold' }}>
+                  {resetLoading ? 'Procesando...' : 'Cambiar Contraseña'}
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -371,6 +376,14 @@ export default function App() {
               </button>
 
               <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
+                <button
+                  className="nav-item"
+                  onClick={() => setShowResetPassword(true)}
+                  style={{ color: 'var(--text-primary)', width: '100%', marginBottom: '10px' }}
+                >
+                  <AlertTriangle size={20} />
+                  Cambiar Contraseña
+                </button>
                 <button
                   className="nav-item"
                   onClick={handleLogout}

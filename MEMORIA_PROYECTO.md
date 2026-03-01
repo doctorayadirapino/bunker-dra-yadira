@@ -29,6 +29,14 @@ El día de hoy se ejecutó un protocolo de asistencia técnica profunda, logrand
     1. Se procesó un recálculo a nivel de motor de renderizado `jsPDF` (`src/services/pdfService.ts`). Se han optimizado las coordenadas `(x, y)` y reescalado el vector gráfico para que la imagen enarbole simétricamente sobre la línea, tanto para certificados como para el reporte estadístico (LOPCYMAT).
     2. Se ha inyectado un motor de decisión nativo (`window.confirm`) en el módulo de Historial de Consultas (`ConsultasModule.tsx`) y en el de Vigilancia Epidemiológica (`SurveillanceModule.tsx`) para que el sistema consulte interactivamente a la doctora si desea o no inyectar la firma antes de procesar el renderizado del PDF, respetando su autoridad jerárquica en todo momento (para envío digital vía correo/whatsapp vs. impresión para sellado físico).
 
+### 6. ⚙️ MEJORAS LÓGICO-CORPORATIVAS Y DATOS FALTANTES 
+*   **Problema de Identidad del Certificado:** El certificado médico no expresaba de base la Cédula de Identidad de la doctora ni su registro de INPSASEL (`MIR116871964`), y la "Ciudad de Emisión" estaba atada fijamente al código ("Guarenas").
+*   **Problema de Autogestión de Acceso:** La doctora solo podía recuperar su clave con un enlace al correo (modo *Forgot Password*). No podía hacerlo mientras ya estuviera logueada en el sistema.
+*   **Solución Computacional e Interactiva:**
+    1. Se reestructuró la grilla matemática del `pdfService.ts` inyectando nativamente la C.I. (`V-6.871.964`) y el registro **INPSASEL** (`MIR116871964`) directamente en los membretes superiores y en la sección del pie de firma.
+    2. Se reemplazó el string estático de la ciudad. Ahora, las vistas `NewEvaluationForm.tsx` y `ConsultasModule.tsx` ejecutan un macro automático interactivo (`window.prompt`) pidiéndole la ciudad en tiempo real al generar los PDF (ej: Caracas, Guarenas, Maracay), manteniendo Guarenas como opción sugerida base.
+    3. Se habilitó un botón global de seguridad "**Cambiar Contraseña**" sobre "Cerrar Sesión" de la barra lateral. Este levanta un Modal que permite mutar la llave de cifrado directamente en la base de datos de Supabase sin necesidad de desloguearse, con una opción de "*Cancelar*" si cambió de opinión.
+
 ---
 
 ## 📋 RESUMEN DE LA SESIÓN ANTERIOR (2026-02-28)

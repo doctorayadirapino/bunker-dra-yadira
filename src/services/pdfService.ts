@@ -17,6 +17,7 @@ interface CertificadoData {
         examen_fisico?: string;
         causa_reposo?: string;
         dias_reposo?: number;
+        ciudad?: string;
     };
     doctora: {
         nombre: string;
@@ -76,12 +77,13 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         doc.setFont('helvetica', 'normal');
         const subtitulo = 'LOPCYMAT DIPLOMADO EN SALUD OCUPACIONAL DIPLOMADO DE ERGONOMIA';
         doc.text(subtitulo, 105, 38, { align: 'center' });
-        doc.text(`M.P.PS 41171 / C.M.M: 13012 RIF: V-6871964-6`, 105, 43, { align: 'center' });
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 42, { align: 'center' });
+        doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 46, { align: 'center' });
 
         // Línea separadora
         doc.setDrawColor(blueColor);
         doc.setLineWidth(0.5);
-        doc.line(15, 48, 195, 48);
+        doc.line(15, 50, 195, 50);
 
         // --- TÍTULO DEL DOCUMENTO ---
         doc.setTextColor(blueColor);
@@ -93,7 +95,8 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         doc.setTextColor(textColor);
         doc.setFontSize(11);
         const fecha = new Date().toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
-        doc.text(`En la ciudad de Guarenas, a los ${fecha}.`, 15, 75);
+        const ciudadActual = data.consulta.ciudad || 'Guarenas';
+        doc.text(`En la ciudad de ${ciudadActual}, a los ${fecha}.`, 15, 75);
 
         doc.setFont('helvetica', 'bold');
         doc.text('HACE CONSTAR:', 15, 85);
@@ -143,7 +146,8 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         doc.text(`Dra. ${data.doctora.nombre} R.`, 108, lineY + 6, { align: 'center' });
         doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
-        doc.text(`M.P.PS 41171 / C.M.M 13012`, 108, lineY + 11, { align: 'center' });
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, lineY + 11, { align: 'center' });
+        doc.text(`INPSASEL: MIR116871964`, 108, lineY + 15, { align: 'center' });
 
         if (data.conFirmaDigital) {
             try {

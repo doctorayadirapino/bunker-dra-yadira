@@ -281,6 +281,8 @@ export default function NewEvaluationForm({ onClose, editConsultaId }: FormProps
 
             alert(isEditing ? "¡EVALUACIÓN ACTUALIZADA EXITOSAMENTE!" : "¡EVALUACIÓN REGISTRADA EXITOSAMENTE!");
 
+            const ciudadPersonalizada = window.prompt("Ingrese la ciudad de emisión del certificado:", "Guarenas");
+
             generarCertificadoPDF({
                 paciente: {
                     nombre: paciente.nombre_completo,
@@ -296,7 +298,8 @@ export default function NewEvaluationForm({ onClose, editConsultaId }: FormProps
                     observaciones: consulta.observaciones,
                     examen_fisico: consulta.examen_fisico,
                     causa_reposo: consulta.causa_reposo,
-                    dias_reposo: consulta.dias_reposo
+                    dias_reposo: consulta.dias_reposo,
+                    ciudad: ciudadPersonalizada ? ciudadPersonalizada.toUpperCase() : 'GUARENAS'
                 },
                 doctora: {
                     nombre: "YADIRA PINO",

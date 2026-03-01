@@ -33,6 +33,9 @@ export default function ConsultasModule() {
     const handlePrint = (c: any) => {
         const conFirma = window.confirm("¿Desea incluir la FIRMA DIGITAL en el certificado?\n\n• [Aceptar]: Para enviar por correo electrónico.\n• [Cancelar]: Para imprimir y sellar físicamente.");
 
+        const ciudadPersonalizada = window.prompt("Ingrese la CUIDAD de emisión del certificado:", "Guarenas");
+        if (ciudadPersonalizada === null) return; // Si cancela, se aborta la impresión
+
         generarCertificadoPDF({
             paciente: {
                 nombre: c.pacientes.nombre_completo,
@@ -48,7 +51,8 @@ export default function ConsultasModule() {
                 observaciones: c.observaciones,
                 examen_fisico: c.examen_fisico,
                 causa_reposo: c.causa_reposo,
-                dias_reposo: c.dias_reposo
+                dias_reposo: c.dias_reposo,
+                ciudad: ciudadPersonalizada.toUpperCase()
             },
             doctora: {
                 nombre: "YADIRA PINO",
