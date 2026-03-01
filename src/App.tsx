@@ -469,7 +469,7 @@ export default function App() {
                       <div className="chart-card">
                         <h3 className="chart-title">Distribución por Sexo</h3>
                         <div style={{ width: '100%', height: 260 }}>
-                          <ResponsiveContainer>
+                          <ResponsiveContainer width="100%" height={260}>
                             <PieChart>
                               <Pie data={genderData} innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value" stroke="none">
                                 {genderData.map((entry, index) => (
@@ -490,7 +490,7 @@ export default function App() {
                       <div className="chart-card">
                         <h3 className="chart-title">Tipos de Consulta Clave (Top 5)</h3>
                         <div style={{ width: '100%', height: 260 }}>
-                          <ResponsiveContainer>
+                          <ResponsiveContainer width="100%" height={260}>
                             <BarChart data={consultationData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
                               <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
@@ -532,7 +532,7 @@ export default function App() {
                       <div className="chart-card">
                         <h3 className="chart-title">Clasificación de Eventos Mensuales</h3>
                         <div style={{ width: '100%', height: 260 }}>
-                          <ResponsiveContainer>
+                          <ResponsiveContainer width="100%" height={260}>
                             <LineChart data={trendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
                               <XAxis dataKey="month" stroke="var(--text-secondary)" />
@@ -552,7 +552,7 @@ export default function App() {
                       <div className="chart-card">
                         <h3 className="chart-title">Distribución de Patologías por Edad y Sexo</h3>
                         <div style={{ width: '100%', height: 260 }}>
-                          <ResponsiveContainer>
+                          <ResponsiveContainer width="100%" height={260}>
                             <BarChart data={demographicStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
                               <XAxis dataKey="group" stroke="var(--text-secondary)" />
@@ -570,7 +570,7 @@ export default function App() {
                       <div className="chart-card">
                         <h3 className="chart-title">Ausentismo (Días) por Edad y Sexo</h3>
                         <div style={{ width: '100%', height: 260 }}>
-                          <ResponsiveContainer>
+                          <ResponsiveContainer width="100%" height={260}>
                             <BarChart data={absenteeismStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
                               <XAxis dataKey="group" stroke="var(--text-secondary)" />
