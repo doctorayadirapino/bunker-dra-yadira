@@ -17,6 +17,11 @@ El día de hoy se ejecutó un protocolo de asistencia técnica profunda, logrand
 *   **Diagnóstico (*Robots Perimetrales Puppeteer*):** El error radicaba en el motor de gráficos `Recharts` (`ResponsiveContainer`). Estaba colapsando el Virtual DOM de React al intentar calcular proporciones negativas (-1) y de ancho cero (0) tras la nueva lógica transicional de protección condicional.
 *   **Solución Matemática/Computacional:** Se procedió a estabilizar los 6 contenedores epidemiológicos en `App.tsx`, asignándoles explícitamente `width="100%"` y `height={260}` en lugar de dimensiones calculadas al aire. Se recompiló (`npm run build`) y se mandó en directo a producción. El colapso ha sido conjurado.
 
+### 4. 🗄️ RESGUARDO MAESTRO DE TOKENS (NIVEL OFFLINE)
+*   **Problema:** Los tokens de acceso de Github y Vercel provistos en sesión no pueden quedar varados en la consola ni registrarse en el código en la nube (Riesgo Crítico de Seguridad).
+*   **Solución:** Se empaquetaron los tokens de colaboración bajo el archivo `CREDENTIALS_BACKUP.txt` en la raíz de la carpeta local del proyecto.
+*   **Regla Zero Trust:** Este archivo está rigurosamente ignorado por `.gitignore` (Módulo: Dr. Yadira's Private Data). Otro agente o Carlos Fuentes puede consultar dicho documento `.txt` para redesplegar el Búnker en una nueva PC sin riesgo de exposición al internet.
+
 ---
 
 ## 📋 RESUMEN DE LA SESIÓN ANTERIOR (2026-02-28)
