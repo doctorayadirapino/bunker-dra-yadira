@@ -293,7 +293,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         }
 
         const finalY = (data.stats.genderChartImg || data.stats.ageChartImg)
-            ? (nextY + 100 > 260 ? 260 : nextY + 100)
+            ? (nextY + 130 > 265 ? 265 : nextY + 130)
             : ((doc as any).lastAutoTable.finalY + 30);
 
         doc.setDrawColor(blueColor);
