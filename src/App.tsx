@@ -645,7 +645,12 @@ export default function App() {
 
                 {activeView === 'patients' && <PatientsList key="patients-view" />}
                 {activeView === 'companies' && <CompaniesModule key="companies-view" onAudit={(companyName) => { setSelectedCompany(companyName); setActiveView('surveillance'); }} />}
-                {activeView === 'surveillance' && <SurveillanceModule key="surveillance-view" />}
+                {activeView === 'surveillance' && (
+                  <SurveillanceModule
+                    key="surveillance-view"
+                    selectedCompanyProp={selectedCompany}
+                  />
+                )}
                 {activeView === 'consultas' && <ConsultasModule key="consultas-view" />}
                 {activeView === 'reposo' && <ReposoModulo key="reposo-view" />}
               </div>

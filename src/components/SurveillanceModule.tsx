@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { FileBarChart, Download, Filter, TrendingUp, Users, AlertCircle, FileText, PieChart as PieIcon, BarChart as BarIcon } from 'lucide-react';
+import { FileBarChart, Download, TrendingUp, Users, AlertCircle, FileText, PieChart as PieIcon, BarChart as BarIcon } from 'lucide-react';
 import {
     PieChart, Pie, Cell, Tooltip as RechartsTooltip,
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer
@@ -8,10 +8,14 @@ import {
 import html2canvas from 'html2canvas';
 import { generarReporteVigilanciaPDF, generarListadoEmpresaPDF } from '../services/pdfService';
 
-export default function SurveillanceModule() {
+export default function SurveillanceModule({
+    selectedCompanyProp
+}: {
+    selectedCompanyProp: string;
+}) {
     const [loading, setLoading] = useState(true);
     const [empresas, setEmpresas] = useState<any[]>([]);
-    const [selectedEmpresa, setSelectedEmpresa] = useState('GENERAL');
+    const selectedEmpresa = selectedCompanyProp; // Vinculamos localmente para no romper lógica existente
     const [analytics, setAnalytics] = useState<any>(null);
     const [downloading, setDownloading] = useState(false);
     const [rawConsultas, setRawConsultas] = useState<any[]>([]);
@@ -190,17 +194,7 @@ export default function SurveillanceModule() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '15px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-secondary)', padding: '5px 15px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                        <Filter size={18} color="var(--corporate-blue)" />
-                        <select
-                            value={selectedEmpresa}
-                            onChange={e => setSelectedEmpresa(e.target.value)}
-                            style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', cursor: 'pointer' }}
-                        >
-                            <option value="GENERAL">📊 VISTA GENERAL (CONSOLIDADO)</option>
-                            {empresas.map(e => <option key={e.id} value={e.nombre}>🏢 {e.nombre}</option>)}
-                        </select>
-                    </div>
+                    {/* Filtro Maestro ya existe en el Header de App.tsx, lo removemos de aquí para evitar duplicidad */}
 
                     <button
                         onClick={handleDownloadReport}
