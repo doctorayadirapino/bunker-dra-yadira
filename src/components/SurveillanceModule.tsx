@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { FileBarChart, Download, Filter, TrendingUp, Users, AlertCircle, FileText } from 'lucide-react';
+import { FileBarChart, Download, Filter, TrendingUp, Users, AlertCircle, FileText, PieChart as PieIcon, BarChart as BarIcon } from 'lucide-react';
+import {
+    PieChart, Pie, Cell, Tooltip as RechartsTooltip,
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer
+} from 'recharts';
 import { generarReporteVigilanciaPDF, generarListadoEmpresaPDF } from '../services/pdfService';
 
 export default function SurveillanceModule() {
@@ -47,6 +51,7 @@ export default function SurveillanceModule() {
             // --- LÓGICA DE PROCESAMIENTO BI ---
             const patMap: Record<string, number> = {};
             const typeMap: Record<string, number> = {};
+            let mCount = 0, fCount = 0;
             const demoMap: Record<string, any> = {
                 '18-25': { group: '18-25', Masc: 0, Fem: 0 },
                 '26-35': { group: '26-35', Masc: 0, Fem: 0 },
@@ -63,6 +68,8 @@ export default function SurveillanceModule() {
                 totalReposodays += row.dias_reposo || 0;
                 patMap[row.tipo_patologia] = (patMap[row.tipo_patologia] || 0) + 1;
                 typeMap[row.tipo_consulta] = (typeMap[row.tipo_consulta] || 0) + 1;
+
+                if (row.pacientes?.sexo === 'Masculino') mCount++; else fCount++;
 
                 // Demografía
                 let age = 30; // Default
@@ -85,6 +92,10 @@ export default function SurveillanceModule() {
                 absenteeismRate: uniquePatients.size > 0
                     ? ((totalReposodays / (uniquePatients.size * 20)) * 100).toFixed(2)
                     : "0.00",
+                genderData: [
+                    { name: 'Masculino', value: mCount, color: '#3b82f6' },
+                    { name: 'Femenino', value: fCount, color: '#0bdada' }
+                ],
                 topPathologies: Object.entries(patMap).length > 0
                     ? Object.entries(patMap).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 10)
                     : [],
@@ -94,7 +105,6 @@ export default function SurveillanceModule() {
                 demographics: Object.values(demoMap)
             };
 
-            console.log('Analytics procesado con éxito:', stats);
             setAnalytics(stats);
             setLoading(false);
         } catch (err) {
@@ -155,8 +165,8 @@ export default function SurveillanceModule() {
                             onChange={e => setSelectedEmpresa(e.target.value)}
                             style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', cursor: 'pointer' }}
                         >
-                            <option value="GENERAL">TODAS LAS EMPRESAS</option>
-                            {empresas.map(e => <option key={e.id} value={e.nombre}>{e.nombre}</option>)}
+                            <option value="GENERAL">📊 VISTA GENERAL (CONSOLIDADO)</option>
+                            {empresas.map(e => <option key={e.id} value={e.nombre}>🏢 {e.nombre}</option>)}
                         </select>
                     </div>
 
@@ -166,9 +176,9 @@ export default function SurveillanceModule() {
                         style={{ display: 'flex', alignItems: 'center', gap: '8px', background: downloading ? 'var(--text-secondary)' : 'var(--corporate-blue)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading) ? 0.7 : 1 }}
                     >
                         {downloading ? "Procesando..." : (
-                            selectedEmpresa === 'GENERAL' 
-                            ? <><Download size={18} /> Reporte Consolidado (Global)</>
-                            : <><Download size={18} /> Resumen: {selectedEmpresa}</>
+                            selectedEmpresa === 'GENERAL'
+                                ? <><Download size={18} /> Reporte Consolidado (Global)</>
+                                : <><Download size={18} /> Resumen: {selectedEmpresa}</>
                         )}
                     </button>
 
@@ -179,8 +189,8 @@ export default function SurveillanceModule() {
                     >
                         {downloading ? "Buscando..." : (
                             selectedEmpresa === 'GENERAL'
-                            ? <><FileText size={18} /> Listado Maestro de Consultas</>
-                            : <><FileText size={18} /> Listado: {selectedEmpresa}</>
+                                ? <><FileText size={18} /> Listado Maestro de Consultas</>
+                                : <><FileText size={18} /> Listado: {selectedEmpresa}</>
                         )}
                     </button>
                 </div>
@@ -218,6 +228,44 @@ export default function SurveillanceModule() {
                         <div>
                             <small style={{ color: 'var(--text-secondary)', display: 'block' }}>Total Consultas</small>
                             <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>{analytics?.totalConsultations}</span>
+                        </div>
+                    </div>
+
+                    {/* GRÁFICAS INTEGRADAS EN VIGILANCIA */}
+                    <div style={{ gridColumn: '1 / span 1', background: 'var(--bg-secondary)', padding: '25px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <PieIcon size={20} color="var(--corporate-blue)" /> Distribución por Sexo
+                        </h3>
+                        <div style={{ width: '100%', height: 260 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie data={analytics?.genderData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
+                                        {analytics?.genderData.map((entry: any, index: number) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <RechartsTooltip contentStyle={{ background: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div style={{ gridColumn: '2 / span 2', background: 'var(--bg-secondary)', padding: '25px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <BarIcon size={20} color="var(--medical-turquoise)" /> Evolución de Consultas por Edad
+                        </h3>
+                        <div style={{ width: '100%', height: 260 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={analytics?.demographics}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                                    <XAxis dataKey="group" stroke="var(--text-secondary)" />
+                                    <YAxis stroke="var(--text-secondary)" />
+                                    <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ background: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
+                                    <Bar dataKey="Masc" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Masculino" />
+                                    <Bar dataKey="Fem" fill="#22d3ee" radius={[4, 4, 0, 0]} name="Femenino" />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
 
