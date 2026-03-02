@@ -145,7 +145,8 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 86, lineY - 38, 45, 35);
+                // Ajuste de altura a -45 para evitar solapar el nombre
+                doc.addImage(img, 'PNG', 86, lineY - 45, 45, 35);
             } catch (e) {
                 console.error('Error firma:', e);
             }
@@ -171,13 +172,12 @@ interface SurveillanceData {
         topPathologies: { name: string; value: number }[];
         demographics: { group: string; Masc: number; Fem: number }[];
         consultationTypes: { name: string; value: number }[];
-        genderChartImg?: string;
-        ageChartImg?: string;
     };
     conFirmaDigital?: boolean;
 }
 
 export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
+    console.log('%c--- [AUDITORÍA DE VERSIÓN CARLOS FUENTES: v2.0 - LIMPIO SIN GRÁFICOS] ---', 'color: #0284c7; font-weight: bold; font-size: 14px;');
     console.log('Generando Reporte Vigilancia Oficial...');
     try {
         const doc = new jsPDF({
@@ -268,54 +268,58 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             headStyles: { fillColor: [2, 132, 199] }
         });
 
-        let nextY = (doc as any).lastAutoTable.finalY + 10;
-        if (nextY > 200) {
+        const finalY = (doc as any).lastAutoTable.finalY + 35;
+
+        // Si la firma se va a salir de la página, agregamos una página nueva
+        if (finalY > 240) {
             doc.addPage();
-            nextY = 20;
-        }
+            // Nueva posición en la página limpia
+            const startNewPageY = 40;
+            doc.setDrawColor(blueColor);
+            doc.line(78, startNewPageY, 138, startNewPageY);
 
-        if (data.stats.genderChartImg) {
-            doc.setFontSize(11);
-            doc.setTextColor(blueColor);
+            doc.setFontSize(10);
+            doc.setTextColor(textColor);
             doc.setFont('helvetica', 'bold');
-            doc.text('Distribución Visual de Población:', 15, nextY);
-            doc.addImage(data.stats.genderChartImg, 'PNG', 15, nextY + 5, 80, 60);
-        }
+            doc.text(`Dra. YADIRA PINO R.`, 108, startNewPageY + 6, { align: 'center' });
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, startNewPageY + 11, { align: 'center' });
+            doc.text(`INPSASEL: MIR116871964`, 108, startNewPageY + 15, { align: 'center' });
 
-        if (data.stats.ageChartImg) {
-            if (!data.stats.genderChartImg) {
-                doc.setFontSize(11);
-                doc.setTextColor(blueColor);
-                doc.setFont('helvetica', 'bold');
-                doc.text('Análisis de Morbilidad por Edad:', 15, nextY);
+            if (data.conFirmaDigital) {
+                try {
+                    const img = await loadImage('/firma_doctora.png');
+                    // Posicionamos la firma sobre la línea en la nueva página con margen de seguridad
+                    doc.addImage(img, 'PNG', 86, startNewPageY - 45, 45, 35);
+                } catch (e) {
+                    console.error('Error firma:', e);
+                }
             }
-            doc.addImage(data.stats.ageChartImg, 'PNG', 105, nextY + 5, 90, 60);
-        }
+        } else {
+            // Posición normal en la misma página
+            doc.setDrawColor(blueColor);
+            doc.line(78, finalY, 138, finalY);
 
-        const finalY = (data.stats.genderChartImg || data.stats.ageChartImg)
-            ? (nextY + 130 > 265 ? 265 : nextY + 130)
-            : ((doc as any).lastAutoTable.finalY + 30);
+            doc.setFontSize(10);
+            doc.setTextColor(textColor);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`Dra. YADIRA PINO R.`, 108, finalY + 6, { align: 'center' });
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, finalY + 11, { align: 'center' });
+            doc.text(`INPSASEL: MIR116871964`, 108, finalY + 15, { align: 'center' });
 
-        doc.setDrawColor(blueColor);
-        doc.line(78, finalY, 138, finalY);
-
-        doc.setFontSize(10);
-        doc.setTextColor(textColor);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`Dra. YADIRA PINO R.`, 108, finalY + 6, { align: 'center' });
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, finalY + 11, { align: 'center' });
-        doc.text(`INPSASEL: MIR116871964`, 108, finalY + 15, { align: 'center' });
-
-        if (data.conFirmaDigital) {
-            try {
-                const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 86, finalY - 38, 45, 35);
-            } catch (e) {
-                console.error('Error firma:', e);
+            if (data.conFirmaDigital) {
+                try {
+                    const img = await loadImage('/firma_doctora.png');
+                    doc.addImage(img, 'PNG', 86, finalY - 45, 45, 35);
+                } catch (e) {
+                    console.error('Error firma:', e);
+                }
             }
         }
+
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {
@@ -323,7 +327,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
     }
 };
 
-export const generarListadoEmpresaPDF = async (companyName: string, consultas: any[], chartImages?: { gender?: string; age?: string }) => {
+export const generarListadoEmpresaPDF = async (companyName: string, consultas: any[]) => {
     try {
         const doc = new jsPDF({
             orientation: 'l',
@@ -371,25 +375,6 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
             theme: 'striped',
             headStyles: { fillColor: [2, 132, 199] }
         });
-
-        // --- INYECCIÓN DE GRÁFICAS EN EL LISTADO ---
-        if (chartImages?.gender || chartImages?.age) {
-            const finalYTable = (doc as any).lastAutoTable.finalY + 10;
-
-            // Si no hay mucho espacio, saltamos de página (aunque en landscape usualmente hay espacio)
-            let currentY = finalYTable;
-            if (currentY > 150) {
-                doc.addPage();
-                currentY = 20;
-            }
-
-            if (chartImages.gender) {
-                doc.addImage(chartImages.gender, 'PNG', 20, currentY, 110, 50);
-            }
-            if (chartImages.age) {
-                doc.addImage(chartImages.age, 'PNG', 150, currentY, 110, 50);
-            }
-        }
 
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {

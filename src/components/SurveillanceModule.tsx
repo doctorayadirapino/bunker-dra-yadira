@@ -5,7 +5,6 @@ import {
     PieChart, Pie, Cell, Tooltip as RechartsTooltip,
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer
 } from 'recharts';
-import html2canvas from 'html2canvas';
 import { generarReporteVigilanciaPDF, generarListadoEmpresaPDF } from '../services/pdfService';
 
 export default function SurveillanceModule({
@@ -121,49 +120,20 @@ export default function SurveillanceModule({
     const handleDownloadReport = async () => {
         if (!analytics) return;
 
+        console.log('--- INICIANDO GENERACIÓN DE REPORTE VIGILANCIA (VERSIÓN LIMPIA) ---');
         const conFirma = window.confirm("¿Desea incluir la FIRMA DIGITAL en el Resumen Estadístico?\n\n• [Aceptar]: Para enviar por correo corporativo o WhatsApp.\n• [Cancelar]: Para imprimir y sellar físicamente.");
 
         setDownloading(true);
         try {
-            // CAPTURA TRANSFUSIONAL DE GRÁFICAS (EPIDEMIOLOGÍA VISUAL)
-            const genderElem = document.getElementById('gender-pie');
-            const ageElem = document.getElementById('age-bar');
-
-            let genderImg = '';
-            let ageImg = '';
-
-            if (genderElem) {
-                const canvas = await html2canvas(genderElem, {
-                    scale: 2,
-                    backgroundColor: '#1b2431', // Color aproximado del fondo secondary
-                    logging: false,
-                    useCORS: true
-                });
-                genderImg = canvas.toDataURL('image/png');
-            }
-
-            if (ageElem) {
-                const canvas = await html2canvas(ageElem, {
-                    scale: 2,
-                    backgroundColor: '#1b2431',
-                    logging: false,
-                    useCORS: true
-                });
-                ageImg = canvas.toDataURL('image/png');
-            }
-
             await generarReporteVigilanciaPDF({
                 companyName: selectedEmpresa,
                 month: new Date().toLocaleDateString('es-VE', { month: 'long', year: 'numeric' }).toUpperCase(),
-                stats: {
-                    ...analytics,
-                    genderChartImg: genderImg,
-                    ageChartImg: ageImg
-                },
+                stats: analytics,
                 conFirmaDigital: conFirma
             });
+            console.log('--- REPORTE GENERADO EXITOSAMENTE (SIN GRÁFICOS) ---');
         } catch (error) {
-            console.error('Error generating PDF:', error);
+            console.error('Error in handleDownloadReport:', error);
             alert('Error al generar el PDF. Revise la consola para más detalles.');
         } finally {
             setDownloading(false);
@@ -173,27 +143,11 @@ export default function SurveillanceModule({
     const handleDownloadList = async () => {
         setDownloading(true);
         try {
-            // CAPTURA DE GRÁFICAS PARA EL LISTADO
-            const genderElem = document.getElementById('gender-pie');
-            const ageElem = document.getElementById('age-bar');
-
-            let genderImg = '';
-            let ageImg = '';
-
-            if (genderElem) {
-                const canvas = await html2canvas(genderElem, { scale: 1.5, backgroundColor: '#1b2431' });
-                genderImg = canvas.toDataURL('image/png');
-            }
-            if (ageElem) {
-                const canvas = await html2canvas(ageElem, { scale: 1.5, backgroundColor: '#1b2431' });
-                ageImg = canvas.toDataURL('image/png');
-            }
-
             const listData = selectedEmpresa === 'GENERAL'
                 ? rawConsultas
                 : rawConsultas.filter(c => c.empresas?.nombre === selectedEmpresa);
 
-            await generarListadoEmpresaPDF(selectedEmpresa, listData, { gender: genderImg, age: ageImg });
+            await generarListadoEmpresaPDF(selectedEmpresa, listData);
         } catch (error) {
             console.error('Error:', error);
         } finally {

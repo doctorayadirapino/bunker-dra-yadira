@@ -103,26 +103,34 @@ Se ha robustecido el sistema de inteligencia epidemiológica para ofrecer una vi
 *   **Seguridad:** El procesamiento se mantiene en el lado del cliente (React) bajo un modelo Zero Trust, garantizando que no haya filtración de datos entre empresas durante la generación de PDFs.
 
 ### 2. 📊 INYECCIÓN VISUAL EN REPORTES PDF (ENGINE UPGRADE)
-*   **Problema:** Los reportes PDF eran puramente tabulares, perdiendo la potencia visual de las gráficas de Recharts presentes en el Dashboard.
-*   **Solución Senior:** Se integró la librería `html2canvas` para realizar capturas de alta definición de los componentes `gender-pie` y `age-bar`.
-*   **Implementación:** Se modificó el `pdfService.ts` para permitir la inyección de imágenes Base64, logrando que el "Informe Epidemiológico" porte ahora las gráficas reales calculadas en el momento.
-*   **Resultado:** Documentos con acabado profesional de auditoría médica, combinando datos duros con visualizaciones gráficas.
+*   **Problema:** Los reportes PDF eran puramente tabulares, perdiendo la potencia visual de las gráficas de Recharts.
+*   **Solución Senior:** Integración de `html2canvas` para captura de componentes `gender-pie` y `age-bar` en alta definición.
+*   **Implementación Extendida:** Se modificó `pdfService.ts` para inyectar estas gráficas tanto en el **Informe Epidemiológico** como en el **Listado de Evaluaciones Médicas** (solicitud visual de la Doctora).
+*   **Corrección Geométrica:** Se ajustó el offset de la firma digital a **130mm** para garantizar una separación de ~3cm entre las gráficas y la rúbrica, eliminando solapamientos.
+
+### 3. 🧩 UNIFICACIÓN DE INTERFAZ (UI HARMONY)
+*   **Decisión de Diseño:** Se eliminó el menú desplegable duplicado dentro del módulo de Vigilancia.
+*   **Sincronización:** El módulo ahora consume directamente el **Filtro Maestro** del encabezado global via Props, asegurando una "Sola Fuente de Verdad" en toda la sesión.
 
 ---
 
 ## 🔒 RESUMEN DE CIERRE DE SESIÓN (2026-03-02) - CARLOS FUENTES
 
-### ✅ ¿Qué se hizo hoy?
-1.  **Detección de Llaves**: Se verificó la disponibilidad de los tokens de GitHub y Vercel en `CREDENTIALS_BACKUP.txt` para garantizar la continuidad operativa.
-2.  **Optimización UI/UX**: Se implementaron botones inteligentes en el módulo de Vigilancia que cambian su propósito y etiqueta según el filtro de empresa seleccionado.
-3.  **Seguridad de Datos**: Se validó que el motor de filtrado por empresa no altere la base de datos de Supabase y mantenga la integridad referencial de los pacientes.
+### ✅ ¿Qué se hizo hoy? (ESTABILIZACIÓN Y LIMPIEZA)
+1.  **Simplificación de PDFs**: Se eliminaron los gráficos de alta definición de los reportes PDF para volver a la versión tabular original, mejorando la velocidad de descarga y la sobriedad del documento.
+2.  **Optimización de Firma Digital**: Se recalibraron las coordenadas en el Informe Epidemiológico. La firma ahora reposa dinámicamente tras la última tabla, con un sistema de seguridad que detecta si debe saltar a una nueva página para evitar solapamientos con el pie de página.
+3.  **Remoción de html2canvas**: Se eliminó la dependencia innecesaria de captura de pantalla en el Frontend, optimizando el rendimiento del módulo de Vigilancia.
+4.  **Push & Deploy**: El sistema está 100% actualizado en GitHub y desplegado en Vercel con la versión estabilizada.
 
 ### ⏳ ¿Qué quedó pendiente?
-- **Despliegue a Producción**: Los cambios están listos para ser enviados a Vercel mediante `npx vercel --prod`.
-- **Carga de Sello**: Pendiente el archivo `firma_doctora.png` si se desea automatizar visualmente la firma.
+- **Sello Físico**: Si la doctora adquiere un sello nuevo, solo debe reemplazar `/public/firma_doctora.png`.
+- **Nuevos Módulos**: El sistema está listo para recibir el módulo de Inventario Farmacéutico si Carlos Fuentes lo decide.
 
 ### 🤖 Nota para el siguiente Agente/Ingeniero
-El sistema sigue la arquitectura **Vite + React**. Los cambios de hoy están localizados en `src/components/SurveillanceModule.tsx`. La integración de `pdfService.ts` es totalmente compatible con las nuevas etiquetas dinámicas.
+Se revirtió la inyección de gráficos en PDF por solicitud del usuario. Los reportes ahora son puramente tabulares. Si se desea volver a incluir gráficos, se debe re-implementar `html2canvas` pero cuidando los saltos de página dinámicos. La posición de la firma digital está amarrada al `lastAutoTable.finalY`.
 
-**SESIÓN FINALIZADA POR ANTIGRAVITY - ASISTENTE DE CARLOS FUENTES.**
+**CIERRE DE OPERACIONES EJECUTADO POR ANTIGRAVITY - ASISTENTE DE CARLOS FUENTES.**
+
+---
+
 
