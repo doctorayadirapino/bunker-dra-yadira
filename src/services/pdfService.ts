@@ -33,6 +33,7 @@ interface CertificadoData {
 const loadImage = (url: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
         const img = new Image();
+        img.crossOrigin = 'anonymous'; // Añadido para evitar problemas de CORS
         img.onload = () => resolve(img);
         img.onerror = (e) => reject(e);
         img.src = url;
@@ -52,8 +53,7 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         const blueColor = '#0284c7';
         const textColor = '#1e293b';
 
-        // --- ENCABEZADO OFICIAL (MEMBRETE IDÉNTICO AL REPOSO) ---
-        // Círculos decorativos
+        // --- ENCABEZADO OFICIAL ---
         doc.setFillColor(233, 30, 99); // Rosa
         doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
         doc.circle(180, 20, 15, 'F');
@@ -61,7 +61,6 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         doc.circle(200, 35, 12, 'F');
         doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
-        // Nombre de la Doctora Profesional
         doc.setTextColor(pinkColor);
         doc.setFont('times', 'italic');
         doc.setFontSize(26);
@@ -80,18 +79,15 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 42, { align: 'center' });
         doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 46, { align: 'center' });
 
-        // Línea separadora
         doc.setDrawColor(blueColor);
         doc.setLineWidth(0.5);
         doc.line(15, 50, 195, 50);
 
-        // --- TÍTULO DEL DOCUMENTO ---
         doc.setTextColor(blueColor);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.text('CERTIFICADO DE APTITUD MÉDICA', 105, 60, { align: 'center' });
 
-        // --- CUERPO ---
         doc.setTextColor(textColor);
         doc.setFontSize(11);
         const fecha = new Date().toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -107,7 +103,6 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         const splitText = doc.splitTextToSize(parrafo, 180);
         doc.text(splitText, 15, 95);
 
-        // --- DICTAMEN ---
         doc.setDrawColor(blueColor);
         doc.rect(15, 120, 186, 25);
         doc.setFont('helvetica', 'bold');
@@ -116,7 +111,6 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         doc.setTextColor(data.consulta.aptitud === 'APTO' ? '#10b981' : '#f59e0b');
         doc.text(data.consulta.aptitud, 108, 137, { align: 'center' });
 
-        // --- REPOSO / OBSERVACIONES ---
         let nextY = 160;
         if (data.consulta.dias_reposo && data.consulta.dias_reposo > 0) {
             doc.setTextColor('#ef4444');
@@ -135,7 +129,6 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             doc.text(obs, 15, nextY + 6);
         }
 
-        // --- FIRMA (SOLO DOCTORA) ---
         const lineY = 235;
         doc.setDrawColor(blueColor);
         doc.line(78, lineY, 138, lineY);
@@ -152,15 +145,12 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                // Ajuste computacional: Subimos la imagen y reducimos el alto para que repose sobre la línea (lineY)
-                // y no se superponga al texto inferior
                 doc.addImage(img, 'PNG', 86, lineY - 38, 45, 35);
             } catch (e) {
                 console.error('Error firma:', e);
             }
         }
 
-        // Pie de página oficial
         doc.setTextColor(blueColor);
         doc.setFontSize(7);
         doc.text('Guarenas - Estadio Los Teques - Miranda | Tel: 0414-241.5697', 108, 265, { align: 'center' });
@@ -200,7 +190,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         const blueColor = '#0284c7';
         const textColor = '#1e293b';
 
-        // --- ENCABEZADO OFICIAL (MEMBRETE PROFESIONAL) ---
+        // --- ENCABEZADO OFICIAL ---
         doc.setFillColor(233, 30, 99); // Rosa
         doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
         doc.circle(180, 20, 15, 'F');
@@ -230,7 +220,6 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         doc.setLineWidth(0.5);
         doc.line(15, 50, 195, 50);
 
-        // --- TÍTULO REPORTE ---
         doc.setTextColor(blueColor);
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
@@ -242,7 +231,6 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         doc.text(`EMPRESA: ${data.companyName.toUpperCase()}`, 105, 65, { align: 'center' });
         doc.text(`PERÍODO: ${data.month}`, 105, 70, { align: 'center' });
 
-        // --- KPIs ---
         doc.setFillColor('#f8fafc');
         doc.rect(15, 80, 60, 22, 'F');
         doc.rect(78, 80, 60, 22, 'F');
@@ -259,7 +247,6 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         doc.text('ÍNDICE AUSENTISMO', 108, 95, { align: 'center' });
         doc.text('CONSULTAS TOTALES', 171, 95, { align: 'center' });
 
-        // --- TABLA DE MORBILIDAD ---
         autoTable(doc, {
             startY: 110,
             head: [['Morbilidad por Sistema', 'Casos', '%']],
@@ -272,7 +259,6 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             headStyles: { fillColor: [233, 30, 99] }
         });
 
-        // --- TABLA DEMOGRÁFICA ---
         const lastY = (doc as any).lastAutoTable.finalY + 15;
         autoTable(doc, {
             startY: lastY,
@@ -282,10 +268,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             headStyles: { fillColor: [2, 132, 199] }
         });
 
-        // --- INYECCIÓN DE GRÁFICAS (CAPTURAS DE RECHARTS) ---
         let nextY = (doc as any).lastAutoTable.finalY + 10;
-
-        // Espacio para la nueva página si el contenido es demasiado bajo
         if (nextY > 200) {
             doc.addPage();
             nextY = 20;
@@ -309,10 +292,9 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             doc.addImage(data.stats.ageChartImg, 'PNG', 105, nextY + 5, 90, 60);
         }
 
-        // --- FIRMA DOCTORA ---
         const finalY = (data.stats.genderChartImg || data.stats.ageChartImg)
-            ? nextY + 75 > 250 ? 250 : nextY + 75
-            : (doc as any).lastAutoTable.finalY + 30;
+            ? (nextY + 100 > 260 ? 260 : nextY + 100)
+            : ((doc as any).lastAutoTable.finalY + 30);
 
         doc.setDrawColor(blueColor);
         doc.line(78, finalY, 138, finalY);
@@ -329,8 +311,6 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                // Ajuste computacional: Subimos la imagen y reducimos el alto para que repose sobre la línea (finalY)
-                // y no se superponga al texto inferior
                 doc.addImage(img, 'PNG', 86, finalY - 38, 45, 35);
             } catch (e) {
                 console.error('Error firma:', e);
@@ -354,7 +334,6 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
         const pinkColor = '#e91e63';
         const blueColor = '#0284c7';
 
-        // --- ENCABEZADO OFICIAL ---
         doc.setFillColor(233, 30, 99); // Rosa
         doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
         doc.circle(240, 15, 12, 'F');
@@ -436,8 +415,6 @@ export const generarReposoPDF = (data: ReposoData) => {
     const blueColor = '#0284c7';
     const textColor = '#1e293b';
 
-    // --- ELEMENTOS DE DISEÑO (MEMBRETE OFICIAL) ---
-    // Círculos decorativos del formato
     doc.setFillColor(233, 30, 99); // Rosa
     doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
     doc.circle(180, 20, 15, 'F');
@@ -445,7 +422,6 @@ export const generarReposoPDF = (data: ReposoData) => {
     doc.circle(200, 35, 12, 'F');
     doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
-    // Nombre de la Doctora Profesional
     doc.setTextColor(pinkColor);
     doc.setFont('times', 'italic');
     doc.setFontSize(26);
@@ -464,12 +440,10 @@ export const generarReposoPDF = (data: ReposoData) => {
     doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 42, { align: 'center' });
     doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 46, { align: 'center' });
 
-    // Línea separadora
     doc.setDrawColor(blueColor);
     doc.setLineWidth(0.5);
     doc.line(15, 50, 195, 50);
 
-    // --- TÍTULOS DE TIPO (CÓDIGO UNIFICADO) ---
     doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
     if (data.reposo.tipo === 'REPOSO') {
@@ -480,14 +454,11 @@ export const generarReposoPDF = (data: ReposoData) => {
         doc.text('CONSTANCIA DE ASISTENCIA', 105, 70, { align: 'center' });
     }
 
-    // --- CUERPO DEL FORMATO ---
     doc.setTextColor(textColor);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
 
     let currentY = 85;
-
-    // Sr(a). o Paciente
     doc.text('Sr(a). o Paciente:', 15, currentY);
     doc.line(48, currentY + 1, 140, currentY + 1);
     doc.setFont('helvetica', 'bold');
@@ -523,20 +494,17 @@ export const generarReposoPDF = (data: ReposoData) => {
 
     if (data.reposo.ameritaReposo) {
         doc.setFont('helvetica', 'bold');
-        doc.text('X', 66, currentY - 0.5); // Marcar Si
-
+        doc.text('X', 66, currentY - 0.5);
         doc.setFont('helvetica', 'normal');
         doc.text('Días:', 105, currentY);
         doc.line(118, currentY + 1, 130, currentY + 1);
         doc.setFont('helvetica', 'bold');
         doc.text(data.reposo.dias.toString(), 120, currentY);
-
         doc.setFont('helvetica', 'normal');
         doc.text('Desde:', 135, currentY);
         doc.line(150, currentY + 1, 168, currentY + 1);
         doc.setFont('helvetica', 'bold');
         doc.text(new Date(data.reposo.desde + 'T12:00:00').toLocaleDateString(), 151, currentY);
-
         doc.setFont('helvetica', 'normal');
         doc.text('Hasta:', 170, currentY);
         doc.line(184, currentY + 1, 202, currentY + 1);
@@ -544,7 +512,7 @@ export const generarReposoPDF = (data: ReposoData) => {
         doc.text(new Date(data.reposo.hasta + 'T12:00:00').toLocaleDateString(), 185, currentY);
     } else {
         doc.setFont('helvetica', 'bold');
-        doc.text('X', 86, currentY - 0.5); // Marcar No
+        doc.text('X', 86, currentY - 0.5);
     }
 
     currentY += 15;
@@ -555,21 +523,18 @@ export const generarReposoPDF = (data: ReposoData) => {
 
     currentY += 15;
     doc.setFont('helvetica', 'normal');
-    const clausula = 'Constancia que se expide a petición de la parte interesada';
-    doc.text(clausula, 15, currentY);
+    doc.text('Constancia que se expide a petición de la parte interesada', 15, currentY);
 
     currentY += 10;
     const mes = fechaActual.toLocaleString('es-VE', { month: 'long' });
     doc.text(`en: ${data.reposo.ciudad}, el ${fechaActual.getDate()} de ${mes} de ${fechaActual.getFullYear()}.`, 15, currentY);
 
-    // --- FOOTER CON DATOS DE CONTACTO (ESTILO VERTICAL/LATERAL) ---
     doc.setTextColor(blueColor);
     doc.setFontSize(8);
     doc.text('0414-241.5697 0412-701.4041', 15, 250);
     doc.text('yadirapino6@gmail.com', 15, 255);
     doc.text('Calle acueducto con Av. Estadio número 2, sector el barbecho los teques Miranda', 15, 260);
 
-    // --- FIRMA Y SELLO ---
     doc.setDrawColor(blueColor);
     doc.line(130, 250, 190, 250);
     doc.setFont('helvetica', 'bold');

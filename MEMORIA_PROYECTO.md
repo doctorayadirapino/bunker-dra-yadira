@@ -102,6 +102,12 @@ Se ha robustecido el sistema de inteligencia epidemiológica para ofrecer una vi
     *   **Vista Segmentada:** Al elegir una empresa, el sistema muta instantáneamente hacia reportes de "Resumen" y "Listado" exclusivos para dicha entidad.
 *   **Seguridad:** El procesamiento se mantiene en el lado del cliente (React) bajo un modelo Zero Trust, garantizando que no haya filtración de datos entre empresas durante la generación de PDFs.
 
+### 2. 📊 INYECCIÓN VISUAL EN REPORTES PDF (ENGINE UPGRADE)
+*   **Problema:** Los reportes PDF eran puramente tabulares, perdiendo la potencia visual de las gráficas de Recharts presentes en el Dashboard.
+*   **Solución Senior:** Se integró la librería `html2canvas` para realizar capturas de alta definición de los componentes `gender-pie` y `age-bar`.
+*   **Implementación:** Se modificó el `pdfService.ts` para permitir la inyección de imágenes Base64, logrando que el "Informe Epidemiológico" porte ahora las gráficas reales calculadas en el momento.
+*   **Resultado:** Documentos con acabado profesional de auditoría médica, combinando datos duros con visualizaciones gráficas.
+
 ---
 
 ## 🔒 RESUMEN DE CIERRE DE SESIÓN (2026-03-02) - CARLOS FUENTES
