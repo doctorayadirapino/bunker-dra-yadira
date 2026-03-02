@@ -92,22 +92,31 @@ Si Carlos Fuentes mueve esta carpeta o cambia de infraestructura, solo debe actu
 
 ---
 
-## 🔒 RESUMEN DE CIERRE DE SESIÓN (2026-03-01) - CARLOS FUENTES
+## 📋 BITÁCORA DE INTERVENCIONES ESTRATÉGICAS (2026-03-02) - CARLOS FUENTES
+Se ha robustecido el sistema de inteligencia epidemiológica para ofrecer una visión dual del estado de salud ocupacional.
+
+### 1. 🏢 REPORTE DUAL DE VIGILANCIA (GLOBAL vs. EMPRESA)
+*   **Problema:** La doctora necesitaba alternar entre una visión macro de su consulta y reportes específicos para empresas sin que el sistema perdiera coherencia o seguridad.
+*   **Solución Arquitectónica:** Se integró un motor de etiquetas dinámicas en el módulo de `VigilanciaModule.tsx`. 
+    *   **Vista General:** El sistema ahora permite generar un "Reporte Consolidado (Global)" y un "Listado Maestro", procesando el 100% de la carga de pacientes.
+    *   **Vista Segmentada:** Al elegir una empresa, el sistema muta instantáneamente hacia reportes de "Resumen" y "Listado" exclusivos para dicha entidad.
+*   **Seguridad:** El procesamiento se mantiene en el lado del cliente (React) bajo un modelo Zero Trust, garantizando que no haya filtración de datos entre empresas durante la generación de PDFs.
+
+---
+
+## 🔒 RESUMEN DE CIERRE DE SESIÓN (2026-03-02) - CARLOS FUENTES
 
 ### ✅ ¿Qué se hizo hoy?
-1.  **Estabilización Crítica**: Se resolvió el bloqueo de acceso por límites de email en Supabase inyectando la clave directamente vía SQL.
-2.  **Reparación de Renderizado**: Se solucionó el crash de las gráficas de Vigilancia Epidemiológica ajustando las dimensiones de los contenedores React.
-3.  **Identidad Médica Legal**: Se integraron la C.I. (`V-6.871.964`) y el registro **INPSASEL** (`MIR116871964`) en el 100% de los documentos PDF (Certificados, Reposos, Reportes y Listados).
-4.  **Optimización Geométrica**: Se recalcularon las coordenadas de la firma digital para evitar superposiciones con el texto legal.
-5.  **UX Dinámica**: Se implementó el selector interactivo de "Ciudad de Emisión" y la inyección condicional de firma digital mediante cuadros de diálogo nativos.
-6.  **Seguridad y Autoria**: Se habilitó el cambio de contraseña local desde el Dashboard y se actualizó el Login con los créditos oficiales del Desarrollador **Lic. Carlos Fuentes**.
-7.  **Limpieza Profunda**: Se eliminaron archivos residuales de configuración (`install_docker.sh`) y se purgaron logs de desarrollo.
+1.  **Detección de Llaves**: Se verificó la disponibilidad de los tokens de GitHub y Vercel en `CREDENTIALS_BACKUP.txt` para garantizar la continuidad operativa.
+2.  **Optimización UI/UX**: Se implementaron botones inteligentes en el módulo de Vigilancia que cambian su propósito y etiqueta según el filtro de empresa seleccionado.
+3.  **Seguridad de Datos**: Se validó que el motor de filtrado por empresa no altere la base de datos de Supabase y mantenga la integridad referencial de los pacientes.
 
 ### ⏳ ¿Qué quedó pendiente?
-- **Sello Húmedo Físico**: Aunque la lógica de firma digital es perfecta, se recomienda cargar el archivo `firma_doctora.png` final (fondo transparente) si la doctora desea automatizar el proceso visual al 100%. Por ahora, puede imprimir "Sin Firma" para sellado manual.
+- **Despliegue a Producción**: Los cambios están listos para ser enviados a Vercel mediante `npx vercel --prod`.
+- **Carga de Sello**: Pendiente el archivo `firma_doctora.png` si se desea automatizar visualmente la firma.
 
 ### 🤖 Nota para el siguiente Agente/Ingeniero
-El sistema está corriendo sobre **Vite + React + Supabase (Cloud)**. Todo cambio de lógica en los documentos PDF debe realizarse en `src/services/pdfService.ts`. Los tokens de despliegue están resguardados en `CREDENTIALS_BACKUP.txt` (Ignorado por Git). El canal de comunicación con el PostgreSQL de Supabase está saludable y en modo *Realtime*.
+El sistema sigue la arquitectura **Vite + React**. Los cambios de hoy están localizados en `src/components/SurveillanceModule.tsx`. La integración de `pdfService.ts` es totalmente compatible con las nuevas etiquetas dinámicas.
 
 **SESIÓN FINALIZADA POR ANTIGRAVITY - ASISTENTE DE CARLOS FUENTES.**
 

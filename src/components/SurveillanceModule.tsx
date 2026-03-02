@@ -165,7 +165,11 @@ export default function SurveillanceModule() {
                         disabled={loading || downloading}
                         style={{ display: 'flex', alignItems: 'center', gap: '8px', background: downloading ? 'var(--text-secondary)' : 'var(--corporate-blue)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading) ? 0.7 : 1 }}
                     >
-                        {downloading ? "Procesando..." : <><Download size={18} /> Resumen Estadístico</>}
+                        {downloading ? "Procesando..." : (
+                            selectedEmpresa === 'GENERAL' 
+                            ? <><Download size={18} /> Reporte Consolidado (Global)</>
+                            : <><Download size={18} /> Resumen: {selectedEmpresa}</>
+                        )}
                     </button>
 
                     <button
@@ -173,7 +177,11 @@ export default function SurveillanceModule() {
                         disabled={loading || downloading}
                         style={{ display: 'flex', alignItems: 'center', gap: '8px', background: downloading ? 'var(--text-secondary)' : 'var(--medical-turquoise)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading) ? 0.7 : 1 }}
                     >
-                        {downloading ? "Buscando..." : <><FileText size={18} /> Listado Detallado</>}
+                        {downloading ? "Buscando..." : (
+                            selectedEmpresa === 'GENERAL'
+                            ? <><FileText size={18} /> Listado Maestro de Consultas</>
+                            : <><FileText size={18} /> Listado: {selectedEmpresa}</>
+                        )}
                     </button>
                 </div>
             </div>
