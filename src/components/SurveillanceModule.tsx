@@ -5,6 +5,7 @@ import {
     PieChart, Pie, Cell, Tooltip as RechartsTooltip,
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer
 } from 'recharts';
+import html2canvas from 'html2canvas';
 import { generarReporteVigilanciaPDF, generarListadoEmpresaPDF } from '../services/pdfService';
 
 export default function SurveillanceModule() {
@@ -120,10 +121,41 @@ export default function SurveillanceModule() {
 
         setDownloading(true);
         try {
+            // CAPTURA TRANSFUSIONAL DE GRÁFICAS (EPIDEMIOLOGÍA VISUAL)
+            const genderElem = document.getElementById('gender-pie');
+            const ageElem = document.getElementById('age-bar');
+
+            let genderImg = '';
+            let ageImg = '';
+
+            if (genderElem) {
+                const canvas = await html2canvas(genderElem, {
+                    scale: 2,
+                    backgroundColor: '#1b2431', // Color aproximado del fondo secondary
+                    logging: false,
+                    useCORS: true
+                });
+                genderImg = canvas.toDataURL('image/png');
+            }
+
+            if (ageElem) {
+                const canvas = await html2canvas(ageElem, {
+                    scale: 2,
+                    backgroundColor: '#1b2431',
+                    logging: false,
+                    useCORS: true
+                });
+                ageImg = canvas.toDataURL('image/png');
+            }
+
             await generarReporteVigilanciaPDF({
                 companyName: selectedEmpresa,
                 month: new Date().toLocaleDateString('es-VE', { month: 'long', year: 'numeric' }).toUpperCase(),
-                stats: analytics,
+                stats: {
+                    ...analytics,
+                    genderChartImg: genderImg,
+                    ageChartImg: ageImg
+                },
                 conFirmaDigital: conFirma
             });
         } catch (error) {
@@ -231,8 +263,8 @@ export default function SurveillanceModule() {
                         </div>
                     </div>
 
-                    {/* GRÁFICAS INTEGRADAS EN VIGILANCIA */}
-                    <div style={{ gridColumn: '1 / span 1', background: 'var(--bg-secondary)', padding: '25px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+                    {/* GRÁFICAS INTEGRADAS EN VIGILANCIA (SUJETAS A CAPTURA) */}
+                    <div id="gender-pie" style={{ gridColumn: '1 / span 1', background: 'var(--bg-secondary)', padding: '25px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
                         <h3 style={{ color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <PieIcon size={20} color="var(--corporate-blue)" /> Distribución por Sexo
                         </h3>
@@ -251,7 +283,7 @@ export default function SurveillanceModule() {
                         </div>
                     </div>
 
-                    <div style={{ gridColumn: '2 / span 2', background: 'var(--bg-secondary)', padding: '25px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+                    <div id="age-bar" style={{ gridColumn: '2 / span 2', background: 'var(--bg-secondary)', padding: '25px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
                         <h3 style={{ color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <BarIcon size={20} color="var(--medical-turquoise)" /> Evolución de Consultas por Edad
                         </h3>

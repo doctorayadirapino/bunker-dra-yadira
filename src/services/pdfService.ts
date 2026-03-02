@@ -181,6 +181,8 @@ interface SurveillanceData {
         topPathologies: { name: string; value: number }[];
         demographics: { group: string; Masc: number; Fem: number }[];
         consultationTypes: { name: string; value: number }[];
+        genderChartImg?: string;
+        ageChartImg?: string;
     };
     conFirmaDigital?: boolean;
 }
@@ -280,8 +282,38 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             headStyles: { fillColor: [2, 132, 199] }
         });
 
+        // --- INYECCIÓN DE GRÁFICAS (CAPTURAS DE RECHARTS) ---
+        let nextY = (doc as any).lastAutoTable.finalY + 10;
+
+        // Espacio para la nueva página si el contenido es demasiado bajo
+        if (nextY > 200) {
+            doc.addPage();
+            nextY = 20;
+        }
+
+        if (data.stats.genderChartImg) {
+            doc.setFontSize(11);
+            doc.setTextColor(blueColor);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Distribución Visual de Población:', 15, nextY);
+            doc.addImage(data.stats.genderChartImg, 'PNG', 15, nextY + 5, 80, 60);
+        }
+
+        if (data.stats.ageChartImg) {
+            if (!data.stats.genderChartImg) {
+                doc.setFontSize(11);
+                doc.setTextColor(blueColor);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Análisis de Morbilidad por Edad:', 15, nextY);
+            }
+            doc.addImage(data.stats.ageChartImg, 'PNG', 105, nextY + 5, 90, 60);
+        }
+
         // --- FIRMA DOCTORA ---
-        const finalY = (doc as any).lastAutoTable.finalY + 30;
+        const finalY = (data.stats.genderChartImg || data.stats.ageChartImg)
+            ? nextY + 75 > 250 ? 250 : nextY + 75
+            : (doc as any).lastAutoTable.finalY + 30;
+
         doc.setDrawColor(blueColor);
         doc.line(78, finalY, 138, finalY);
 
