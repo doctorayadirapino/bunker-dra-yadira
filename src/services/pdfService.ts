@@ -323,7 +323,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
     }
 };
 
-export const generarListadoEmpresaPDF = async (companyName: string, consultas: any[]) => {
+export const generarListadoEmpresaPDF = async (companyName: string, consultas: any[], chartImages?: { gender?: string; age?: string }) => {
     try {
         const doc = new jsPDF({
             orientation: 'l',
@@ -371,6 +371,25 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
             theme: 'striped',
             headStyles: { fillColor: [2, 132, 199] }
         });
+
+        // --- INYECCIÓN DE GRÁFICAS EN EL LISTADO ---
+        if (chartImages?.gender || chartImages?.age) {
+            const finalYTable = (doc as any).lastAutoTable.finalY + 10;
+
+            // Si no hay mucho espacio, saltamos de página (aunque en landscape usualmente hay espacio)
+            let currentY = finalYTable;
+            if (currentY > 150) {
+                doc.addPage();
+                currentY = 20;
+            }
+
+            if (chartImages.gender) {
+                doc.addImage(chartImages.gender, 'PNG', 20, currentY, 110, 50);
+            }
+            if (chartImages.age) {
+                doc.addImage(chartImages.age, 'PNG', 150, currentY, 110, 50);
+            }
+        }
 
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {

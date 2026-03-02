@@ -173,11 +173,27 @@ export default function SurveillanceModule({
     const handleDownloadList = async () => {
         setDownloading(true);
         try {
+            // CAPTURA DE GRÁFICAS PARA EL LISTADO
+            const genderElem = document.getElementById('gender-pie');
+            const ageElem = document.getElementById('age-bar');
+
+            let genderImg = '';
+            let ageImg = '';
+
+            if (genderElem) {
+                const canvas = await html2canvas(genderElem, { scale: 1.5, backgroundColor: '#1b2431' });
+                genderImg = canvas.toDataURL('image/png');
+            }
+            if (ageElem) {
+                const canvas = await html2canvas(ageElem, { scale: 1.5, backgroundColor: '#1b2431' });
+                ageImg = canvas.toDataURL('image/png');
+            }
+
             const listData = selectedEmpresa === 'GENERAL'
                 ? rawConsultas
                 : rawConsultas.filter(c => c.empresas?.nombre === selectedEmpresa);
 
-            await generarListadoEmpresaPDF(selectedEmpresa, listData);
+            await generarListadoEmpresaPDF(selectedEmpresa, listData, { gender: genderImg, age: ageImg });
         } catch (error) {
             console.error('Error:', error);
         } finally {
