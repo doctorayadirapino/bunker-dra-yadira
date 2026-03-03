@@ -17,9 +17,14 @@ export default function Login() {
         setError(null);
         setMessage(null);
 
+        // Traducción de Nombres de Usuario a Email Interno
+        let internalEmail = email;
+        if (email === 'yadira_laboral') internalEmail = 'yadirapinorujano288@gmail.com';
+        if (email === 'yadira_fisiatra') internalEmail = 'doctora.fisiatria@bunker.com';
+
         try {
             const { error: signInError } = await supabase.auth.signInWithPassword({
-                email,
+                email: internalEmail,
                 password,
             });
 
@@ -72,13 +77,13 @@ export default function Login() {
                     {!recoveryMode ? (
                         <form onSubmit={handleLogin} className="login-form">
                             <div className="input-group">
-                                <label><Mail size={18} /> Correo Electrónico</label>
+                                <label><Mail size={18} /> Nombre de Usuario / Correo</label>
                                 <input
-                                    type="email"
+                                    type="text"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="dra.yadira@salud.com"
+                                    placeholder="Ej: yadira_laboral"
                                 />
                             </div>
 

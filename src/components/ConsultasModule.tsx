@@ -4,7 +4,7 @@ import { Search, Printer, Calendar, Filter, Trash2, Edit } from 'lucide-react';
 import { generarCertificadoPDF } from '../services/pdfService';
 import NewEvaluationForm from './NewEvaluationForm';
 
-export default function ConsultasModule() {
+export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selectedCompany?: string }) {
     const [loading, setLoading] = useState(true);
     const [consultas, setConsultas] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -13,11 +13,11 @@ export default function ConsultasModule() {
 
     useEffect(() => {
         fetchConsultas();
-    }, []);
+    }, [selectedCompany]);
 
     const fetchConsultas = async () => {
         setLoading(true);
-        const { data } = await supabase
+        let query = supabase
             .from('consultas')
             .select(`
                 *,
@@ -26,6 +26,15 @@ export default function ConsultasModule() {
             `)
             .order('fecha_consulta', { ascending: false });
 
+        if (selectedCompany !== 'GENERAL') {
+            // Buscamos las empresas que tengan ese nombre para filtrar el ID
+            const { data: comp } = await supabase.from('empresas').select('id').eq('nombre', selectedCompany).single();
+            if (comp) {
+                query = query.eq('empresa_id', comp.id);
+            }
+        }
+
+        const { data } = await query;
         if (data) setConsultas(data);
         setLoading(false);
     };
@@ -92,7 +101,11 @@ export default function ConsultasModule() {
         const matchesSearch = c.pacientes.nombre_completo.toLowerCase().includes(searchTerm.toLowerCase()) ||
             c.pacientes.cedula.includes(searchTerm);
         const matchesTipo = filterTipo === 'TODOS' || c.tipo_consulta === filterTipo;
-        return matchesSearch && matchesTipo;
+
+        // SEGURIDAD CARLOS FUENTES: Doble validación de empresa
+        const matchesCompany = selectedCompany === 'GENERAL' || c.empresas?.nombre === selectedCompany;
+
+        return matchesSearch && matchesTipo && matchesCompany;
     });
 
     return (

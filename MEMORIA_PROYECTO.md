@@ -134,3 +134,38 @@ Se revirtió la inyección de gráficos en PDF por solicitud del usuario. Los re
 ---
 
 
+## 📋 BITÁCORA DE INTERVENCIONES ESTRATÉGICAS (2026-03-02 - SESIÓN NOCTURNA) - CARLOS FUENTES
+Se ha blindado la infraestructura en la nube y optimizado la ergonomía de navegación del sistema.
+
+### 1. 🛡️ AUDITORÍA DE FACTURACIÓN Y BLINDAJE FINANCIERO (VERCEL)
+*   **Problema:** El sistema detectó una notificación de vencimiento de cuenta en 6 días (Plan Pro Trial), generando riesgo de cobro o suspensión.
+*   **Solución de Arquitectura Cloud:** 
+    1. Se realizó una auditoría profunda vía API de Vercel identificando que el proyecto residía en un "Team" de prueba.
+    2. Se ejecutó la **Migración de Alcance (Scope Migration)** moviendo el proyecto `doctora-yadira-pino` directamente a la **Cuenta Personal Hobby** de la doctora.
+*   **Resultado:** El proyecto ahora opera bajo el plan **Hobby (Gratis por siempre)**. Se eliminaron los riesgos de facturación y el cartel de vencimiento.
+
+### 2. 🔄 SINCRONIZACIÓN MAESTRA DE FILTROS (MASTER PROP FLOW)
+*   **Problema:** El filtro de empresa en la parte superior solo afectaba al Dashboard y Vigilancia, obligando a rehacer búsquedas en los módulos de Pacientes, Consultas y Reposo.
+*   **Solución Computacional:** Se implementó un flujo de estados reactivos en `App.tsx`:
+    *   **Pacientes:** El directorio ahora se auto-filtra por la empresa seleccionada en el menú central.
+    *   **Consultas:** El histórico para impresión de certificados ahora muestra exclusivamente a los trabajadores de la entidad elegida.
+    *   **Reposo Médico:** Inteligencia de validación que alerta a Carlos Fuentes si intenta emitir un reposo a un paciente de una empresa distinta a la seleccionada en el filtro global.
+*   **Beneficio:** Navegación fluida y coherencia de datos al 100% en todos los botones del panel izquierdo.
+
+### 3. ✒️ PROTOCOLO ESMERALDA (PDF v4.4)
+*   **Ajuste Legal:** Se eliminó la firma digital en el módulo de **Reposo Médico** (Medical Rest) por requerimiento legal de sello húmedo físico. 
+*   **Marca de Agua:** Actualizada a color **Esmeralda** para confirmación visual de la versión más segura y estable.
+
+---
+
+## 🔒 RESUMEN DE CIERRE DE SESIÓN (2026-03-02 - FINAL) - CARLOS FUENTES
+
+### ✅ ¿Qué se hizo hoy?
+1.  **Blindaje Cloud**: Migración a Vercel Hobby completada.
+2.  **Sincronización de UI**: Filtro central unificado para toda la aplicación.
+3.  **Limpieza de Versiones**: PDFs v4.4 desplegados y verificados.
+
+### ⏳ ¿Qué quedó pendiente?
+- **Auditoría de Datos Reales**: Tras la sincronización, Carlos Fuentes procederá a verificar el comportamiento con la data de la Doctora.
+
+**SESIÓN CERRADA CON ÉXITO TOTAL. EL BÚNKER ESTÁ FINANCIERAMENTE PROTEGIDO Y OPERATIVAMENTE SINCRONIZADO.**

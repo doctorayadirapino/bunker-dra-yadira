@@ -6,8 +6,7 @@ import {
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip as RechartsTooltip,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer,
-  LineChart, Line
+  BarChart, Bar, XAxis, CartesianGrid, Legend, ResponsiveContainer
 } from 'recharts';
 import NewEvaluationForm from './components/NewEvaluationForm';
 import PatientsList from './components/PatientsList';
@@ -16,6 +15,7 @@ import CompaniesModule from './components/CompaniesModule';
 import ConsultasModule from './components/ConsultasModule';
 import ReposoModulo from './components/ReposoModulo';
 import Login from './components/Login';
+import FisiatriaDashboard from './components/FisiatriaDashboard';
 import type { Session } from '@supabase/supabase-js';
 
 // Definición de Interfaces para TypeScript
@@ -51,11 +51,8 @@ export default function App() {
   const [kpis, setKpis] = useState({ total_pacientes: 0, consultas_mes: 0, dias_reposo: 0, ausentismo: 0 });
   const [genderData, setGenderData] = useState<{ name: string, value: number, color: string }[]>([]);
   const [consultationData, setConsultationData] = useState<{ name: string, val: number }[]>([]);
-  const [topPathologies, setTopPathologies] = useState<{ name: string, v: number, c: string }[]>([]);
-  const [trendData, setTrendData] = useState<any[]>([]);
   const [latestConsultations, setLatestConsultations] = useState<Consulta[]>([]);
-  const [demographicStats, setDemographicStats] = useState<any[]>([]);
-  const [absenteeismStats, setAbsenteeismStats] = useState<any[]>([]);
+  const [userRole, setUserRole] = useState<'laboral' | 'fisiatria' | null>(null);
 
   // Estados para Multi-Empresa
   const [allConsultations, setAllConsultations] = useState<Consulta[]>([]);
@@ -155,12 +152,6 @@ export default function App() {
     const cData = Object.keys(consulMap).map(k => ({ name: k, val: consulMap[k] })).sort((a, b) => b.val - a.val).slice(0, 5);
     setConsultationData(cData.length ? cData : [{ name: 'Sin Datos', val: 0 }]);
 
-    const colorsArr = ['#ef4444', '#f59e0b', '#3b82f6', '#22d3ee'];
-    const pData = Object.keys(patMap).map(k => ({ name: k, v: patMap[k] })).sort((a, b) => b.v - a.v).slice(0, 4).map((item, idx) => ({ ...item, c: colorsArr[idx % 4] }));
-    setTopPathologies(pData);
-    setTrendData(Object.values(monthTrends).slice(0, mesActual + 1));
-    setDemographicStats(Object.values(demoMap));
-    setAbsenteeismStats(Object.values(absentMap));
     setLatestConsultations(filtered.slice(0, 10));
 
     const totalPac = filterCompany === 'GENERAL' ? uniquePatients.size : uniquePatients.size;
@@ -252,8 +243,14 @@ export default function App() {
     }
   };
 
+  const fetchUserRole = async (userId: string) => {
+    const { data } = await supabase.from('perfiles_usuarios').select('rol').eq('id', userId).single();
+    if (data) setUserRole(data.rol);
+  };
+
   useEffect(() => {
     if (session) {
+      fetchUserRole(session.user.id);
       fetchDashboardData();
       const channel = supabase.channel('schema-db-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
@@ -261,6 +258,8 @@ export default function App() {
         })
         .subscribe();
       return () => { supabase.removeChannel(channel); };
+    } else {
+      setUserRole(null);
     }
   }, [session]);
 
@@ -438,221 +437,143 @@ export default function App() {
               </div>
             ) : (
               <div className="view-transition-wrapper">
-                {activeView === 'dashboard' && (
-                  <div className="dashboard-view fade-in">
-                    {/* KPIs */}
-                    <section className="kpi-grid">
-                      <div className="kpi-card" style={{ borderLeft: '4px solid var(--corporate-blue)' }}>
-                        <div className="kpi-header">
-                          <span>{selectedCompany === 'GENERAL' ? 'Pacientes (Universo Total)' : `Personal (${selectedCompany})`}</span>
-                          <Users size={20} color="var(--corporate-blue)" />
-                        </div>
-                        <div className="kpi-value">{kpis.total_pacientes}</div>
-                      </div>
+                {userRole === 'fisiatria' ? (
+                  <FisiatriaDashboard />
+                ) : (
+                  <>
+                    {activeView === 'dashboard' && (
+                      <div className="dashboard-view fade-in">
+                        {/* KPIs */}
+                        <section className="kpi-grid">
+                          <div className="kpi-card" style={{ borderLeft: '4px solid var(--corporate-blue)' }}>
+                            <div className="kpi-header">
+                              <span>{selectedCompany === 'GENERAL' ? 'Pacientes (Universo Total)' : `Personal (${selectedCompany})`}</span>
+                              <Users size={20} color="var(--corporate-blue)" />
+                            </div>
+                            <div className="kpi-value">{kpis.total_pacientes}</div>
+                          </div>
 
-                      <div className="kpi-card">
-                        <div className="kpi-header">
-                          <span>Consultas (Mes Actual)</span>
-                          <Stethoscope size={20} color="var(--medical-turquoise)" />
-                        </div>
-                        <div className="kpi-value">{kpis.consultas_mes}</div>
-                      </div>
+                          <div className="kpi-card">
+                            <div className="kpi-header">
+                              <span>Consultas (Mes Actual)</span>
+                              <Stethoscope size={20} color="var(--medical-turquoise)" />
+                            </div>
+                            <div className="kpi-value">{kpis.consultas_mes}</div>
+                          </div>
 
-                      <div className="kpi-card">
-                        <div className="kpi-header">
-                          <span>Días Cómputo Reposo</span>
-                          <CalendarDays size={20} color="var(--warning)" />
-                        </div>
-                        <div className="kpi-value">{kpis.dias_reposo}</div>
-                      </div>
+                          <div className="kpi-card">
+                            <div className="kpi-header">
+                              <span>Días Cómputo Reposo</span>
+                              <CalendarDays size={20} color="var(--warning)" />
+                            </div>
+                            <div className="kpi-value">{kpis.dias_reposo}</div>
+                          </div>
 
-                      <div className="kpi-card">
-                        <div className="kpi-header">
-                          <span>% Índice Ausentismo</span>
-                          <AlertTriangle size={20} color="var(--danger)" />
-                        </div>
-                        <div className="kpi-value">{kpis.ausentismo}%</div>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Ecuación referencial LOPCYMAT</span>
-                      </div>
-                    </section>
+                          <div className="kpi-card">
+                            <div className="kpi-header">
+                              <span>% Índice Ausentismo</span>
+                              <AlertTriangle size={20} color="var(--danger)" />
+                            </div>
+                            <div className="kpi-value">{kpis.ausentismo}%</div>
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Ecuación referencial LOPCYMAT</span>
+                          </div>
+                        </section>
 
-                    {/* CHARTS */}
-                    <section className="charts-grid">
-                      {/* Chart 1: SEXO */}
-                      <div className="chart-card">
-                        <h3 className="chart-title">Distribución por Sexo</h3>
-                        <div style={{ width: '100%', height: 260 }}>
-                          <ResponsiveContainer width="100%" height={260}>
-                            <PieChart>
-                              <Pie data={genderData} innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value" stroke="none">
-                                {genderData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={entry.color} />
+                        {/* CHARTS */}
+                        <section className="charts-grid">
+                          {/* Chart 1: SEXO */}
+                          <div className="chart-card">
+                            <h3 className="chart-title">Distribución por Sexo</h3>
+                            <div style={{ width: '100%', height: 260 }}>
+                              <ResponsiveContainer width="100%" height={260}>
+                                <PieChart>
+                                  <Pie data={genderData} innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value" stroke="none">
+                                    {genderData.map((entry, index) => (
+                                      <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                  </Pie>
+                                  <RechartsTooltip
+                                    contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px', color: '#fff' }}
+                                    itemStyle={{ color: '#fff' }}
+                                  />
+                                  <Legend verticalAlign="bottom" height={36} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+
+                          {/* Chart 2: TIPO CONSULTA */}
+                          <div className="chart-card">
+                            <h3 className="chart-title">Tipos de Consulta Clave (Top 5)</h3>
+                            <div style={{ width: '100%', height: 260 }}>
+                              <ResponsiveContainer width="100%" height={260}>
+                                <BarChart data={consultationData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                                  <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
+                                  <Bar dataKey="val" fill="var(--medical-turquoise)" radius={[4, 4, 0, 0]} barSize={40} />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* EPIDEMIOLOGICAL TABLE */}
+                        <section className="data-table-card">
+                          <h3 className="chart-title" style={{ marginBottom: 8 }}>
+                            {selectedCompany === 'GENERAL' ? 'Vigilancia Epidemiológica - Histórico General' : `Histórico de Consultas - ${selectedCompany}`}
+                          </h3>
+                          {latestConsultations.length === 0 ? (
+                            <p style={{ color: 'var(--text-secondary)' }}>No se han ingresado consultas médicas.</p>
+                          ) : (
+                            <table className="data-table">
+                              <thead>
+                                <tr>
+                                  <th>Fecha</th>
+                                  <th>Paciente</th>
+                                  <th>Empresa (RIF)</th>
+                                  <th>Tipo Consulta</th>
+                                  <th>Patología Detección</th>
+                                  <th>Reposo Registrado</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {latestConsultations.map(cons => (
+                                  <tr key={cons.id}>
+                                    <td>{new Date(cons.fecha_consulta).toLocaleDateString()}</td>
+                                    <td>{cons.pacientes?.nombre_completo || 'Anónimo'}</td>
+                                    <td>{cons.empresas?.nombre || 'Independiente'} ({cons.empresas?.rif})</td>
+                                    <td>{cons.tipo_consulta}</td>
+                                    <td>{cons.tipo_patologia}</td>
+                                    <td>
+                                      {cons.categoria_reposo === 'NINGUNO' ? (
+                                        <span className="badge badge-info">SIN REPOSO</span>
+                                      ) : cons.categoria_reposo.includes('ACCIDENTE') ? (
+                                        <span className="badge badge-danger">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
+                                      ) : (
+                                        <span className="badge badge-warning">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
+                                      )}
+                                    </td>
+                                  </tr>
                                 ))}
-                              </Pie>
-                              <RechartsTooltip
-                                contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px', color: '#fff' }}
-                                itemStyle={{ color: '#fff' }}
-                              />
-                              <Legend verticalAlign="bottom" height={36} />
-                            </PieChart>
-                          </ResponsiveContainer>
-                        </div>
+                              </tbody>
+                            </table>
+                          )}
+                        </section>
                       </div>
+                    )}
 
-                      {/* Chart 2: TIPO CONSULTA */}
-                      <div className="chart-card">
-                        <h3 className="chart-title">Tipos de Consulta Clave (Top 5)</h3>
-                        <div style={{ width: '100%', height: 260 }}>
-                          <ResponsiveContainer width="100%" height={260}>
-                            <BarChart data={consultationData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                              <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
-                              <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} allowDecimals={false} />
-                              <RechartsTooltip
-                                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                                contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
-                              />
-                              <Bar dataKey="val" fill="var(--medical-turquoise)" radius={[4, 4, 0, 0]} barSize={40} />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-
-                      {/* Chart 3: PATOLOGÍAS OVERVIEW */}
-                      <div className="chart-card">
-                        <h3 className="chart-title">Top 4 Patologías Detectadas</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
-                          {topPathologies.length === 0 && <span style={{ color: 'var(--text-muted)' }}>No hay casos patológicos registrados</span>}
-                          {topPathologies.map((item, i) => {
-                            const maxV = topPathologies[0].v;
-                            const percent = (item.v / maxV) * 100;
-                            return (
-                              <div key={i}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--text-secondary)' }}>
-                                  <span>{item.name}</span>
-                                  <span>{item.v} casos</span>
-                                </div>
-                                <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
-                                  <div style={{ width: `${percent}%`, height: '100%', backgroundColor: item.c }} />
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Chart 4: REPOSOS TREND */}
-                      <div className="chart-card">
-                        <h3 className="chart-title">Clasificación de Eventos Mensuales</h3>
-                        <div style={{ width: '100%', height: 260 }}>
-                          <ResponsiveContainer width="100%" height={260}>
-                            <LineChart data={trendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                              <XAxis dataKey="month" stroke="var(--text-secondary)" />
-                              <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                              <RechartsTooltip
-                                contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
-                              />
-                              <Legend />
-                              <Line type="monotone" name="Enf. Común" dataKey="enf_comun" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                              <Line type="monotone" name="Acc. Laboral" dataKey="acc_laboral" stroke="var(--danger)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-
-                      {/* Chart 5: PATOLOGÍAS POR EDAD Y SEXO */}
-                      <div className="chart-card">
-                        <h3 className="chart-title">Distribución de Patologías por Edad y Sexo</h3>
-                        <div style={{ width: '100%', height: 260 }}>
-                          <ResponsiveContainer width="100%" height={260}>
-                            <BarChart data={demographicStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                              <XAxis dataKey="group" stroke="var(--text-secondary)" />
-                              <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                              <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
-                              <Legend />
-                              <Bar dataKey="Masc" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Hombres" />
-                              <Bar dataKey="Fem" fill="#22d3ee" radius={[4, 4, 0, 0]} name="Mujeres" />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-
-                      {/* Chart 6: AUSENTISMO POR EDAD Y SEXO */}
-                      <div className="chart-card">
-                        <h3 className="chart-title">Ausentismo (Días) por Edad y Sexo</h3>
-                        <div style={{ width: '100%', height: 260 }}>
-                          <ResponsiveContainer width="100%" height={260}>
-                            <BarChart data={absenteeismStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                              <XAxis dataKey="group" stroke="var(--text-secondary)" />
-                              <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                              <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
-                              <Legend />
-                              <Bar dataKey="Masc" fill="#2563eb" radius={[4, 4, 0, 0]} name="Total Días Hombres" />
-                              <Bar dataKey="Fem" fill="#0ea5e9" radius={[4, 4, 0, 0]} name="Total Días Mujeres" />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-                    </section>
-
-                    {/* EPIDEMIOLOGICAL TABLE */}
-                    <section className="data-table-card">
-                      <h3 className="chart-title" style={{ marginBottom: 8 }}>
-                        {selectedCompany === 'GENERAL' ? 'Vigilancia Epidemiológica - Histórico General' : `Histórico de Consultas - ${selectedCompany}`}
-                      </h3>
-                      {latestConsultations.length === 0 ? (
-                        <p style={{ color: 'var(--text-secondary)' }}>No se han ingresado consultas médicas.</p>
-                      ) : (
-                        <table className="data-table">
-                          <thead>
-                            <tr>
-                              <th>Fecha</th>
-                              <th>Paciente</th>
-                              <th>Empresa (RIF)</th>
-                              <th>Tipo Consulta</th>
-                              <th>Patología Detección</th>
-                              <th>Reposo Registrado</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {latestConsultations.map(cons => (
-                              <tr key={cons.id}>
-                                <td>{new Date(cons.fecha_consulta).toLocaleDateString()}</td>
-                                <td>{cons.pacientes?.nombre_completo || 'Anónimo'}</td>
-                                <td>{cons.empresas?.nombre || 'Independiente'} ({cons.empresas?.rif})</td>
-                                <td>{cons.tipo_consulta}</td>
-                                <td>{cons.tipo_patologia}</td>
-                                <td>
-                                  {cons.categoria_reposo === 'NINGUNO' ? (
-                                    <span className="badge badge-info">SIN REPOSO</span>
-                                  ) : cons.categoria_reposo.includes('ACCIDENTE') ? (
-                                    <span className="badge badge-danger">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
-                                  ) : (
-                                    <span className="badge badge-warning">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      )}
-                    </section>
-                  </div>
+                    {activeView === 'patients' && <PatientsList key="patients-view" selectedCompany={selectedCompany} />}
+                    {activeView === 'companies' && <CompaniesModule key="companies-view" onAudit={(companyName) => { setSelectedCompany(companyName); setActiveView('surveillance'); }} />}
+                    {activeView === 'surveillance' && (
+                      <SurveillanceModule
+                        key="surveillance-view"
+                        selectedCompanyProp={selectedCompany}
+                      />
+                    )}
+                    {activeView === 'consultas' && <ConsultasModule key="consultas-view" selectedCompany={selectedCompany} />}
+                    {activeView === 'reposo' && <ReposoModulo key="reposo-view" selectedCompany={selectedCompany} />}
+                  </>
                 )}
-
-                {activeView === 'patients' && <PatientsList key="patients-view" />}
-                {activeView === 'companies' && <CompaniesModule key="companies-view" onAudit={(companyName) => { setSelectedCompany(companyName); setActiveView('surveillance'); }} />}
-                {activeView === 'surveillance' && (
-                  <SurveillanceModule
-                    key="surveillance-view"
-                    selectedCompanyProp={selectedCompany}
-                  />
-                )}
-                {activeView === 'consultas' && <ConsultasModule key="consultas-view" />}
-                {activeView === 'reposo' && <ReposoModulo key="reposo-view" />}
               </div>
             )}
           </main>

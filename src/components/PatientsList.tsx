@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Search, User, Briefcase, ChevronRight, Trash2 } from 'lucide-react';
 
-export default function PatientsList() {
+export default function PatientsList({ selectedCompany = 'GENERAL' }: { selectedCompany?: string }) {
     const [patients, setPatients] = useState<any[]>([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
@@ -10,15 +10,24 @@ export default function PatientsList() {
 
     useEffect(() => {
         fetchPatients();
-    }, []);
+    }, [selectedCompany]);
 
     const fetchPatients = async () => {
         setLoading(true);
-        const { data, error } = await supabase
+        let query = supabase
             .from('pacientes')
             .select('*, empresas(nombre), consultas(aptitud_medica, created_at)')
             .order('nombre_completo', { ascending: true });
 
+        if (selectedCompany !== 'GENERAL') {
+            // Buscamos las empresas que tengan ese nombre para filtrar el ID
+            const { data: comp } = await supabase.from('empresas').select('id').eq('nombre', selectedCompany).single();
+            if (comp) {
+                query = query.eq('empresa_id', comp.id);
+            }
+        }
+
+        const { data, error } = await query;
         if (!error && data) {
             setPatients(data);
         }
@@ -49,10 +58,15 @@ export default function PatientsList() {
         }
     };
 
-    const filteredPatients = patients.filter(p =>
-        p.nombre_completo.toLowerCase().includes(search.toLowerCase()) ||
-        p.cedula.includes(search)
-    );
+    const filteredPatients = patients.filter(p => {
+        const matchesSearch = p.nombre_completo.toLowerCase().includes(search.toLowerCase()) ||
+            p.cedula.includes(search);
+
+        // SEGURIDAD CARLOS FUENTES: Doble validación de empresa
+        const matchesCompany = selectedCompany === 'GENERAL' || p.empresas?.nombre === selectedCompany;
+
+        return matchesSearch && matchesCompany;
+    });
 
     return (
         <div style={{ padding: '20px', animation: 'fadeIn 0.5s ease' }}>

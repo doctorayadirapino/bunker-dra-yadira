@@ -127,30 +127,42 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             doc.setFont('helvetica', 'normal');
             const obs = doc.splitTextToSize(data.consulta.observaciones, 180);
             doc.text(obs, 15, nextY + 6);
+            // v4.0: Actualización dinámica del puntero Y
+            nextY += (obs.length * 6) + 12;
         }
 
-        const lineY = 235;
+        // Cálculo de seguridad dinámico
+        let dynamicLineY = Math.max(nextY + 15, 235);
+        if (dynamicLineY > 255) {
+            doc.addPage();
+            dynamicLineY = 40;
+        }
+
         doc.setDrawColor(blueColor);
-        doc.line(78, lineY, 138, lineY);
+        doc.line(78, dynamicLineY, 138, dynamicLineY);
 
         doc.setFontSize(10);
         doc.setTextColor(textColor);
         doc.setFont('helvetica', 'bold');
-        doc.text(`Dra. ${data.doctora.nombre} R.`, 108, lineY + 6, { align: 'center' });
+        doc.text(`Dra. ${data.doctora.nombre} R.`, 108, dynamicLineY + 6, { align: 'center' });
         doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
-        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, lineY + 11, { align: 'center' });
-        doc.text(`INPSASEL: MIR116871964`, 108, lineY + 15, { align: 'center' });
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, dynamicLineY + 11, { align: 'center' });
+        doc.text(`INPSASEL: MIR116871964`, 108, dynamicLineY + 15, { align: 'center' });
 
         if (data.conFirmaDigital) {
             try {
-                const img = await loadImage('/firma_doctora.png');
-                // Ajuste de altura a -45 para evitar solapar el nombre
-                doc.addImage(img, 'PNG', 86, lineY - 45, 45, 35);
+                // v4.2: Calibración Final Gold - 3mm de aire sobre la línea
+                const img = await loadImage('/firma_doctora.png?v=4.2');
+                doc.addImage(img, 'PNG', 90, dynamicLineY - 31, 38, 28);
             } catch (e) {
                 console.error('Error firma:', e);
             }
         }
+
+        doc.setTextColor('#d97706'); // AMBAR v4.2
+        doc.setFontSize(7);
+        doc.text('BÚNKER v4.2 [CALIBRACIÓN FINAL GOLD]', 15, 275);
 
         doc.setTextColor(blueColor);
         doc.setFontSize(7);
@@ -268,58 +280,37 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             headStyles: { fillColor: [2, 132, 199] }
         });
 
-        const finalY = (doc as any).lastAutoTable.finalY + 35;
+        let drawY = Math.max((doc as any).lastAutoTable.finalY + 30, 235);
 
-        // Si la firma se va a salir de la página, agregamos una página nueva
-        if (finalY > 240) {
+        if (drawY > 255) {
             doc.addPage();
-            // Nueva posición en la página limpia
-            const startNewPageY = 40;
-            doc.setDrawColor(blueColor);
-            doc.line(78, startNewPageY, 138, startNewPageY);
+            drawY = 40;
+        }
 
-            doc.setFontSize(10);
-            doc.setTextColor(textColor);
-            doc.setFont('helvetica', 'bold');
-            doc.text(`Dra. YADIRA PINO R.`, 108, startNewPageY + 6, { align: 'center' });
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, startNewPageY + 11, { align: 'center' });
-            doc.text(`INPSASEL: MIR116871964`, 108, startNewPageY + 15, { align: 'center' });
+        doc.setDrawColor(blueColor);
+        doc.line(78, drawY, 138, drawY);
 
-            if (data.conFirmaDigital) {
-                try {
-                    const img = await loadImage('/firma_doctora.png');
-                    // Posicionamos la firma sobre la línea en la nueva página con margen de seguridad
-                    doc.addImage(img, 'PNG', 86, startNewPageY - 45, 45, 35);
-                } catch (e) {
-                    console.error('Error firma:', e);
-                }
-            }
-        } else {
-            // Posición normal en la misma página
-            doc.setDrawColor(blueColor);
-            doc.line(78, finalY, 138, finalY);
+        doc.setFontSize(10);
+        doc.setTextColor(textColor);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Dra. YADIRA PINO R.`, 108, drawY + 6, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, drawY + 11, { align: 'center' });
+        doc.text(`INPSASEL: MIR116871964`, 108, drawY + 15, { align: 'center' });
 
-            doc.setFontSize(10);
-            doc.setTextColor(textColor);
-            doc.setFont('helvetica', 'bold');
-            doc.text(`Dra. YADIRA PINO R.`, 108, finalY + 6, { align: 'center' });
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, finalY + 11, { align: 'center' });
-            doc.text(`INPSASEL: MIR116871964`, 108, finalY + 15, { align: 'center' });
-
-            if (data.conFirmaDigital) {
-                try {
-                    const img = await loadImage('/firma_doctora.png');
-                    doc.addImage(img, 'PNG', 86, finalY - 45, 45, 35);
-                } catch (e) {
-                    console.error('Error firma:', e);
-                }
+        if (data.conFirmaDigital) {
+            try {
+                const img = await loadImage('/firma_doctora.png?v=4.2');
+                doc.addImage(img, 'PNG', 90, drawY - 31, 38, 28);
+            } catch (e) {
+                console.error('Error firma:', e);
             }
         }
 
+        doc.setTextColor('#d97706'); // AMBAR v4.2
+        doc.setFontSize(7);
+        doc.text('BÚNKER v4.2 [CALIBRACIÓN FINAL GOLD]', 15, 275);
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {
@@ -376,6 +367,29 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
             headStyles: { fillColor: [2, 132, 199] }
         });
 
+        // Firma Digital en Listado
+        let finalY = (doc as any).lastAutoTable.finalY + 30;
+        if (finalY > 185) {
+            doc.addPage();
+            finalY = 40;
+        }
+
+        const lineX = 110;
+        doc.setDrawColor(blueColor);
+        doc.line(lineX, finalY, lineX + 60, finalY);
+        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Dra. YADIRA PINO R.`, lineX + 30, finalY + 5, { align: 'center' });
+
+        try {
+            const img = await loadImage('/firma_doctora.png?v=4.2');
+            doc.addImage(img, 'PNG', lineX + 12, finalY - 31, 38, 28);
+        } catch (e) { }
+
+        doc.setTextColor('#d97706'); // AMBAR v4.2
+        doc.setFontSize(7);
+        doc.text('BÚNKER v4.2 [CALIBRACIÓN FINAL GOLD]', 15, 205);
+
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {
         console.error('Error Listado PDF:', err);
@@ -408,7 +422,7 @@ interface ReposoData {
     };
 }
 
-export const generarReposoPDF = (data: ReposoData) => {
+export const generarReposoPDF = async (data: ReposoData) => {
     const doc = new jsPDF({
         orientation: 'p',
         unit: 'mm',
@@ -533,22 +547,36 @@ export const generarReposoPDF = (data: ReposoData) => {
     const mes = fechaActual.toLocaleString('es-VE', { month: 'long' });
     doc.text(`en: ${data.reposo.ciudad}, el ${fechaActual.getDate()} de ${mes} de ${fechaActual.getFullYear()}.`, 15, currentY);
 
+    // v4.3: Blindaje dinámico para Reposo
+    let footerY = Math.max(currentY + 25, 245);
+    if (footerY > 260) {
+        doc.addPage();
+        footerY = 45;
+    }
+
     doc.setTextColor(blueColor);
     doc.setFontSize(8);
-    doc.text('0414-241.5697 0412-701.4041', 15, 250);
-    doc.text('yadirapino6@gmail.com', 15, 255);
-    doc.text('Calle acueducto con Av. Estadio número 2, sector el barbecho los teques Miranda', 15, 260);
+    // Bloque de contacto movido dinámicamente
+    doc.text('0414-241.5697 0412-701.4041', 15, footerY);
+    doc.text('yadirapino6@gmail.com', 15, footerY + 5);
+    doc.text('Calle acueducto con Av. Estadio número 2, sector el barbecho los teques Miranda', 15, footerY + 10);
 
+    // Bloque de Firma movido dinámicamente
     doc.setDrawColor(blueColor);
-    doc.line(130, 250, 190, 250);
+    doc.line(130, footerY, 190, footerY);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(textColor);
-    doc.text('Firma y Sello Humedo', 145, 255);
+    doc.text('Firma y Sello Húmedo', 160, footerY + 5, { align: 'center' });
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Dra. ${data.doctora.nombre} R.`, 160, 260, { align: 'center' });
+    doc.text(`Dra. ${data.doctora.nombre} R.`, 160, footerY + 10, { align: 'center' });
     doc.setFontSize(6);
-    doc.text(`C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964`, 160, 264, { align: 'center' });
+    doc.text(`C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964`, 160, footerY + 14, { align: 'center' });
+
+    // v4.4: Protocolo SELLO HÚMEDO (Firma digital deshabilitada por seguridad legal)
+    doc.setTextColor('#10b981'); // VERDE ESMERALDA v4.4
+    doc.setFontSize(7);
+    doc.text('BÚNKER v4.4 [PROTOCOLO SELLO HÚMEDO]', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
 };

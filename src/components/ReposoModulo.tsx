@@ -3,12 +3,12 @@ import { supabase } from '../lib/supabase';
 import { FileText } from 'lucide-react';
 import { generarReposoPDF } from '../services/pdfService';
 
-export default function ReposoModulo() {
+export default function ReposoModulo({ selectedCompany = 'GENERAL' }: { selectedCompany?: string }) {
     const [loading, setLoading] = useState(false);
     const [paciente, setPaciente] = useState({
         nombre: '',
         cedula: '',
-        empresa: '',
+        empresa: selectedCompany !== 'GENERAL' ? selectedCompany : '',
         diagnostico: '',
         dias: 1,
         desde: new Date().toISOString().split('T')[0],
@@ -20,14 +20,18 @@ export default function ReposoModulo() {
         ameritaReposo: true
     });
 
+    // Actualizar empresa si cambia el filtro global
+    useEffect(() => {
+        if (selectedCompany !== 'GENERAL') {
+            setPaciente(prev => ({ ...prev, empresa: selectedCompany }));
+        }
+    }, [selectedCompany]);
+
     // --- AUTOMATIZACIÓN DE FECHAS DE REPOSO ---
     useEffect(() => {
         if (paciente.desde && paciente.dias > 0) {
-            // Usamos T12:00:00 para evitar problemas de zona horaria al calcular
             const startDate = new Date(paciente.desde + 'T12:00:00');
             const endDate = new Date(startDate);
-            // Si son 3 días: lunes (1), martes (2), miércoles (3). 
-            // 1 + (3-1) = 3. Correcto.
             endDate.setDate(startDate.getDate() + (paciente.dias - 1));
 
             const hastaStr = endDate.toISOString().split('T')[0];
@@ -40,17 +44,25 @@ export default function ReposoModulo() {
     const handleCedulaSearch = async (cedula: string) => {
         setPaciente(prev => ({ ...prev, cedula }));
         if (cedula.length > 5) {
-            const { data } = await supabase
+            let query = supabase
                 .from('pacientes')
                 .select('nombre_completo, empresas(nombre)')
-                .eq('cedula', cedula)
-                .single();
+                .eq('cedula', cedula);
+
+            const { data } = await query.single();
 
             if (data) {
+                const empresaPaciente = (data.empresas as any)?.nombre || '';
+
+                // Si hay filtro de empresa y el paciente no coincide, avisamos
+                if (selectedCompany !== 'GENERAL' && empresaPaciente !== selectedCompany) {
+                    alert(`⚠️ ATENCIÓN CARLOS FUENTES: El paciente ${data.nombre_completo} pertenece a la empresa "${empresaPaciente}", pero usted tiene seleccionada "${selectedCompany}" en el panel central.`);
+                }
+
                 setPaciente(prev => ({
                     ...prev,
                     nombre: data.nombre_completo,
-                    empresa: (data.empresas as any)?.nombre || ''
+                    empresa: empresaPaciente
                 }));
             }
         }
