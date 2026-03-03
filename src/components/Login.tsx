@@ -48,9 +48,9 @@ export default function Login() {
             });
 
             if (recoveryError) throw recoveryError;
-            setMessage("Se ha enviado un enlace de recuperación al correo asociado.");
+            setMessage("Instrucciones enviadas al correo asociado.");
         } catch (err: any) {
-            setError('Error al procesar la recuperación. Verifique el usuario.');
+            setError('Error en recuperación. Verifique el usuario.');
         } finally {
             setLoading(false);
         }
@@ -58,7 +58,7 @@ export default function Login() {
 
     return (
         <div className="login-container">
-            {/* Fondo con esferas decorativas dinámicas */}
+            {/* Fondo decorativo */}
             <div className="decorative-sphere sphere-1"></div>
             <div className="decorative-sphere sphere-2"></div>
 
@@ -69,7 +69,18 @@ export default function Login() {
                             <Activity size={40} className="pulse-icon" />
                         </div>
                         <h1 className="login-title">Dra. Yadira Pino</h1>
-                        <p style={{ color: 'var(--medical-turquoise)', fontSize: '0.8rem', fontWeight: 'bold', textAlign: 'center', marginTop: '-10px', marginBottom: '10px' }}>V.2.0 - SISTEMA MULTIMODAL</p>
+                        <div style={{
+                            background: 'var(--medical-turquoise)',
+                            color: 'white',
+                            fontSize: '0.7rem',
+                            padding: '2px 8px',
+                            borderRadius: '20px',
+                            display: 'inline-block',
+                            marginBottom: '10px',
+                            fontWeight: 'bold'
+                        }}>
+                            ACCESO CORPORATIVO V2.1
+                        </div>
                         {recoveryMode && (
                             <p className="login-subtitle">Recuperación de Acceso</p>
                         )}
@@ -78,13 +89,13 @@ export default function Login() {
                     {!recoveryMode ? (
                         <form onSubmit={handleLogin} className="login-form">
                             <div className="input-group">
-                                <label><User size={18} /> Nombre de Usuario</label>
+                                <label><User size={18} /> Usuario del Sistema</label>
                                 <input
                                     type="text"
                                     required
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="Ingrese su usuario"
+                                    placeholder="Ej: yadira_laboral"
                                 />
                             </div>
 
@@ -96,7 +107,7 @@ export default function Login() {
                                         onClick={() => setRecoveryMode(true)}
                                         className="forgot-password-link"
                                     >
-                                        ¿Olvidó su clave?
+                                        ¿Nueva clave?
                                     </button>
                                 </label>
                                 <input
@@ -111,22 +122,22 @@ export default function Login() {
                             {error && <div className="login-error-alert">⚠️ {error}</div>}
 
                             <button type="submit" className="login-submit-btn" disabled={loading}>
-                                {loading ? <span className="loader">Verificando...</span> : <>Ingresar al Sistema <ChevronRight size={20} /></>}
+                                {loading ? <span className="loader">Autenticando...</span> : <>Entrar al Búnker <ChevronRight size={20} /></>}
                             </button>
                         </form>
                     ) : (
                         <form onSubmit={handleRecovery} className="login-form">
-                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center', marginBottom: '10px' }}>
-                                Ingrese su usuario para recibir instrucciones de recuperación.
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', marginBottom: '15px' }}>
+                                Escriba su usuario para recuperar acceso.
                             </p>
                             <div className="input-group">
-                                <label><User size={18} /> Nombre de Usuario</label>
+                                <label><User size={18} /> Usuario</label>
                                 <input
                                     type="text"
                                     required
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="Ingrese su usuario"
+                                    placeholder="Ej: yadira_laboral"
                                 />
                             </div>
 
@@ -134,7 +145,7 @@ export default function Login() {
                             {message && <div className="login-success-alert">✅ {message}</div>}
 
                             <button type="submit" className="login-submit-btn" disabled={loading}>
-                                {loading ? <span className="loader">Procesando...</span> : <>Enviar Recuperación <ChevronRight size={20} /></>}
+                                {loading ? <span className="loader">Enviando...</span> : <>Recuperar Clave <ChevronRight size={20} /></>}
                             </button>
 
                             <button
@@ -142,16 +153,16 @@ export default function Login() {
                                 onClick={() => setRecoveryMode(false)}
                                 className="back-to-login-btn"
                             >
-                                Volver al Ingreso
+                                Volver
                             </button>
                         </form>
                     )}
 
                     <div className="login-footer">
-                        <div className="developer-badge" style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                            <Shield size={14} color="var(--medical-turquoise)" /> Desarrollador: LIC CARLOS FUENTES | 04129581040
+                        <div className="developer-badge" style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <Shield size={14} color="var(--medical-turquoise)" /> DESARROLLO: LIC CARLOS FUENTES
                         </div>
-                        <p>© {new Date().getFullYear()} Syntax Software Corp Venezolana.</p>
+                        <p>© {new Date().getFullYear()} Syntax Software Corp.</p>
                     </div>
                 </div>
             </div>
