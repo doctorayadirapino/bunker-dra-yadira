@@ -1,3 +1,4 @@
+// BÚNKER DRA. YADIRA PINO - VERSIÓN MULTIMODAL (PRODUCCIÓN)
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import {
