@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Activity, Lock, Mail, ChevronRight, Shield } from 'lucide-react';
+import { Activity, Lock, User, ChevronRight, Shield } from 'lucide-react';
 import './Login.css';
 
 export default function Login() {
     const [loading, setLoading] = useState(false);
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [recoveryMode, setRecoveryMode] = useState(false);
@@ -17,10 +17,10 @@ export default function Login() {
         setError(null);
         setMessage(null);
 
-        // Traducción de Nombres de Usuario a Email Interno
-        let internalEmail = email;
-        if (email === 'yadira_laboral') internalEmail = 'yadirapinorujano288@gmail.com';
-        if (email === 'yadira_fisiatra') internalEmail = 'doctora.fisiatria@bunker.com';
+        // Mapeo Maestro de Usuarios de Grado Corporativo
+        let internalEmail = username;
+        if (username === 'yadira_laboral') internalEmail = 'yadirapinorujano288@gmail.com';
+        if (username === 'yadira_fisiatra') internalEmail = 'doctora.fisiatria@bunker.com';
 
         try {
             const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -30,7 +30,7 @@ export default function Login() {
 
             if (signInError) throw signInError;
         } catch (err: any) {
-            setError(err.message || 'Error al conectar con el sistema de seguridad.');
+            setError('Credenciales inválidas. Verifique su usuario y contraseña.');
         } finally {
             setLoading(false);
         }
@@ -43,14 +43,14 @@ export default function Login() {
         setMessage(null);
 
         try {
-            const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(email, {
+            const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(username, {
                 redirectTo: window.location.origin,
             });
 
             if (recoveryError) throw recoveryError;
-            setMessage("Se ha enviado un enlace de recuperación a su correo electrónico.");
+            setMessage("Se ha enviado un enlace de recuperación al correo asociado.");
         } catch (err: any) {
-            setError(err.message || 'Error al procesar la recuperación de acceso.');
+            setError('Error al procesar la recuperación. Verifique el usuario.');
         } finally {
             setLoading(false);
         }
@@ -77,13 +77,13 @@ export default function Login() {
                     {!recoveryMode ? (
                         <form onSubmit={handleLogin} className="login-form">
                             <div className="input-group">
-                                <label><Mail size={18} /> Nombre de Usuario / Correo</label>
+                                <label><User size={18} /> Nombre de Usuario</label>
                                 <input
                                     type="text"
                                     required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Ej: yadira_laboral"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    placeholder="Ingrese su usuario"
                                 />
                             </div>
 
@@ -110,22 +110,22 @@ export default function Login() {
                             {error && <div className="login-error-alert">⚠️ {error}</div>}
 
                             <button type="submit" className="login-submit-btn" disabled={loading}>
-                                {loading ? <span className="loader">Accediendo...</span> : <>Ingresar al Sistema <ChevronRight size={20} /></>}
+                                {loading ? <span className="loader">Verificando...</span> : <>Ingresar al Sistema <ChevronRight size={20} /></>}
                             </button>
                         </form>
                     ) : (
                         <form onSubmit={handleRecovery} className="login-form">
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center', marginBottom: '10px' }}>
-                                Ingrese su correo para recibir un enlace seguro de restablecimiento de contraseña.
+                                Ingrese su usuario para recibir instrucciones de recuperación.
                             </p>
                             <div className="input-group">
-                                <label><Mail size={18} /> Correo Electrónico</label>
+                                <label><User size={18} /> Nombre de Usuario</label>
                                 <input
-                                    type="email"
+                                    type="text"
                                     required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="dra.yadira@salud.com"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    placeholder="Ingrese su usuario"
                                 />
                             </div>
 
@@ -133,7 +133,7 @@ export default function Login() {
                             {message && <div className="login-success-alert">✅ {message}</div>}
 
                             <button type="submit" className="login-submit-btn" disabled={loading}>
-                                {loading ? <span className="loader">Procesando envío...</span> : <>Enviar Enlace de Recuperación <ChevronRight size={20} /></>}
+                                {loading ? <span className="loader">Procesando...</span> : <>Enviar Recuperación <ChevronRight size={20} /></>}
                             </button>
 
                             <button
