@@ -17,10 +17,24 @@ export default function Login() {
         setError(null);
         setMessage(null);
 
-        // Mapeo Maestro de Usuarios de Grado Corporativo
-        let internalEmail = username;
-        if (username === 'yadira_laboral') internalEmail = 'yadirapinorujano288@gmail.com';
-        if (username === 'yadira_fisiatra') internalEmail = 'doctora.fisiatria@bunker.com';
+        // Mapeo Maestro de Identidades Corporativas (Exclusivo)
+        let internalEmail = '';
+        const normalizedUsername = username.trim().toLowerCase();
+
+        if (normalizedUsername === 'yadira_laboral') {
+            internalEmail = 'yadirapinorujano288@gmail.com';
+        } else if (normalizedUsername === 'yadira_fisiatra') {
+            internalEmail = 'doctora.fisiatria@bunker.com';
+        } else {
+            // Si no es un alias, verificamos si es un correo directo (solo para soporte)
+            if (normalizedUsername.includes('@')) {
+                internalEmail = normalizedUsername;
+            } else {
+                setError('El usuario ingresado no existe en el registro del Búnker.');
+                setLoading(false);
+                return;
+            }
+        }
 
         try {
             const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -42,15 +56,20 @@ export default function Login() {
         setError(null);
         setMessage(null);
 
+        // Solo permitir recuperación por alias conocidos
+        let targetEmail = username;
+        if (username === 'yadira_laboral') targetEmail = 'yadirapinorujano288@gmail.com';
+        if (username === 'yadira_fisiatra') targetEmail = 'doctora.fisiatria@bunker.com';
+
         try {
-            const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(username, {
+            const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(targetEmail, {
                 redirectTo: window.location.origin,
             });
 
             if (recoveryError) throw recoveryError;
-            setMessage("Instrucciones enviadas al correo asociado.");
+            setMessage("Instrucciones de seguridad enviadas al usuario.");
         } catch (err: any) {
-            setError('Error en recuperación. Verifique el usuario.');
+            setError('No se pudo procesar la recuperación. Contacte al administrador.');
         } finally {
             setLoading(false);
         }
@@ -58,7 +77,6 @@ export default function Login() {
 
     return (
         <div className="login-container">
-            {/* Fondo decorativo */}
             <div className="decorative-sphere sphere-1"></div>
             <div className="decorative-sphere sphere-2"></div>
 
@@ -73,29 +91,32 @@ export default function Login() {
                             background: 'var(--medical-turquoise)',
                             color: 'white',
                             fontSize: '0.7rem',
-                            padding: '2px 8px',
+                            padding: '2px 10px',
                             borderRadius: '20px',
                             display: 'inline-block',
-                            marginBottom: '10px',
-                            fontWeight: 'bold'
+                            marginBottom: '15px',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px'
                         }}>
-                            ACCESO CORPORATIVO V2.1
+                            Búnker Corporativo V2.2
                         </div>
                         {recoveryMode && (
-                            <p className="login-subtitle">Recuperación de Acceso</p>
+                            <p className="login-subtitle">Rescate de Acceso</p>
                         )}
                     </div>
 
                     {!recoveryMode ? (
                         <form onSubmit={handleLogin} className="login-form">
                             <div className="input-group">
-                                <label><User size={18} /> Usuario del Sistema</label>
+                                <label><User size={18} /> Nombre de Usuario</label>
                                 <input
                                     type="text"
                                     required
                                     value={username}
+                                    autoComplete="username"
                                     onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="Ej: yadira_laboral"
+                                    placeholder="yadira_laboral / yadira_fisiatra"
                                 />
                             </div>
 
@@ -114,6 +135,7 @@ export default function Login() {
                                     type="password"
                                     required
                                     value={password}
+                                    autoComplete="current-password"
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                 />
@@ -122,13 +144,13 @@ export default function Login() {
                             {error && <div className="login-error-alert">⚠️ {error}</div>}
 
                             <button type="submit" className="login-submit-btn" disabled={loading}>
-                                {loading ? <span className="loader">Autenticando...</span> : <>Entrar al Búnker <ChevronRight size={20} /></>}
+                                {loading ? <span className="loader">Validando...</span> : <>Entrar al Búnker <ChevronRight size={20} /></>}
                             </button>
                         </form>
                     ) : (
                         <form onSubmit={handleRecovery} className="login-form">
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', marginBottom: '15px' }}>
-                                Escriba su usuario para recuperar acceso.
+                                Introduzca su nombre de usuario para el rescate.
                             </p>
                             <div className="input-group">
                                 <label><User size={18} /> Usuario</label>
@@ -145,7 +167,7 @@ export default function Login() {
                             {message && <div className="login-success-alert">✅ {message}</div>}
 
                             <button type="submit" className="login-submit-btn" disabled={loading}>
-                                {loading ? <span className="loader">Enviando...</span> : <>Recuperar Clave <ChevronRight size={20} /></>}
+                                {loading ? <span className="loader">Enviando...</span> : <>Confirmar Rescate <ChevronRight size={20} /></>}
                             </button>
 
                             <button
@@ -153,16 +175,16 @@ export default function Login() {
                                 onClick={() => setRecoveryMode(false)}
                                 className="back-to-login-btn"
                             >
-                                Volver
+                                Volver al Ingreso
                             </button>
                         </form>
                     )}
 
                     <div className="login-footer">
                         <div className="developer-badge" style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                            <Shield size={14} color="var(--medical-turquoise)" /> DESARROLLO: LIC CARLOS FUENTES
+                            <Shield size={14} color="var(--medical-turquoise)" /> DESARROLLADOR: LIC. CARLOS FUENTES
                         </div>
-                        <p>© {new Date().getFullYear()} Syntax Software Corp.</p>
+                        <p>© {new Date().getFullYear()} Syntax Software Venezolana.</p>
                     </div>
                 </div>
             </div>

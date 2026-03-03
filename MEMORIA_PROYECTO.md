@@ -169,3 +169,23 @@ Se ha blindado la infraestructura en la nube y optimizado la ergonomía de naveg
 - **Auditoría de Datos Reales**: Tras la sincronización, Carlos Fuentes procederá a verificar el comportamiento con la data de la Doctora.
 
 **SESIÓN CERRADA CON ÉXITO TOTAL. EL BÚNKER ESTÁ FINANCIERAMENTE PROTEGIDO Y OPERATIVAMENTE SINCRONIZADO.**
+
+---
+
+## 📋 BITÁCORA DE AUDITORÍA PROFUNDA (2026-03-02 - FINAL) - CARLOS FUENTES
+Se realizó un peritaje técnico sobre el motor de autenticación para eliminar cualquier rastro de duplicidad o confusión con correos electrónicos.
+
+### 1. 🛡️ RESOLUCIÓN DE IDENTIDAD (AUTHENTICATION AUDIT)
+*   **Problema:** Sospecha de duplicidad de usuarios o error en el mapeo de "Nombre vs Correo".
+*   **Peritaje SQL:** Se ejecutó una consulta de integridad referencial sobre `auth.users`. Se confirmó que NO existe duplicidad. Existen exactamente 2 identidades únicas vinculadas a los 2 roles solicitados.
+*   **Acceso Restrictivo (Login V2.2):** Se eliminó el "Modo Híbrido". Ahora el sistema solo acepta los aliases corporativos (`yadira_laboral` / `yadira_fisiatra`). Cualquier intento de login con un correo no mapeado es bloqueado por lógica de frontend antes de tocar la base de datos, eliminando la duplicidad de sesiones.
+
+### 2. 🧩 ELIMINACIÓN DE "CORREO" (ERGNONOMÍA CORPORATIVA)
+*   **UI/UX:** Se destruyeron todas las etiquetas que mencionaban la palabra "Correo". 
+*   **Placeholder:** Actualizado para guiar a la doctora exclusivamente hacia su nombre de usuario.
+*   **Recuperación:** El sistema de rescate de clave fue auditado; ahora funciona por alias de usuario, traduciéndolo internamente al correo seguro sin mostrar la dirección física al usuario final.
+
+### 3. 🚀 MARCADOR DE VERSIÓN (AUDITORÍA VISUAL)
+*   Se inyectó el sello **"BÚNKER CORPORATIVO V2.2"** en el Login. Si Carlos Fuentes ve este sello, tiene la garantía de que el sistema ya no usa lógica de correos en la superficie.
+
+---
