@@ -69,6 +69,7 @@ export default function Login() {
                             <Activity size={40} className="pulse-icon" />
                         </div>
                         <h1 className="login-title">Dra. Yadira Pino</h1>
+                        <p style={{ color: 'var(--medical-turquoise)', fontSize: '0.8rem', fontWeight: 'bold', textAlign: 'center', marginTop: '-10px', marginBottom: '10px' }}>V.2.0 - SISTEMA MULTIMODAL</p>
                         {recoveryMode && (
                             <p className="login-subtitle">Recuperación de Acceso</p>
                         )}
