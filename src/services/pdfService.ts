@@ -160,9 +160,9 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, dynamicLineY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#64748b'); // Gris suave para crédito dec
+        doc.setTextColor('#64748b');
         doc.setFontSize(7);
-        doc.text('desarrolador lic carlos fuentes 04129581040', 15, 275);
+        doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
 
         doc.save(`Certificado_${data.paciente.cedula}.pdf`);
     } catch (err) {
@@ -308,7 +308,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
-        doc.text('desarrolador lic carlos fuentes 04129581040', 15, 275);
+        doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {
@@ -370,7 +370,7 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
-        doc.text('desarrolador lic carlos fuentes 04129581040', 15, 205);
+        doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 205);
 
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {
@@ -555,7 +555,7 @@ export const generarReposoPDF = async (data: ReposoData) => {
 
     doc.setTextColor('#10b981');
     doc.setFontSize(7);
-    doc.text('desarrolador lic carlos fuentes 04129581040', 15, 275);
+    doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
 };
