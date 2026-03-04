@@ -332,59 +332,68 @@ export default function App() {
             <div className="sidebar-header">
               <h1 className="brand-title">
                 <Activity className="brand-icon" size={28} />
-                Salud Laboral
+                {userRole === 'fisiatria' ? 'Búnker Fisiatría' : 'Salud Laboral'}
               </h1>
             </div>
 
             <nav className="nav-links">
 
-              <button className="new-eval-btn-sidebar" onClick={() => setShowForm(true)} style={{ marginBottom: '20px' }}>
-                <PlusCircle size={20} />
-                Nueva Evaluación
-              </button>
+              {userRole === 'laboral' && (
+                <>
+                  <button
+                    className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
+                    onClick={() => setActiveView('dashboard')}
+                  >
+                    <Activity size={20} />
+                    Dashboard
+                  </button>
+                  <button
+                    className={`nav-item ${activeView === 'patients' ? 'active' : ''}`}
+                    onClick={() => setActiveView('patients')}
+                  >
+                    <Users size={20} />
+                    Pacientes
+                  </button>
+                  <button
+                    className={`nav-item ${activeView === 'companies' ? 'active' : ''}`}
+                    onClick={() => setActiveView('companies')}
+                  >
+                    <BriefcaseMedical size={20} />
+                    Empresas
+                  </button>
+                  <button
+                    className={`nav-item ${activeView === 'surveillance' ? 'active' : ''}`}
+                    onClick={() => setActiveView('surveillance')}
+                  >
+                    <FileText size={20} />
+                    Vigilancia
+                  </button>
+                  <button
+                    className={`nav-item ${activeView === 'consultas' ? 'active' : ''}`}
+                    onClick={() => setActiveView('consultas')}
+                  >
+                    <Printer size={20} />
+                    Consultas
+                  </button>
+                  <button
+                    className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`}
+                    onClick={() => setActiveView('reposo')}
+                  >
+                    <CalendarDays size={20} />
+                    Reposo Médico
+                  </button>
+                </>
+              )}
 
-              <button
-                className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
-                onClick={() => setActiveView('dashboard')}
-              >
-                <Activity size={20} />
-                Dashboard
-              </button>
-              <button
-                className={`nav-item ${activeView === 'patients' ? 'active' : ''}`}
-                onClick={() => setActiveView('patients')}
-              >
-                <Users size={20} />
-                Pacientes
-              </button>
-              <button
-                className={`nav-item ${activeView === 'companies' ? 'active' : ''}`}
-                onClick={() => setActiveView('companies')}
-              >
-                <BriefcaseMedical size={20} />
-                Empresas
-              </button>
-              <button
-                className={`nav-item ${activeView === 'surveillance' ? 'active' : ''}`}
-                onClick={() => setActiveView('surveillance')}
-              >
-                <FileText size={20} />
-                Vigilancia
-              </button>
-              <button
-                className={`nav-item ${activeView === 'consultas' ? 'active' : ''}`}
-                onClick={() => setActiveView('consultas')}
-              >
-                <Printer size={20} />
-                Consultas
-              </button>
-              <button
-                className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`}
-                onClick={() => setActiveView('reposo')}
-              >
-                <CalendarDays size={20} />
-                Reposo Médico
-              </button>
+              {userRole === 'fisiatria' && (
+                <button
+                  className={`nav-item active`}
+                  onClick={() => setActiveView('dashboard')}
+                >
+                  <Stethoscope size={20} />
+                  Dashboard Fisiatría
+                </button>
+              )}
 
               <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
                 <button
@@ -413,26 +422,29 @@ export default function App() {
             <header className="top-bar">
               <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                 <div>
-                  <h2 className="page-title">Centro de Mando Epidemiológico</h2>
+                  <h2 className="page-title">
+                    {userRole === 'fisiatria' ? 'Gestión de Historias Clínicas' : 'Centro de Mando Epidemiológico'}
+                  </h2>
                   <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
                     Conectado a Cloud (Oficial)
                   </p>
                 </div>
 
-                {/* Filtro Maestro de Empresa */}
-                <div style={{ marginLeft: '20px', padding: '4px 12px', background: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <BriefcaseMedical size={18} color="var(--medical-turquoise)" />
-                  <select
-                    value={selectedCompany}
-                    onChange={(e) => setSelectedCompany(e.target.value)}
-                    style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 600, outline: 'none', cursor: 'pointer', minWidth: '150px' }}
-                  >
-                    <option value="GENERAL" style={{ background: 'var(--bg-primary)' }}>📊 VISTA GENERAL</option>
-                    {availableCompanies.map(c => (
-                      <option key={c} value={c} style={{ background: 'var(--bg-primary)' }}>🏢 {c}</option>
-                    ))}
-                  </select>
-                </div>
+                {userRole === 'laboral' && (
+                  <div style={{ marginLeft: '20px', padding: '4px 12px', background: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <BriefcaseMedical size={18} color="var(--medical-turquoise)" />
+                    <select
+                      value={selectedCompany}
+                      onChange={(e) => setSelectedCompany(e.target.value)}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 600, outline: 'none', cursor: 'pointer', minWidth: '150px' }}
+                    >
+                      <option value="GENERAL" style={{ background: 'var(--bg-primary)' }}>📊 VISTA GENERAL</option>
+                      {availableCompanies.map(c => (
+                        <option key={c} value={c} style={{ background: 'var(--bg-primary)' }}>🏢 {c}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
               <div className="user-profile">
                 <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
