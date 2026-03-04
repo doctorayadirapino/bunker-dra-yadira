@@ -159,13 +159,9 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, dynamicLineY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v4.9
+        doc.setTextColor('#d97706'); // AMBAR v5.0
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.9 [AUDIT-READY]', 15, 275);
-
-        doc.setTextColor(blueColor);
-        doc.setFontSize(7);
-        doc.text('Guarenas - Estadio Los Teques - Miranda | Tel: 0414-241.5697', 108, 265, { align: 'center' });
+        doc.text('BÚNKER v5.0 [ULTRA-CLEAN]', 15, 275);
 
         doc.save(`Certificado_${data.paciente.cedula}.pdf`);
     } catch (err) {
@@ -309,9 +305,9 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, drawY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v4.9
+        doc.setTextColor('#d97706'); // AMBAR v5.0
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.9 [AUDIT-READY]', 15, 275);
+        doc.text('BÚNKER v5.0 [ULTRA-CLEAN]', 15, 275);
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {
@@ -370,9 +366,9 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
             margin: { bottom: 5 }
         });
 
-        doc.setTextColor('#d97706'); // AMBAR v4.9
+        doc.setTextColor('#d97706'); // AMBAR v5.0
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.9 [LISTADO LIMPIO]', 15, 205);
+        doc.text('BÚNKER v5.0 [LISTADO LIMPIO]', 15, 205);
 
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {
@@ -540,14 +536,9 @@ export const generarReposoPDF = async (data: ReposoData) => {
         footerY = 35;
     }
 
-    doc.setTextColor(blueColor);
-    doc.setFontSize(8);
-    // Bloque de contacto movido dinámicamente
-    doc.text('0414-241.5697 0412-701.4041', 15, footerY);
-    doc.text('yadirapino6@gmail.com', 15, footerY + 5);
-    doc.text('Calle acueducto con Av. Estadio número 2, sector el barbecho los teques Miranda', 15, footerY + 10);
+    // Bloque de contacto removido por solicitud v5.0
 
-    // Bloque de Firma movido dinámicamente
+    // Bloque de Firma v5.0
     doc.setDrawColor(blueColor);
     doc.line(130, footerY, 190, footerY);
     doc.setFont('helvetica', 'bold');
@@ -559,10 +550,9 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.setFontSize(6);
     doc.text(`C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964`, 160, footerY + 14, { align: 'center' });
 
-    // v4.9: Protocolo SELLO HÚMEDO (Compresión grado militar)
-    doc.setTextColor('#10b981'); // VERDE ESMERALDA v4.9
+    doc.setTextColor('#10b981'); // VERDE ESMERALDA v5.0
     doc.setFontSize(7);
-    doc.text('BÚNKER v4.9 [PROTOCOLO SELLO HÚMEDO]', 15, 275);
+    doc.text('BÚNKER v5.0 [PROTOCOLO SELLO HÚMEDO]', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
 };
