@@ -131,9 +131,9 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             nextY += (obs.length * 6) + 12;
         }
 
-        // Cálculo de seguridad dinámico
-        let dynamicLineY = Math.max(nextY + 15, 235);
-        if (dynamicLineY > 255) {
+        // Cálculo de seguridad dinámico - v4.6 Optimizado
+        let dynamicLineY = Math.max(nextY + 10, 235);
+        if (dynamicLineY > 260) {
             doc.addPage();
             dynamicLineY = 40;
         }
@@ -159,9 +159,9 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, dynamicLineY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v4.2
+        doc.setTextColor('#d97706'); // AMBAR v4.6
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.2 [CALIBRACIÓN FINAL GOLD]', 15, 275);
+        doc.text('BÚNKER v4.6 [ULTRA-COMPACTO]', 15, 275);
 
         doc.setTextColor(blueColor);
         doc.setFontSize(7);
@@ -267,21 +267,23 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
                 `${((p.value / (data.stats.totalConsultations || 1)) * 100).toFixed(1)}%`
             ]),
             theme: 'striped',
-            headStyles: { fillColor: [233, 30, 99] }
+            headStyles: { fillColor: [233, 30, 99] },
+            margin: { bottom: 5 }
         });
 
-        const lastY = (doc as any).lastAutoTable.finalY + 15;
+        const lastY = (doc as any).lastAutoTable.finalY + 8;
         autoTable(doc, {
             startY: lastY,
             head: [['Grupo Etario', 'M', 'F', 'T']],
             body: data.stats.demographics.map(d => [d.group, d.Masc, d.Fem, d.Masc + d.Fem]),
             theme: 'striped',
-            headStyles: { fillColor: [2, 132, 199] }
+            headStyles: { fillColor: [2, 132, 199] },
+            margin: { bottom: 5 }
         });
 
-        let drawY = Math.max((doc as any).lastAutoTable.finalY + 30, 235);
+        let drawY = Math.max((doc as any).lastAutoTable.finalY + 12, 235);
 
-        if (drawY > 255) {
+        if (drawY > 260) {
             doc.addPage();
             drawY = 40;
         }
@@ -307,9 +309,9 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, drawY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v4.5
+        doc.setTextColor('#d97706'); // AMBAR v4.6
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.5 [SEGURIDAD & ESPACIO MAX]', 15, 275);
+        doc.text('BÚNKER v4.6 [ULTRA-COMPACTO]', 15, 275);
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {
@@ -366,9 +368,9 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
             headStyles: { fillColor: [2, 132, 199] }
         });
 
-        // Firma Digital en Listado
-        let finalY = (doc as any).lastAutoTable.finalY + 30;
-        if (finalY > 185) {
+        // Firma Digital en Listado - v4.6 Compacto
+        let finalY = (doc as any).lastAutoTable.finalY + 15;
+        if (finalY > 190) {
             doc.addPage();
             finalY = 40;
         }
@@ -387,9 +389,9 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
             doc.text(`Dra. YADIRA PINO R.`, lineX + 30, finalY + 5, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v4.5
+        doc.setTextColor('#d97706'); // AMBAR v4.6
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.5 [SEGURIDAD & ESPACIO MAX]', 15, 205);
+        doc.text('BÚNKER v4.6 [ULTRA-COMPACTO]', 15, 205);
 
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {
@@ -549,7 +551,8 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.text(`en: ${data.reposo.ciudad}, el ${fechaActual.getDate()} de ${mes} de ${fechaActual.getFullYear()}.`, 15, currentY);
 
     // v4.3: Blindaje dinámico para Reposo
-    let footerY = Math.max(currentY + 25, 245);
+    // v4.6: Ajuste de márgenes para una sola hoja
+    let footerY = Math.max(currentY + 15, 245);
     if (footerY > 260) {
         doc.addPage();
         footerY = 45;
@@ -574,10 +577,10 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.setFontSize(6);
     doc.text(`C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964`, 160, footerY + 14, { align: 'center' });
 
-    // v4.5: Protocolo SELLO HÚMEDO (Firma digital deshabilitada por seguridad legal)
-    doc.setTextColor('#10b981'); // VERDE ESMERALDA v4.5
+    // v4.6: Protocolo SELLO HÚMEDO (Optimizado para una sola hoja)
+    doc.setTextColor('#10b981'); // VERDE ESMERALDA v4.6
     doc.setFontSize(7);
-    doc.text('BÚNKER v4.5 [PROTOCOLO SELLO HÚMEDO]', 15, 275);
+    doc.text('BÚNKER v4.6 [PROTOCOLO SELLO HÚMEDO]', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
 };
