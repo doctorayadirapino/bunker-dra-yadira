@@ -159,9 +159,9 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, dynamicLineY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v4.8
+        doc.setTextColor('#d97706'); // AMBAR v4.9
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.8 [MÁXIMA COMPRESIÓN]', 15, 275);
+        doc.text('BÚNKER v4.9 [AUDIT-READY]', 15, 275);
 
         doc.setTextColor(blueColor);
         doc.setFontSize(7);
@@ -309,9 +309,9 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, drawY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v4.8
+        doc.setTextColor('#d97706'); // AMBAR v4.9
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.8 [MÁXIMA COMPRESIÓN]', 15, 275);
+        doc.text('BÚNKER v4.9 [AUDIT-READY]', 15, 275);
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {
@@ -319,7 +319,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
     }
 };
 
-export const generarListadoEmpresaPDF = async (companyName: string, consultas: any[], conFirmaDigital: boolean = false) => {
+export const generarListadoEmpresaPDF = async (companyName: string, consultas: any[]) => {
     try {
         const doc = new jsPDF({
             orientation: 'l',
@@ -370,30 +370,9 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
             margin: { bottom: 5 }
         });
 
-        // Firma Digital en Listado - v4.7 Max Compression
-        let finalY = (doc as any).lastAutoTable.finalY + 5;
-        if (finalY > 195) {
-            doc.addPage();
-            finalY = 35;
-        }
-
-        const lineX = 110;
-        if (conFirmaDigital) {
-            try {
-                const img = await loadImage('/firma_doctora.png?v=4.2');
-                doc.addImage(img, 'PNG', lineX + 5, finalY - 15, 50, 35);
-            } catch (e) { }
-        } else {
-            doc.setDrawColor(blueColor);
-            doc.line(lineX, finalY, lineX + 60, finalY);
-            doc.setFontSize(9);
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Dra. YADIRA PINO R.`, lineX + 30, finalY + 5, { align: 'center' });
-        }
-
-        doc.setTextColor('#d97706'); // AMBAR v4.8
+        doc.setTextColor('#d97706'); // AMBAR v4.9
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.8 [MÁXIMA COMPRESIÓN]', 15, 205);
+        doc.text('BÚNKER v4.9 [LISTADO LIMPIO]', 15, 205);
 
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {
@@ -580,10 +559,10 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.setFontSize(6);
     doc.text(`C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964`, 160, footerY + 14, { align: 'center' });
 
-    // v4.8: Protocolo SELLO HÚMEDO (Compresión grado militar)
-    doc.setTextColor('#10b981'); // VERDE ESMERALDA v4.8
+    // v4.9: Protocolo SELLO HÚMEDO (Compresión grado militar)
+    doc.setTextColor('#10b981'); // VERDE ESMERALDA v4.9
     doc.setFontSize(7);
-    doc.text('BÚNKER v4.8 [MÁXIMA COMPRESIÓN]', 15, 275);
+    doc.text('BÚNKER v4.9 [PROTOCOLO SELLO HÚMEDO]', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
 };
