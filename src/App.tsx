@@ -7,7 +7,8 @@ import {
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip as RechartsTooltip,
-  BarChart, Bar, XAxis, CartesianGrid, Legend, ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer,
+  LineChart, Line
 } from 'recharts';
 import NewEvaluationForm from './components/NewEvaluationForm';
 import PatientsList from './components/PatientsList';
@@ -52,6 +53,10 @@ export default function App() {
   const [kpis, setKpis] = useState({ total_pacientes: 0, consultas_mes: 0, dias_reposo: 0, ausentismo: 0 });
   const [genderData, setGenderData] = useState<{ name: string, value: number, color: string }[]>([]);
   const [consultationData, setConsultationData] = useState<{ name: string, val: number }[]>([]);
+  const [topPathologies, setTopPathologies] = useState<{ name: string, v: number, c: string }[]>([]);
+  const [trendData, setTrendData] = useState<any[]>([]);
+  const [demographicStats, setDemographicStats] = useState<any[]>([]);
+  const [absenteeismStats, setAbsenteeismStats] = useState<any[]>([]);
   const [latestConsultations, setLatestConsultations] = useState<Consulta[]>([]);
   const [userRole, setUserRole] = useState<'laboral' | 'fisiatria' | null>(null);
 
@@ -153,6 +158,12 @@ export default function App() {
     const cData = Object.keys(consulMap).map(k => ({ name: k, val: consulMap[k] })).sort((a, b) => b.val - a.val).slice(0, 5);
     setConsultationData(cData.length ? cData : [{ name: 'Sin Datos', val: 0 }]);
 
+    const colorsArr = ['#ef4444', '#f59e0b', '#3b82f6', '#22d3ee'];
+    const pData = Object.keys(patMap).map(k => ({ name: k, v: patMap[k] })).sort((a, b) => b.v - a.v).slice(0, 4).map((item, idx) => ({ ...item, c: colorsArr[idx % 4] }));
+    setTopPathologies(pData);
+    setTrendData(Object.values(monthTrends).slice(0, mesActual + 1));
+    setDemographicStats(Object.values(demoMap));
+    setAbsenteeismStats(Object.values(absentMap));
     setLatestConsultations(filtered.slice(0, 10));
 
     const totalPac = filterCompany === 'GENERAL' ? uniquePatients.size : uniquePatients.size;
@@ -511,7 +522,88 @@ export default function App() {
                                 <BarChart data={consultationData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
                                   <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
+                                  <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} allowDecimals={false} />
+                                  <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
                                   <Bar dataKey="val" fill="var(--medical-turquoise)" radius={[4, 4, 0, 0]} barSize={40} />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+
+                          {/* Chart 3: PATOLOGÍAS OVERVIEW */}
+                          <div className="chart-card">
+                            <h3 className="chart-title">Top 4 Patologías Detectadas</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
+                              {topPathologies.length === 0 && <span style={{ color: 'var(--text-muted)' }}>No hay casos patológicos registrados</span>}
+                              {topPathologies.map((item, i) => {
+                                const maxV = topPathologies.length > 0 ? topPathologies[0].v : 1;
+                                const percent = (item.v / maxV) * 100;
+                                return (
+                                  <div key={i}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--text-secondary)' }}>
+                                      <span>{item.name}</span>
+                                      <span>{item.v} casos</span>
+                                    </div>
+                                    <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                                      <div style={{ width: `${percent}%`, height: '100%', backgroundColor: item.c }} />
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Chart 4: REPOSOS TREND */}
+                          <div className="chart-card">
+                            <h3 className="chart-title">Clasificación de Eventos Mensuales</h3>
+                            <div style={{ width: '100%', height: 260 }}>
+                              <ResponsiveContainer width="100%" height={260}>
+                                <LineChart data={trendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                                  <XAxis dataKey="month" stroke="var(--text-secondary)" />
+                                  <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                                  <RechartsTooltip
+                                    contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
+                                  />
+                                  <Legend />
+                                  <Line type="monotone" name="Enf. Común" dataKey="enf_comun" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                  <Line type="monotone" name="Acc. Laboral" dataKey="acc_laboral" stroke="var(--danger)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                </LineChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+
+                          {/* Chart 5: PATOLOGÍAS POR EDAD Y SEXO */}
+                          <div className="chart-card">
+                            <h3 className="chart-title">Distribución de Patologías por Edad y Sexo</h3>
+                            <div style={{ width: '100%', height: 260 }}>
+                              <ResponsiveContainer width="100%" height={260}>
+                                <BarChart data={demographicStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                                  <XAxis dataKey="group" stroke="var(--text-secondary)" />
+                                  <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                                  <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
+                                  <Legend />
+                                  <Bar dataKey="Masc" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Hombres" />
+                                  <Bar dataKey="Fem" fill="#22d3ee" radius={[4, 4, 0, 0]} name="Mujeres" />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+
+                          {/* Chart 6: AUSENTISMO POR EDAD Y SEXO */}
+                          <div className="chart-card">
+                            <h3 className="chart-title">Ausentismo (Días) por Edad y Sexo</h3>
+                            <div style={{ width: '100%', height: 260 }}>
+                              <ResponsiveContainer width="100%" height={260}>
+                                <BarChart data={absenteeismStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                                  <XAxis dataKey="group" stroke="var(--text-secondary)" />
+                                  <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
+                                  <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
+                                  <Legend />
+                                  <Bar dataKey="Masc" fill="#2563eb" radius={[4, 4, 0, 0]} name="Total Días Hombres" />
+                                  <Bar dataKey="Fem" fill="#0ea5e9" radius={[4, 4, 0, 0]} name="Total Días Mujeres" />
                                 </BarChart>
                               </ResponsiveContainer>
                             </div>
