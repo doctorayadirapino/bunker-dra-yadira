@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, History, PlusCircle, Calendar, MessageSquare, Pill, FileText, Printer } from 'lucide-react';
+import { X, History, PlusCircle, Calendar, Pill, Printer } from 'lucide-react';
 import FisiatriaConsultationModal from './FisiatriaConsultationModal';
 import FisiatriaPatientModal from './FisiatriaPatientModal';
 import { generarConsultaFisiatriaPDF, generarRecipeFisiatriaPDF } from '../services/pdfService';
