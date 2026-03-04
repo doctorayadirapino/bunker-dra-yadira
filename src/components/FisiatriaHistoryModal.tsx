@@ -144,10 +144,54 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                                                 <span style={{ fontWeight: 800, color: 'var(--fisiatria-purple)' }}>{new Date(c.fecha_consulta).toLocaleDateString()}</span>
                                                 <span style={{ fontSize: '0.8rem', color: '#666' }}>REF: {c.referido_por || 'DIRECTO'}</span>
                                             </div>
-                                            <div style={{ display: 'flex', gap: '8px' }}>
-                                                <button onClick={() => handlePrintConsultation(c)} className="btn-print-fisiatria"><Printer size={14} /> Informe</button>
+                                            <div style={{ display: 'flex', gap: '12px' }}>
+                                                <button
+                                                    onClick={() => handlePrintConsultation(c)}
+                                                    style={{
+                                                        background: '#0284c7',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        padding: '10px 20px',
+                                                        borderRadius: '12px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        fontSize: '0.9rem',
+                                                        fontWeight: 900,
+                                                        textTransform: 'uppercase',
+                                                        cursor: 'pointer',
+                                                        boxShadow: '0 4px 10px rgba(2, 132, 199, 0.3)',
+                                                        transition: 'all 0.2s'
+                                                    }}
+                                                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                                >
+                                                    <Printer size={18} /> IMPRIMIR INFORME
+                                                </button>
                                                 {c.fisiatria_recipes?.length > 0 && (
-                                                    <button onClick={() => handlePrintRecipe(c)} className="btn-print-fisiatria btn-print-recipe"><Pill size={14} /> Récipe</button>
+                                                    <button
+                                                        onClick={() => handlePrintRecipe(c)}
+                                                        style={{
+                                                            background: '#e91e63',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            padding: '10px 20px',
+                                                            borderRadius: '12px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '8px',
+                                                            fontSize: '0.9rem',
+                                                            fontWeight: 900,
+                                                            textTransform: 'uppercase',
+                                                            cursor: 'pointer',
+                                                            boxShadow: '0 4px 10px rgba(233, 30, 99, 0.3)',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                                    >
+                                                        <Pill size={18} /> IMPRIMIR RÉCIPE
+                                                    </button>
                                                 )}
                                             </div>
                                         </div>
