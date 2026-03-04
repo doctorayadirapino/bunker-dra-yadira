@@ -29,6 +29,27 @@ interface CertificadoData {
     conFirmaDigital: boolean;
 }
 
+interface FisiatriaConsultaData {
+    paciente: {
+        nombre: string;
+        cedula: string;
+        edad: string;
+        telefono?: string;
+    };
+    consulta: {
+        fecha: string;
+        referido_por: string;
+        motivo_consulta: string;
+        examen_fisico: string;
+        diagnostico: string;
+        plan_sugerencia: string;
+        referencia?: string;
+        reposo_constancia?: string;
+    };
+    recipes: { medicamento: string; indicaciones: string }[];
+    conFirmaDigital: boolean;
+}
+
 // Función auxiliar para cargar imagen como Promesa
 const loadImage = (url: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -167,6 +188,208 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         doc.save(`Certificado_${data.paciente.cedula}.pdf`);
     } catch (err) {
         console.error('Error PDF Certificado:', err);
+    }
+};
+
+export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) => {
+    try {
+        const doc = new jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: 'letter'
+        });
+
+        const purpleColor = '#8b5cf6';
+        const textColor = '#1e293b';
+
+        // --- ENCABEZADO FISIATRÍA ---
+        doc.setFillColor(139, 92, 246); // Púrpura Fisiatría
+        doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
+        doc.circle(180, 15, 12, 'F');
+        doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
+
+        doc.setTextColor(purpleColor);
+        doc.setFont('times', 'italic');
+        doc.setFontSize(22);
+        doc.text('Dra. YADIRA PINO R.', 105, 15, { align: 'center' });
+
+        doc.setTextColor(purpleColor);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Médico Fisiatra - Medicina Física y Rehabilitación', 105, 21, { align: 'center' });
+
+        doc.setTextColor('#64748b');
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.text('RIF: V-6871964-6 | INPSASEL: MIR116871964', 105, 25, { align: 'center' });
+        doc.text('MPPS: 41.171 | CMM: 13.012 | C.I.: V-6.871.964', 105, 29, { align: 'center' });
+        doc.text('Telfs.: 0414-241.5697 | 0412-701.4041', 105, 33, { align: 'center' });
+
+        doc.setDrawColor(purpleColor);
+        doc.setLineWidth(0.5);
+        doc.line(15, 38, 195, 38);
+
+        // --- TÍTULO DEL DOCUMENTO ---
+        doc.setTextColor(purpleColor);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('INFORME DE CONSULTA FISIÁTRICA', 105, 48, { align: 'center' });
+
+        // --- DATOS DEL PACIENTE ---
+        doc.setFillColor('#f5f3ff');
+        doc.rect(15, 55, 180, 25, 'F');
+        doc.setTextColor(textColor);
+        doc.setFontSize(10);
+        doc.text(`PACIENTE: ${data.paciente.nombre}`, 20, 62);
+        doc.text(`CÉDULA: ${data.paciente.cedula}`, 20, 68);
+        doc.text(`EDAD: ${data.paciente.edad} AÑOS`, 120, 62);
+        doc.text(`FECHA: ${new Date(data.consulta.fecha).toLocaleDateString()}`, 120, 68);
+        doc.text(`TELÉFONO: ${data.paciente.telefono || 'N/A'}`, 20, 74);
+
+        // --- CUERPO DEL INFORME ---
+        let currentY = 90;
+
+        const drawSection = (title: string, content: string) => {
+            if (!content) return;
+            doc.setTextColor(purpleColor);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text(title.toUpperCase(), 15, currentY);
+            doc.setTextColor(textColor);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            const splitContent = doc.splitTextToSize(content, 175);
+            doc.text(splitContent, 15, currentY + 6);
+            currentY += (splitContent.length * 6) + 12;
+        };
+
+        drawSection('Referido por:', data.consulta.referido_por);
+        drawSection('Motivo de Consulta:', data.consulta.motivo_consulta);
+        drawSection('Examen Físico / Evaluación:', data.consulta.examen_fisico);
+        drawSection('Impresión Diagnóstica:', data.consulta.diagnostico);
+        drawSection('Plan Terapéutico / Sugerencias:', data.consulta.plan_sugerencia);
+
+        if (data.consulta.reposo_constancia) {
+            drawSection('Reposo / Constancia:', data.consulta.reposo_constancia);
+        }
+        if (data.consulta.referencia) {
+            drawSection('Referencia:', data.consulta.referencia);
+        }
+
+        // --- RÉCIPE SI EXISTE ---
+        if (data.recipes.length > 0) {
+            if (currentY > 210) { doc.addPage(); currentY = 30; }
+            doc.setTextColor(purpleColor);
+            doc.setFont('helvetica', 'bold');
+            doc.text('CONDUCTA FARMACOLÓGICA / INDICACIONES:', 15, currentY);
+            currentY += 8;
+
+            data.recipes.forEach(r => {
+                doc.setFont('helvetica', 'bold');
+                doc.text(`• ${r.medicamento}:`, 20, currentY);
+                doc.setFont('helvetica', 'normal');
+                const ind = doc.splitTextToSize(r.indicaciones, 160);
+                doc.text(ind, 30, currentY + 5);
+                currentY += (ind.length * 5) + 10;
+            });
+        }
+
+        // --- FIRMA ---
+        let footerY = Math.max(currentY + 20, 240);
+        if (footerY > 265) { doc.addPage(); footerY = 40; }
+
+        if (data.conFirmaDigital) {
+            try {
+                const img = await loadImage('/firma_doctora.png');
+                doc.addImage(img, 'PNG', 85, footerY - 20, 45, 30);
+            } catch (e) {
+                doc.line(80, footerY, 130, footerY);
+            }
+        } else {
+            doc.line(80, footerY, 130, footerY);
+        }
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Dra. YADIRA PINO R.', 105, footerY + 5, { align: 'center' });
+        doc.setFontSize(8);
+        doc.text('Médico Fisiatra', 105, footerY + 10, { align: 'center' });
+
+        doc.setFontSize(7);
+        doc.setTextColor('#10b981');
+        doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
+
+        doc.save(`Consulta_${data.paciente.cedula}.pdf`);
+    } catch (error) {
+        console.error('Error Fisiatria PDF:', error);
+    }
+};
+
+export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => {
+    try {
+        const doc = new jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: 'letter'
+        });
+
+        const purpleColor = '#8b5cf6';
+
+        // --- MEMBRETE RÉCIPE ---
+        doc.setTextColor(purpleColor);
+        doc.setFont('times', 'italic');
+        doc.setFontSize(22);
+        doc.text('Dra. YADIRA PINO R.', 105, 15, { align: 'center' });
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('MÉDICO FISIATRA', 105, 20, { align: 'center' });
+
+        doc.setDrawColor(purpleColor);
+        doc.line(15, 25, 195, 25);
+
+        doc.setTextColor('#1e293b');
+        doc.setFontSize(11);
+        doc.text(`Paciente: ${data.paciente.nombre}`, 15, 35);
+        doc.text(`Fecha: ${new Date(data.consulta.fecha).toLocaleDateString()}`, 160, 35);
+
+        doc.setFontSize(14);
+        doc.setTextColor(purpleColor);
+        doc.text('RÉCIPE E INDICACIONES MÉDICAS', 105, 45, { align: 'center' });
+        doc.line(75, 46, 135, 46);
+
+        let currentY = 60;
+        data.recipes.forEach((r, idx) => {
+            doc.setTextColor(purpleColor);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text(`${idx + 1}. ${r.medicamento}`, 20, currentY);
+
+            doc.setTextColor('#1e293b');
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            const ind = doc.splitTextToSize(r.indicaciones, 170);
+            doc.text(ind, 25, currentY + 6);
+            currentY += (ind.length * 6) + 15;
+
+            if (currentY > 250) { doc.addPage(); currentY = 20; }
+        });
+
+        // Firma pequeña abajo
+        const footerY = 240;
+        if (data.conFirmaDigital) {
+            try {
+                const img = await loadImage('/firma_doctora.png');
+                doc.addImage(img, 'PNG', 140, footerY - 15, 40, 25);
+            } catch (e) { }
+        }
+        doc.setDrawColor(purpleColor);
+        doc.line(135, footerY, 185, footerY);
+        doc.setFontSize(8);
+        doc.text('Firma y Sello del Médico', 160, footerY + 5, { align: 'center' });
+
+        doc.save(`Recipe_${data.paciente.cedula}.pdf`);
+    } catch (error) {
+        console.error('Error Recipe PDF:', error);
     }
 };
 

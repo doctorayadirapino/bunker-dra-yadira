@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { X, ClipboardList, Save, Plus, Trash2, Printer, Mail } from 'lucide-react';
+import { generarConsultaFisiatriaPDF } from '../services/pdfService';
 
 interface Props {
     patientId: string;
     patientName: string;
+    patientCedula?: string;
+    patientEdad?: string | number;
+    patientTelefono?: string;
     onClose: () => void;
     onSuccess: () => void;
 }
@@ -14,7 +18,7 @@ interface RecipeItem {
     indicaciones: string;
 }
 
-export default function FisiatriaConsultationModal({ patientId, patientName, onClose, onSuccess }: Props) {
+export default function FisiatriaConsultationModal({ patientId, patientName, patientCedula, patientEdad, patientTelefono, onClose, onSuccess }: Props) {
     const [loading, setLoading] = useState(false);
     const [useDigitalSignature, setUseDigitalSignature] = useState(false);
     const [vademecumList, setVademecumList] = useState<string[]>([]);
@@ -111,6 +115,32 @@ export default function FisiatriaConsultationModal({ patientId, patientName, onC
             }
 
             alert("¡CONSULTA Y RÉCIPE REGISTRADOS EXITOSAMENTE EN EL BÚNKER!");
+
+            // 4. Preguntar por Impresión de Informe
+            if (window.confirm("¿Desea generar e imprimir el INFORME MÉDICO ahora?")) {
+                const payload = {
+                    paciente: {
+                        nombre: patientName,
+                        cedula: patientCedula || '',
+                        edad: patientEdad?.toString() || '',
+                        telefono: patientTelefono || '',
+                    },
+                    consulta: {
+                        fecha: formData.fecha_consulta,
+                        referido_por: formData.referido_por || 'PACIENTE DIRECTO',
+                        motivo_consulta: formData.motivo_consulta,
+                        examen_fisico: formData.examen_fisico,
+                        diagnostico: formData.diagnostico,
+                        plan_sugerencia: formData.plan_sugerencia,
+                        referencia: formData.referencia,
+                        reposo_constancia: formData.reposo_constancia
+                    },
+                    recipes: validRecipes,
+                    conFirmaDigital: useDigitalSignature
+                };
+                generarConsultaFisiatriaPDF(payload);
+            }
+
             onSuccess();
             onClose();
         } catch (error: any) {
