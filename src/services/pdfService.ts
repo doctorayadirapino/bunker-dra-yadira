@@ -56,62 +56,62 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         // --- ENCABEZADO OFICIAL ---
         doc.setFillColor(233, 30, 99); // Rosa
         doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
-        doc.circle(180, 15, 12, 'F');
+        doc.circle(180, 25, 12, 'F');
         doc.setFillColor(2, 132, 199); // Azul
-        doc.circle(200, 25, 9, 'F');
+        doc.circle(200, 35, 9, 'F');
         doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
         doc.setTextColor(pinkColor);
         doc.setFont('times', 'italic');
         doc.setFontSize(20);
-        doc.text(`Dra. ${data.doctora.nombre} R.`, 105, 15, { align: 'center' });
+        doc.text(`Dra. ${data.doctora.nombre} R.`, 105, 25, { align: 'center' });
 
         doc.setTextColor(blueColor);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
-        doc.text('Fisiatra / Medico Ocupacional', 105, 20, { align: 'center' });
+        doc.text('Fisiatra / Medico Ocupacional', 105, 30, { align: 'center' });
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
         doc.setFont('helvetica', 'normal');
         const subtitulo = 'LOPCYMAT DIPLOMADO EN SALUD OCUPACIONAL DIPLOMADO DE ERGONOMIA';
-        doc.text(subtitulo, 105, 24, { align: 'center' });
-        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 28, { align: 'center' });
-        doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 32, { align: 'center' });
+        doc.text(subtitulo, 105, 34, { align: 'center' });
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 38, { align: 'center' });
+        doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 42, { align: 'center' });
 
         doc.setDrawColor(blueColor);
         doc.setLineWidth(0.5);
-        doc.line(15, 36, 195, 36);
+        doc.line(15, 46, 195, 46);
 
         doc.setTextColor(blueColor);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
-        doc.text('CERTIFICADO DE APTITUD MÉDICA', 105, 45, { align: 'center' });
+        doc.text('CERTIFICADO DE APTITUD MÉDICA', 105, 55, { align: 'center' });
 
         doc.setTextColor(textColor);
         doc.setFontSize(11);
         const fecha = new Date().toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
         const ciudadActual = data.consulta.ciudad || 'Guarenas';
-        doc.text(`En la ciudad de ${ciudadActual}, a los ${fecha}.`, 15, 58);
+        doc.text(`En la ciudad de ${ciudadActual}, a los ${fecha}.`, 15, 68);
 
         doc.setFont('helvetica', 'bold');
-        doc.text('HACE CONSTAR:', 15, 68);
+        doc.text('HACE CONSTAR:', 15, 78);
 
         doc.setFont('helvetica', 'normal');
         const parrafo = `Que el ciudadano(a) ${data.paciente.nombre}, titular de la Cédula de Identidad N° ${data.paciente.cedula}, trabajador de la empresa ${data.empresa.nombre} (RIF: ${data.empresa.rif}), ha sido sometido a una evaluación médica ocupacional de tipo ${data.consulta.tipo.toLowerCase()}.`;
 
         const splitText = doc.splitTextToSize(parrafo, 180);
-        doc.text(splitText, 15, 78);
+        doc.text(splitText, 15, 88);
 
         doc.setDrawColor(blueColor);
-        doc.rect(15, 105, 186, 25);
+        doc.rect(15, 115, 186, 25);
         doc.setFont('helvetica', 'bold');
-        doc.text('CONCLUSIÓN DE APTITUD:', 20, 112);
+        doc.text('CONCLUSIÓN DE APTITUD:', 20, 122);
         doc.setFontSize(16);
         doc.setTextColor(data.consulta.aptitud === 'APTO' ? '#10b981' : '#f59e0b');
-        doc.text(data.consulta.aptitud, 108, 122, { align: 'center' });
+        doc.text(data.consulta.aptitud, 108, 132, { align: 'center' });
 
-        let nextY = 145;
+        let nextY = 155;
         if (data.consulta.dias_reposo && data.consulta.dias_reposo > 0) {
             doc.setTextColor('#ef4444');
             doc.setFontSize(11);
@@ -204,62 +204,62 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         // --- ENCABEZADO OFICIAL ---
         doc.setFillColor(233, 30, 99); // Rosa
         doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
-        doc.circle(180, 15, 12, 'F');
+        doc.circle(180, 25, 12, 'F');
         doc.setFillColor(2, 132, 199); // Azul
-        doc.circle(200, 25, 9, 'F');
+        doc.circle(200, 35, 9, 'F');
         doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
         doc.setTextColor(pinkColor);
         doc.setFont('times', 'italic');
         doc.setFontSize(20);
-        doc.text(`Dra. YADIRA PINO R.`, 105, 15, { align: 'center' });
+        doc.text(`Dra. YADIRA PINO R.`, 105, 25, { align: 'center' });
 
         doc.setTextColor(blueColor);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
-        doc.text('Fisiatra / Medico Ocupacional', 105, 20, { align: 'center' });
+        doc.text('Fisiatra / Medico Ocupacional', 105, 30, { align: 'center' });
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
         doc.setFont('helvetica', 'normal');
         const subtitulo = 'LOPCYMAT DIPLOMADO EN SALUD OCUPACIONAL DIPLOMADO DE ERGONOMIA';
-        doc.text(subtitulo, 105, 24, { align: 'center' });
-        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 28, { align: 'center' });
-        doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 32, { align: 'center' });
+        doc.text(subtitulo, 105, 34, { align: 'center' });
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 38, { align: 'center' });
+        doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 42, { align: 'center' });
 
         doc.setDrawColor(blueColor);
         doc.setLineWidth(0.5);
-        doc.line(15, 36, 195, 36);
+        doc.line(15, 46, 195, 46);
 
         doc.setTextColor(blueColor);
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        doc.text('INFORME EPIDEMIOLÓGICO MENSUAL (LOPCYMAT)', 105, 46, { align: 'center' });
+        doc.text('INFORME EPIDEMIOLÓGICO MENSUAL (LOPCYMAT)', 105, 56, { align: 'center' });
 
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(textColor);
-        doc.text(`EMPRESA: ${data.companyName.toUpperCase()}`, 105, 53, { align: 'center' });
-        doc.text(`PERÍODO: ${data.month}`, 105, 58, { align: 'center' });
+        doc.text(`EMPRESA: ${data.companyName.toUpperCase()}`, 105, 63, { align: 'center' });
+        doc.text(`PERÍODO: ${data.month}`, 105, 68, { align: 'center' });
 
         doc.setFillColor('#f8fafc');
-        doc.rect(15, 64, 60, 20, 'F');
-        doc.rect(78, 64, 60, 20, 'F');
-        doc.rect(141, 64, 60, 20, 'F');
+        doc.rect(15, 74, 60, 20, 'F');
+        doc.rect(78, 74, 60, 20, 'F');
+        doc.rect(141, 74, 60, 20, 'F');
 
         doc.setTextColor(blueColor);
         doc.setFontSize(16);
-        doc.text(`${data.stats.totalPatients}`, 45, 72, { align: 'center' });
-        doc.text(`${data.stats.absenteeismRate}%`, 108, 72, { align: 'center' });
-        doc.text(`${data.stats.totalConsultations}`, 171, 72, { align: 'center' });
+        doc.text(`${data.stats.totalPatients}`, 45, 82, { align: 'center' });
+        doc.text(`${data.stats.absenteeismRate}%`, 108, 82, { align: 'center' });
+        doc.text(`${data.stats.totalConsultations}`, 171, 82, { align: 'center' });
 
         doc.setFontSize(8);
-        doc.text('POBLACIÓN TOTAL', 45, 78, { align: 'center' });
-        doc.text('ÍNDICE AUSENTISMO', 108, 78, { align: 'center' });
-        doc.text('CONSULTAS TOTALES', 171, 78, { align: 'center' });
+        doc.text('POBLACIÓN TOTAL', 45, 88, { align: 'center' });
+        doc.text('ÍNDICE AUSENTISMO', 108, 88, { align: 'center' });
+        doc.text('CONSULTAS TOTALES', 171, 88, { align: 'center' });
 
         autoTable(doc, {
-            startY: 88,
+            startY: 98,
             head: [['Morbilidad por Sistema', 'Casos', '%']],
             body: data.stats.topPathologies.map(p => [
                 p.name,
@@ -307,9 +307,9 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, drawY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v4.2
+        doc.setTextColor('#d97706'); // AMBAR v4.5
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.2 [CALIBRACIÓN FINAL GOLD]', 15, 275);
+        doc.text('BÚNKER v4.5 [SEGURIDAD & ESPACIO MAX]', 15, 275);
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {
@@ -338,16 +338,16 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
         doc.setTextColor(pinkColor);
         doc.setFont('times', 'italic');
         doc.setFontSize(22);
-        doc.text(`Dra. YADIRA PINO R.`, 140, 15, { align: 'center' });
+        doc.text(`Dra. YADIRA PINO R.`, 140, 25, { align: 'center' });
 
         doc.setTextColor(blueColor);
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
-        doc.text('Fisiatra / Medico Ocupacional | C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964', 140, 20, { align: 'center' });
+        doc.text('Fisiatra / Medico Ocupacional | C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964', 140, 30, { align: 'center' });
 
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(13);
-        doc.text(`LISTADO DE EVALUACIONES MÉDICAS - ${companyName}`, 140, 28, { align: 'center' });
+        doc.text(`LISTADO DE EVALUACIONES MÉDICAS - ${companyName}`, 140, 38, { align: 'center' });
 
         const body = consultas.map(c => [
             new Date(c.fecha_consulta).toLocaleDateString(),
@@ -359,7 +359,7 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
         ]);
 
         autoTable(doc, {
-            startY: 32,
+            startY: 42,
             head: [['Fecha', 'Paciente', 'Cédula', 'Tipo', 'Aptitud', 'Diagnóstico']],
             body: body,
             theme: 'striped',
@@ -387,9 +387,9 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
             doc.text(`Dra. YADIRA PINO R.`, lineX + 30, finalY + 5, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v4.2
+        doc.setTextColor('#d97706'); // AMBAR v4.5
         doc.setFontSize(7);
-        doc.text('BÚNKER v4.2 [CALIBRACIÓN FINAL GOLD]', 15, 205);
+        doc.text('BÚNKER v4.5 [SEGURIDAD & ESPACIO MAX]', 15, 205);
 
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {
@@ -436,48 +436,48 @@ export const generarReposoPDF = async (data: ReposoData) => {
 
     doc.setFillColor(233, 30, 99); // Rosa
     doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
-    doc.circle(180, 15, 12, 'F');
+    doc.circle(180, 25, 12, 'F');
     doc.setFillColor(2, 132, 199); // Azul
-    doc.circle(200, 25, 9, 'F');
+    doc.circle(200, 35, 9, 'F');
     doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
     doc.setTextColor(pinkColor);
     doc.setFont('times', 'italic');
     doc.setFontSize(20);
-    doc.text(`Dra. ${data.doctora.nombre} R.`, 105, 15, { align: 'center' });
+    doc.text(`Dra. ${data.doctora.nombre} R.`, 105, 25, { align: 'center' });
 
     doc.setTextColor(blueColor);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    doc.text('Fisiatra / Medico Ocupacional', 105, 20, { align: 'center' });
+    doc.text('Fisiatra / Medico Ocupacional', 105, 30, { align: 'center' });
 
     doc.setTextColor('#64748b');
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
     const subtitulo = 'LOPCYMAT DIPLOMADO EN SALUD OCUPACIONAL DIPLOMADO DE ERGONOMIA';
-    doc.text(subtitulo, 105, 24, { align: 'center' });
-    doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 28, { align: 'center' });
-    doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 32, { align: 'center' });
+    doc.text(subtitulo, 105, 34, { align: 'center' });
+    doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 38, { align: 'center' });
+    doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 42, { align: 'center' });
 
     doc.setDrawColor(blueColor);
     doc.setLineWidth(0.5);
-    doc.line(15, 36, 195, 36);
+    doc.line(15, 46, 195, 46);
 
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
     if (data.reposo.tipo === 'REPOSO') {
         doc.setTextColor(pinkColor);
-        doc.text('CONSTANCIA DE REPOSO', 105, 50, { align: 'center' });
+        doc.text('CONSTANCIA DE REPOSO', 105, 60, { align: 'center' });
     } else {
         doc.setTextColor(blueColor);
-        doc.text('CONSTANCIA DE ASISTENCIA', 105, 50, { align: 'center' });
+        doc.text('CONSTANCIA DE ASISTENCIA', 105, 60, { align: 'center' });
     }
 
     doc.setTextColor(textColor);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
 
-    let currentY = 70;
+    let currentY = 80;
     doc.text('Sr(a). o Paciente:', 15, currentY);
     doc.line(48, currentY + 1, 140, currentY + 1);
     doc.setFont('helvetica', 'bold');
@@ -574,10 +574,10 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.setFontSize(6);
     doc.text(`C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964`, 160, footerY + 14, { align: 'center' });
 
-    // v4.4: Protocolo SELLO HÚMEDO (Firma digital deshabilitada por seguridad legal)
-    doc.setTextColor('#10b981'); // VERDE ESMERALDA v4.4
+    // v4.5: Protocolo SELLO HÚMEDO (Firma digital deshabilitada por seguridad legal)
+    doc.setTextColor('#10b981'); // VERDE ESMERALDA v4.5
     doc.setFontSize(7);
-    doc.text('BÚNKER v4.4 [PROTOCOLO SELLO HÚMEDO]', 15, 275);
+    doc.text('BÚNKER v4.5 [PROTOCOLO SELLO HÚMEDO]', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
 };
