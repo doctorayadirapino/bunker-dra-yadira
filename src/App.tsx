@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import {
   Activity, Users, FileText, CalendarDays, AlertTriangle,
-  PlusCircle, BriefcaseMedical, Stethoscope, Printer, LogOut
+  PlusCircle, BriefcaseMedical, Stethoscope, Printer, LogOut, BookOpen
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip as RechartsTooltip,
@@ -390,13 +390,22 @@ export default function App() {
               )}
 
               {userRole === 'fisiatria' && (
-                <button
-                  className={`nav-item active`}
-                  onClick={() => setActiveView('dashboard')}
-                >
-                  <Stethoscope size={20} />
-                  Dashboard Fisiatría
-                </button>
+                <>
+                  <button
+                    className={`nav-item active`}
+                    onClick={() => setActiveView('dashboard')}
+                  >
+                    <Activity size={20} />
+                    Consulta Fisiátrica
+                  </button>
+                  <button
+                    className={`nav-item`}
+                    onClick={() => setActiveView('dashboard')}
+                  >
+                    <BookOpen size={20} />
+                    Vademécum
+                  </button>
+                </>
               )}
 
               <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
