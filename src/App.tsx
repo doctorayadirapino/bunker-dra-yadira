@@ -392,18 +392,32 @@ export default function App() {
               {userRole === 'fisiatria' && (
                 <>
                   <button
-                    className={`nav-item active`}
+                    className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
                     onClick={() => setActiveView('dashboard')}
                   >
                     <Activity size={20} />
                     Consulta Fisiátrica
                   </button>
                   <button
-                    className={`nav-item`}
-                    onClick={() => setActiveView('dashboard')}
+                    className={`nav-item ${activeView === 'pacientes_fisiatria' ? 'active' : ''}`}
+                    onClick={() => setActiveView('pacientes_fisiatria')}
+                  >
+                    <Users size={20} />
+                    Pacientes
+                  </button>
+                  <button
+                    className={`nav-item ${activeView === 'vademecum' ? 'active' : ''}`}
+                    onClick={() => setActiveView('vademecum')}
                   >
                     <BookOpen size={20} />
                     Vademécum
+                  </button>
+                  <button
+                    className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`}
+                    onClick={() => setActiveView('reposo')}
+                  >
+                    <CalendarDays size={20} />
+                    Reposo Médico
                   </button>
                 </>
               )}
@@ -475,7 +489,12 @@ export default function App() {
             ) : (
               <div className="view-transition-wrapper">
                 {userRole === 'fisiatria' ? (
-                  <FisiatriaDashboard />
+                  <>
+                    {(activeView === 'dashboard' || activeView === 'pacientes_fisiatria' || activeView === 'vademecum') && (
+                      <FisiatriaDashboard initialView={activeView === 'pacientes_fisiatria' ? 'pacientes' : activeView === 'vademecum' ? 'vademecum' : 'home'} />
+                    )}
+                    {activeView === 'reposo' && <ReposoModulo key="reposo-fisiatria" selectedCompany="GENERAL" />}
+                  </>
                 ) : (
                   <>
                     {activeView === 'dashboard' && (
@@ -689,7 +708,7 @@ export default function App() {
                       />
                     )}
                     {activeView === 'consultas' && <ConsultasModule key="consultas-view" selectedCompany={selectedCompany} />}
-                    {activeView === 'reposo' && <ReposoModulo key="reposo-view" selectedCompany={selectedCompany} />}
+                    {activeView === 'reposo' && <ReposoModulo key="reposo-view" selectedCompany={selectedCompany} userRole={userRole} />}
                   </>
                 )}
               </div>

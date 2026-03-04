@@ -230,6 +230,23 @@ El día de hoy se ejecutó una corrección en la vista del módulo Laboral refer
     5.  **Identidad del Paciente:** Se integró un botón de "Editar Paciente" directamente en la historia para corregir datos de filiación (Cédula, Edad, Teléfono) sin romper la integridad referencial.
     6.  **Navegación Selectiva:** El Sidebar ahora muestra opciones específicas para Fisiatría (`Consulta Fisiátrica`, `Vademécum`), ocultando las herramientas de Medicina Laboral para evitar ruido visual.
 
+### 11. 🎨 UNIFICACIÓN ESTÉTICA Y BLINDAJE DE FIRMA (v7.5) - CARLOS FUENTES
+*   **Problema de Identidad Visual:** Los reportes de Fisiatría usaban una estética púrpura que rompía con la marca Pink/Blue de la doctora, y el encabezado era un bloque sólido menos elegante que el de Laboral.
+*   **Problema de Sobreposición:** Carlos Fuentes reportó que la firma digital se estampaba sobre el nombre de la doctora, dificultando la lectura ("Sobrepoisición").
+*   **Solución de Ingeniería Estética (v7.0):**
+    1.  **Encabezado Premium Unificado:** Se rediseñaron todos los motores de PDF (`Consulta`, `Récipe`, `Reposo`) para usar el estilo "Laboral": círculos con opacidad, tipografía *Times Italic* para el nombre y líneas esmeraldas/azules finas.
+    2.  **Blindaje de Firma (+13mm):** Se recalibró la geometría de `jspdf`. La firma ahora se posiciona 13mm más arriba (`footerY - 45`) y el texto del pie de página se desplazó hacia abajo, garantizando CERO solapamiento entre el gráfico y el texto legal.
+    3.  **Módulo de Reposo Dinámico:** El componente `ReposoModulo.tsx` ahora detecta el rol del usuario (`laboral` vs `fisiatria`) para ajustar su título a "REPOSO MÉDICO LABORAL" o "REPOSO MÉDICO FISIÁTRICO" manteniendo la coherencia de los colores corporativos.
+    4.  **Protocolo de Consentimiento:** Se inyectó una validación de seguridad que pregunta explícitamente a la doctora si desea incluir la firma digital cuando ésta se encuentra desactivada, evitando emisiones accidentales sin rúbrica.
+
+### ✅ ESTADO FINAL OPERATIVO (v7.5)
+1.  **Aesthetics:** 100% Pink (#e91e63) and Blue (#0284c7) integration. No more purple traces.
+2.  **PDF Quality:** Consistent high-end headers across all modules.
+3.  **Signature:** Anti-overlap geometry verified.
+4.  **Security:** Explicit consent protocol for document generation.
+
+**ENTREGA DE VERSIÓN 7.5 FINALIZADA - LISTO PARA AUDITORÍA DE CARLOS FUENTES.**
+
 ### ✅ ESTADO ACTUAL DEL BÚNKER (v6.2)
 1.  **Módulo Laboral:** Operativo con gráficas BI restauradas y reportes epidemiológicos avanzados.
 2.  **Módulo Fisiatría:** 100% Funcional con historia clínica, recetas e impresión profesional.

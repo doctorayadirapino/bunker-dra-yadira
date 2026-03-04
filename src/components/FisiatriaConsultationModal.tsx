@@ -118,6 +118,12 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
 
             // 4. Preguntar por Impresión de Informe
             if (window.confirm("¿Desea generar e imprimir el INFORME MÉDICO ahora?")) {
+                // v6.8: Confirmación de Firma (Protocolo Carlos Fuentes)
+                let firmaFinal = useDigitalSignature;
+                if (!firmaFinal) {
+                    firmaFinal = window.confirm("⚠️ La Firma Digital está desactivada. ¿Desea incluirla para este documento específico?");
+                }
+
                 const payload = {
                     paciente: {
                         nombre: patientName,
@@ -136,7 +142,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                         reposo_constancia: formData.reposo_constancia
                     },
                     recipes: validRecipes,
-                    conFirmaDigital: useDigitalSignature
+                    conFirmaDigital: firmaFinal
                 };
                 generarConsultaFisiatriaPDF(payload);
             }
@@ -153,8 +159,8 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
     return (
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
             <div className="modal-content" style={{ maxWidth: '800px', width: '95%' }}>
-                <div className="modal-header">
-                    <h2 style={{ color: 'var(--fisiatria-purple)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="modal-header" style={{ background: 'white', borderBottom: '3px solid #e91e63' }}>
+                    <h2 style={{ color: '#e91e63', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 900 }}>
                         <ClipboardList size={24} />
                         Consulta Médica Fisiátrica: {patientName}
                     </h2>
@@ -257,8 +263,8 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                     {/* SECCIÓN 3: RÉCIPE / VADEMÉCUM (INTELIGENTE) */}
                     <div className="form-section-fisiatria" style={{ background: 'var(--fisiatria-purple-light)', border: '1px solid var(--fisiatria-purple-border)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                            <h3 className="section-title" style={{ marginBottom: 0 }}>3. Récipe Médico (Vademécum Inteligente)</h3>
-                            <button type="button" onClick={addRecipeRow} className="btn-purple-pill">
+                            <h3 className="section-title" style={{ marginBottom: 0, color: '#0284c7', borderColor: '#0284c7' }}>3. Récipe Médico (Vademécum Inteligente)</h3>
+                            <button type="button" onClick={addRecipeRow} className="btn-brand-pill" style={{ background: '#0284c7', color: 'white', padding: '8px 16px', borderRadius: '20px', border: 'none', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                 <Plus size={16} /> Añadir Medicamento
                             </button>
                         </div>
@@ -320,7 +326,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px', paddingBottom: '20px' }}>
                         <button type="button" onClick={onClose} className="btn-cancel">Cancelar</button>
-                        <button type="submit" className="btn-purple-action" disabled={loading} style={{ background: 'var(--fisiatria-purple)', padding: '15px 30px', fontSize: '1.1rem' }}>
+                        <button type="submit" className="btn-brand-action" disabled={loading} style={{ background: 'linear-gradient(135deg, #e91e63, #0284c7)', color: 'white', padding: '15px 30px', fontSize: '1.1rem', borderRadius: '15px', border: 'none', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(233, 30, 99, 0.2)', display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <Save size={22} /> {loading ? 'Sincronizando con Búnker...' : 'GUARDAR CONSULTA Y RÉCIPE'}
                         </button>
                     </div>
@@ -330,12 +336,12 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
             <style>{`
                 .section-title {
                     font-size: 0.9rem;
-                    color: var(--fisiatria-purple);
+                    color: #e91e63;
                     text-transform: uppercase;
                     letter-spacing: 1px;
                     font-weight: 800;
                     margin-bottom: 20px;
-                    border-bottom: 2px solid var(--fisiatria-purple-border);
+                    border-bottom: 2px solid #fecdd3;
                     padding-bottom: 5px;
                     display: inline-block;
                 }

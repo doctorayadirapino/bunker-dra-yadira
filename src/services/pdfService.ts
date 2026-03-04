@@ -153,8 +153,8 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             nextY += (obs.length * 6) + 12;
         }
 
-        // Cálculo de seguridad dinámico - v4.7 [FORCE SINGLE PAGE]
-        let dynamicLineY = Math.max(nextY + 8, 235);
+        // v6.4: Blindaje antisobreposición - Calibración Quirúrgica
+        let dynamicLineY = Math.max(nextY + 15, 235);
         if (dynamicLineY > 265) {
             doc.addPage();
             dynamicLineY = 35;
@@ -163,7 +163,7 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png?v=4.2');
-                doc.addImage(img, 'PNG', 83, dynamicLineY - 15, 50, 35);
+                doc.addImage(img, 'PNG', 80, dynamicLineY - 25, 50, 35);
             } catch (e) {
                 console.error('Error firma:', e);
             }
@@ -199,59 +199,64 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
             format: 'letter'
         });
 
-        const purpleColor = '#8b5cf6';
+        // v6.4: Unified Brand Colors (Pink/Blue)
+        const pinkColor = '#e91e63';
+        const blueColor = '#0284c7';
         const textColor = '#1e293b';
 
-        // --- ENCABEZADO FISIATRÍA ---
-        doc.setFillColor(139, 92, 246); // Púrpura Fisiatría
+        // v7.0: UNIFIED BRAND HEADER (LABORAL STYLE)
+        doc.setFillColor(233, 30, 99); // Rosa
         doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
         doc.circle(180, 15, 12, 'F');
+        doc.setFillColor(2, 132, 199); // Azul
+        doc.circle(200, 25, 9, 'F');
         doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
 
-        doc.setTextColor(purpleColor);
+        doc.setTextColor(pinkColor);
         doc.setFont('times', 'italic');
         doc.setFontSize(22);
-        doc.text('Dra. YADIRA PINO R.', 105, 15, { align: 'center' });
+        doc.text(`Dra. YADIRA PINO R.`, 105, 15, { align: 'center' });
 
-        doc.setTextColor(purpleColor);
+        doc.setTextColor(blueColor);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
-        doc.text('Médico Fisiatra - Medicina Física y Rehabilitación', 105, 21, { align: 'center' });
+        doc.text('Fisiatra / Medico Ocupacional', 105, 21, { align: 'center' });
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
         doc.setFont('helvetica', 'normal');
-        doc.text('RIF: V-6871964-6 | INPSASEL: MIR116871964', 105, 25, { align: 'center' });
-        doc.text('MPPS: 41.171 | CMM: 13.012 | C.I.: V-6.871.964', 105, 29, { align: 'center' });
-        doc.text('Telfs.: 0414-241.5697 | 0412-701.4041', 105, 33, { align: 'center' });
+        doc.text('LOPCYMAT DIPLOMADO EN SALUD OCUPACIONAL DIPLOMADO DE ERGONOMIA', 105, 25, { align: 'center' });
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 29, { align: 'center' });
 
-        doc.setDrawColor(purpleColor);
+        doc.setDrawColor(blueColor);
         doc.setLineWidth(0.5);
         doc.line(15, 38, 195, 38);
 
         // --- TÍTULO DEL DOCUMENTO ---
-        doc.setTextColor(purpleColor);
-        doc.setFontSize(14);
+        doc.setTextColor(pinkColor);
+        doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
         doc.text('INFORME DE CONSULTA FISIÁTRICA', 105, 48, { align: 'center' });
 
         // --- DATOS DEL PACIENTE ---
-        doc.setFillColor('#f5f3ff');
-        doc.rect(15, 55, 180, 25, 'F');
+        doc.setFillColor('#f8fafc');
+        doc.rect(15, 58, 180, 25, 'F');
+        doc.setDrawColor('#e2e8f0');
+        doc.rect(15, 58, 180, 25, 'S');
         doc.setTextColor(textColor);
         doc.setFontSize(10);
-        doc.text(`PACIENTE: ${data.paciente.nombre}`, 20, 62);
-        doc.text(`CÉDULA: ${data.paciente.cedula}`, 20, 68);
-        doc.text(`EDAD: ${data.paciente.edad} AÑOS`, 120, 62);
-        doc.text(`FECHA: ${new Date(data.consulta.fecha).toLocaleDateString()}`, 120, 68);
-        doc.text(`TELÉFONO: ${data.paciente.telefono || 'N/A'}`, 20, 74);
+        doc.text(`PACIENTE: ${data.paciente.nombre}`, 20, 65);
+        doc.text(`CÉDULA: ${data.paciente.cedula}`, 20, 71);
+        doc.text(`EDAD: ${data.paciente.edad} AÑOS`, 120, 65);
+        doc.text(`FECHA: ${new Date(data.consulta.fecha).toLocaleDateString()}`, 120, 71);
+        doc.text(`TELÉFONO: ${data.paciente.telefono || 'N/A'}`, 20, 77);
 
         // --- CUERPO DEL INFORME ---
         let currentY = 90;
 
         const drawSection = (title: string, content: string) => {
             if (!content) return;
-            doc.setTextColor(purpleColor);
+            doc.setTextColor(blueColor);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(9);
             doc.text(title.toUpperCase(), 15, currentY);
@@ -278,8 +283,9 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
 
         // --- RÉCIPE SI EXISTE ---
         if (data.recipes.length > 0) {
-            if (currentY > 210) { doc.addPage(); currentY = 30; }
-            doc.setTextColor(purpleColor);
+            if (currentY > 210) { doc.addPage(); currentY = 30; } // Ensure space for new section
+            doc.setFontSize(11);
+            doc.setTextColor(pinkColor);
             doc.setFont('helvetica', 'bold');
             doc.text('CONDUCTA FARMACOLÓGICA / INDICACIONES:', 15, currentY);
             currentY += 8;
@@ -294,29 +300,34 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
             });
         }
 
-        // --- FIRMA ---
-        let footerY = Math.max(currentY + 20, 240);
+        // --- FIRMA CON BLINDAJE ANTI-SOBREPOSICIÓN v7.0 ---
+        let footerY = Math.max(currentY + 25, 240);
         if (footerY > 265) { doc.addPage(); footerY = 40; }
 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 85, footerY - 20, 45, 30);
+                doc.addImage(img, 'PNG', 85, footerY - 45, 45, 30); // Subida 13mm más para no tapar el nombre
             } catch (e) {
+                doc.setDrawColor(blueColor);
                 doc.line(80, footerY, 130, footerY);
             }
-        } else {
-            doc.line(80, footerY, 130, footerY);
         }
 
-        doc.setFontSize(10);
+        doc.setDrawColor(blueColor);
+        doc.line(80, footerY + 2, 130, footerY + 2);
+
+        doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
-        doc.text('Dra. YADIRA PINO R.', 105, footerY + 5, { align: 'center' });
-        doc.setFontSize(8);
-        doc.text('Médico Fisiatra', 105, footerY + 10, { align: 'center' });
+        doc.setTextColor(blueColor);
+        doc.text('Dra. YADIRA PINO R.', 105, footerY + 8, { align: 'center' });
+        doc.setFontSize(9);
+        doc.setTextColor(textColor);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Especialista en Medicina Física y Rehabilitación (Fisiatría)', 105, footerY + 13, { align: 'center' });
 
         doc.setFontSize(7);
-        doc.setTextColor('#10b981');
+        doc.setTextColor(blueColor);
         doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
 
         doc.save(`Consulta_${data.paciente.cedula}.pdf`);
@@ -333,40 +344,52 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
             format: 'letter'
         });
 
-        const purpleColor = '#8b5cf6';
+        const pinkColor = '#e91e63';
+        const blueColor = '#0284c7';
 
-        // --- MEMBRETE RÉCIPE ---
-        doc.setTextColor(purpleColor);
+        // v7.0: UNIFIED BRAND HEADER (LABORAL STYLE)
+        doc.setFillColor(233, 30, 99); // Rosa
+        doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
+        doc.circle(180, 15, 12, 'F');
+        doc.setFillColor(2, 132, 199); // Azul
+        doc.circle(200, 25, 9, 'F');
+        doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
+
+        doc.setTextColor(pinkColor);
         doc.setFont('times', 'italic');
         doc.setFontSize(22);
-        doc.text('Dra. YADIRA PINO R.', 105, 15, { align: 'center' });
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.text('MÉDICO FISIATRA', 105, 20, { align: 'center' });
+        doc.text(`Dra. YADIRA PINO R.`, 105, 15, { align: 'center' });
 
-        doc.setDrawColor(purpleColor);
-        doc.line(15, 25, 195, 25);
+        doc.setTextColor(blueColor);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Fisiatra / Medico Ocupacional', 105, 21, { align: 'center' });
+
+        doc.setTextColor('#64748b');
+        doc.setFontSize(7);
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 29, { align: 'center' });
+
+        doc.setDrawColor(blueColor);
+        doc.line(15, 38, 195, 38);
 
         doc.setTextColor('#1e293b');
         doc.setFontSize(11);
-        doc.text(`Paciente: ${data.paciente.nombre}`, 15, 35);
-        doc.text(`Fecha: ${new Date(data.consulta.fecha).toLocaleDateString()}`, 160, 35);
+        doc.text(`Paciente: ${data.paciente.nombre}`, 15, 45);
+        doc.text(`Fecha: ${new Date(data.consulta.fecha).toLocaleDateString()}`, 160, 45);
+        doc.setFontSize(16);
+        doc.setTextColor(pinkColor);
+        doc.text('RÉCIPE E INDICACIONES MÉDICAS', 105, 55, { align: 'center' });
+        doc.line(75, 56, 135, 56);
 
-        doc.setFontSize(14);
-        doc.setTextColor(purpleColor);
-        doc.text('RÉCIPE E INDICACIONES MÉDICAS', 105, 45, { align: 'center' });
-        doc.line(75, 46, 135, 46);
-
-        let currentY = 60;
+        let currentY = 70;
         data.recipes.forEach((r, idx) => {
-            doc.setTextColor(purpleColor);
+            doc.setTextColor(blueColor);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
             doc.text(`${idx + 1}. ${r.medicamento}`, 20, currentY);
 
             doc.setTextColor('#1e293b');
             doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
             const ind = doc.splitTextToSize(r.indicaciones, 170);
             doc.text(ind, 25, currentY + 6);
             currentY += (ind.length * 6) + 15;
@@ -374,15 +397,21 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
             if (currentY > 250) { doc.addPage(); currentY = 20; }
         });
 
-        // Firma pequeña abajo
-        const footerY = 240;
+        // v6.4: Blindaje antisobreposición Récipe
+        let footerY = Math.max(currentY + 25, 240);
+        if (footerY > 270) {
+            doc.addPage();
+            footerY = 40;
+        }
+
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 140, footerY - 15, 40, 25);
+                // v6.5: Shifted UP to avoid overlap
+                doc.addImage(img, 'PNG', 140, footerY - 32, 40, 25);
             } catch (e) { }
         }
-        doc.setDrawColor(purpleColor);
+        doc.setDrawColor(blueColor);
         doc.line(135, footerY, 185, footerY);
         doc.setFontSize(8);
         doc.text('Firma y Sello del Médico', 160, footerY + 5, { align: 'center' });
@@ -501,11 +530,12 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             margin: { bottom: 5 }
         });
 
-        let drawY = Math.max((doc as any).lastAutoTable.finalY + 8, 235);
+        // v6.4: Blindaje Vigilancia
+        let drawY = Math.max((doc as any).lastAutoTable.finalY + 20, 235);
 
         if (drawY > 265) {
             doc.addPage();
-            drawY = 35;
+            drawY = 40;
         }
 
         if (data.conFirmaDigital) {
@@ -620,11 +650,12 @@ interface ReposoData {
     };
     doctora: {
         nombre: string;
-        ci: string;
-        mpps: string;
-        cmm: string;
+        ci: number;
+        mpps: number;
+        cmm: number;
         especialidad: string;
     };
+    conFirmaDigital?: boolean;
 }
 
 export const generarReposoPDF = async (data: ReposoData) => {
@@ -634,6 +665,7 @@ export const generarReposoPDF = async (data: ReposoData) => {
         format: 'letter'
     });
 
+    // v6.4: Unified Brand Colors (Pink/Blue)
     const pinkColor = '#e91e63';
     const blueColor = '#0284c7';
     const textColor = '#1e293b';
@@ -754,9 +786,8 @@ export const generarReposoPDF = async (data: ReposoData) => {
     const mes = fechaActual.toLocaleString('es-VE', { month: 'long' });
     doc.text(`en: ${data.reposo.ciudad}, el ${fechaActual.getDate()} de ${mes} de ${fechaActual.getFullYear()}.`, 15, currentY);
 
-    // v4.3: Blindaje dinámico para Reposo
-    // v4.7: Calibración máxima para evitar saltos de hoja
-    let footerY = Math.max(currentY + 10, 240);
+    // v6.4: Blindaje Máximo Reposo [EVITAR SOBREPOSICIÓN]
+    let footerY = Math.max(currentY + 25, 240);
     if (footerY > 265) {
         doc.addPage();
         footerY = 35;
@@ -764,20 +795,32 @@ export const generarReposoPDF = async (data: ReposoData) => {
 
     // Bloque de contacto removido por solicitud v5.0
 
-    // Bloque de Firma v5.0
-    doc.setDrawColor(blueColor);
-    doc.line(130, footerY, 190, footerY);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(textColor);
-    doc.text('Firma y Sello Húmedo', 160, footerY + 5, { align: 'center' });
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Dra. ${data.doctora.nombre} R.`, 160, footerY + 10, { align: 'center' });
-    doc.setFontSize(6);
-    doc.text(`C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964`, 160, footerY + 14, { align: 'center' });
+    // Bloque de Firma v7.0 [POSICIÓN ELEVADA ANTI-SOBREPOSICIÓN]
+    if (data.conFirmaDigital) {
+        try {
+            const img = await loadImage('/firma_doctora.png');
+            doc.addImage(img, 'PNG', 135, footerY - 45, 50, 35);
+        } catch (e) {
+            console.error('Error firma reposo:', e);
+        }
+    }
 
-    doc.setTextColor('#10b981');
+    doc.setDrawColor(blueColor);
+    doc.line(130, footerY + 2, 190, footerY + 2);
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(blueColor);
+    doc.text(`Dra. ${data.doctora.nombre} R.`, 160, footerY + 8, { align: 'center' });
+    doc.setFontSize(8);
+    doc.setTextColor(textColor);
+    doc.setFont('helvetica', 'normal');
+    const esp = data.doctora.especialidad === 'Fisiatra' ? 'Fisiatra / Médico Ocupacional' : data.doctora.especialidad;
+    doc.text(esp, 160, footerY + 12, { align: 'center' });
+    doc.text(`C.I.: V-${data.doctora.ci} | M.P.PS: ${data.doctora.mpps} | C.M.M: ${data.doctora.cmm}`, 160, footerY + 16, { align: 'center' });
+
     doc.setFontSize(7);
+    doc.setTextColor(blueColor);
     doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);

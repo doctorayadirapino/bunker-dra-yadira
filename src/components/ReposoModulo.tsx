@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { FileText } from 'lucide-react';
 import { generarReposoPDF } from '../services/pdfService';
 
-export default function ReposoModulo({ selectedCompany = 'GENERAL' }: { selectedCompany?: string }) {
+export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = 'laboral' }: { selectedCompany?: string, userRole?: string | null }) {
     const [loading, setLoading] = useState(false);
     const [paciente, setPaciente] = useState({
         nombre: '',
@@ -19,6 +19,7 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL' }: { selected
         condicionAsistente: 'Paciente' as 'Paciente' | 'Familiar',
         ameritaReposo: true
     });
+    const [useDigitalSignature, setUseDigitalSignature] = useState(false);
 
     // Actualizar empresa si cambia el filtro global
     useEffect(() => {
@@ -68,8 +69,15 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL' }: { selected
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // v6.7: PROTOCOLO DE CONSENTIMIENTO EXPLÍCITO (FIRMA)
+        if (!useDigitalSignature) {
+            const confirmManual = window.confirm("⚠️ Ud. no ha activado la Firma Digital. ¿Desea generar el documento para FIRMA MANUSCRITA y SELLO HÚMEDO?");
+            if (!confirmManual) return;
+        }
+
         setLoading(true);
 
         generarReposoPDF({
@@ -92,10 +100,11 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL' }: { selected
             doctora: {
                 nombre: "YADIRA PINO",
                 especialidad: "Fisiatra",
-                ci: "6.871.964",
-                mpps: "41.171",
-                cmm: "13.012"
-            }
+                ci: 6871964,
+                mpps: 41171,
+                cmm: 13012
+            },
+            conFirmaDigital: useDigitalSignature
         });
 
         setLoading(false);
@@ -103,9 +112,11 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL' }: { selected
 
     return (
         <div style={{ padding: '20px', animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ marginBottom: '30px' }}>
-                <h2 style={{ color: 'var(--text-primary)', fontSize: '1.8rem', fontWeight: 700 }}>Emisión de Reposo Médico</h2>
-                <p style={{ color: 'var(--text-secondary)' }}>Generación de justificativo para firma y sello húmedo (Sin Firma Digital)</p>
+            <div style={{ marginBottom: '30px', borderLeft: `8px solid ${userRole === 'fisiatria' ? '#e91e63' : 'var(--corporate-blue)'}`, paddingLeft: '20px' }}>
+                <h2 style={{ color: userRole === 'fisiatria' ? '#e91e63' : 'var(--corporate-blue)', fontSize: '1.8rem', fontWeight: 900 }}>
+                    {userRole === 'fisiatria' ? 'REPOSO MÉDICO FISIÁTRICO' : 'REPOSO MÉDICO LABORAL'}
+                </h2>
+                <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Generación de justificativos oficiales con respaldo en Búnker</p>
             </div>
 
             <div style={{ background: 'var(--bg-secondary)', padding: '30px', borderRadius: '24px', border: '1px solid var(--border-color)', maxWidth: '800px', margin: '0 auto' }}>
@@ -248,15 +259,38 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL' }: { selected
                         />
                     </div>
 
+                    {/* v6.4: Opción de Firma Digital */}
+                    <div style={{ padding: '15px', background: 'var(--bg-secondary)', borderRadius: '15px', border: '1px solid var(--border-color)', marginBottom: '25px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: useDigitalSignature ? 'rgba(16, 185, 129, 0.1)' : 'rgba(100, 116, 139, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <FileText size={20} color={useDigitalSignature ? '#10b981' : '#64748b'} />
+                            </div>
+                            <div>
+                                <h4 style={{ color: 'var(--text-primary)', margin: 0, fontSize: '0.95rem' }}>Incluir Firma Digital</h4>
+                                <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.8rem' }}>{useDigitalSignature ? 'El documento incluirá el sello y firma digital' : 'Documento para firma manuscrita y sello húmedo'}</p>
+                            </div>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                checked={useDigitalSignature}
+                                onChange={(e) => setUseDigitalSignature(e.target.checked)}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
                     <button
                         type="submit"
                         disabled={loading}
-                        style={{ width: '100%', background: 'var(--corporate-blue)', color: 'white', border: 'none', padding: '15px', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+                        style={{ width: '100%', padding: '16px', borderRadius: '15px', border: 'none', background: 'linear-gradient(135deg, var(--corporate-blue), var(--medical-turquoise))', color: 'white', fontWeight: 800, fontSize: '1.2rem', cursor: 'pointer', boxShadow: '0 10px 20px rgba(2, 132, 199, 0.2)', transition: 'all 0.3s' }}
                     >
-                        <FileText size={20} /> Generar Reposo para Firma Húmeda
+                        {loading ? 'GENERANDO DOCUMENTO...' : 'GENERAR E IMPRIMIR DOCUMENTO'}
                     </button>
                     <p style={{ textAlign: 'center', marginTop: '15px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                        ⚠️ Este documento NO incluye firma digital para permitir el sello húmedo oficial.
+                        {useDigitalSignature
+                            ? '✅ Firma Digital activada para emisión inmediata.'
+                            : '⚠️ Firma Manuscrita requerida para validez oficial.'}
                     </p>
                 </form>
             </div>
