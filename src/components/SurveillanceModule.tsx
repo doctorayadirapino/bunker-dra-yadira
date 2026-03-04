@@ -141,13 +141,14 @@ export default function SurveillanceModule({
     };
 
     const handleDownloadList = async () => {
+        const conFirma = window.confirm("¿Desea incluir la FIRMA DIGITAL en el listado?\n\n• [Aceptar]: Para enviar por correo corporativo.\n• [Cancelar]: Para imprimir y sellar físicamente.");
         setDownloading(true);
         try {
             const listData = selectedEmpresa === 'GENERAL'
                 ? rawConsultas
                 : rawConsultas.filter(c => c.empresas?.nombre === selectedEmpresa);
 
-            await generarListadoEmpresaPDF(selectedEmpresa, listData);
+            await generarListadoEmpresaPDF(selectedEmpresa, listData, conFirma);
         } catch (error) {
             console.error('Error:', error);
         } finally {

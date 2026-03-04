@@ -203,3 +203,21 @@ Se realizó un peritaje técnico sobre el motor de autenticación para eliminar 
 
 **SISTEMA RESPALDADO Y SELLADO POR HOY. TODO QUEDA EN LA MEMORIA PARA LA CONTINUIDAD.**
 
+---
+
+## 📋 BITÁCORA DE INTERVENCIONES ESTRATÉGICAS (2026-03-04) - CARLOS FUENTES
+El día de hoy se ejecutó una corrección en la vista del módulo Laboral referida a gráficas deshabilitadas.
+
+### 1. 📊 RESTAURACIÓN DE GRÁFICAS AVANZADAS Y KPIS (DASHBOARD LABORAL)
+*   **Problema:** El usuario Carlos Fuentes reportó la ausencia de visualizaciones clave (Gráficos) en la vista "Dashboard" del entorno laboral, las cuales habían sido removidas temporalmente en un commit previo de limpieza y unificación de interfaces.
+*   **Solución Arquitectónica:** 
+    1. Se hizo una regresión controlada revisando el árbol de `git log`. 
+    2. Se reinyectaron las variables de estado (`topPathologies`, `trendData`, `demographicStats`, `absenteeismStats`) y la lógica computacional dentro de la función `processAnalytics` para mapear los estadísticos de los diccionarios nativos.
+    3. Se reactivaron y posicionaron visualmente los **4 gráficos de Recharts** (Patologías Overview, Tendencia de Reposos por Mes, Distribución Demográfica y Ausentismo), devolviendo todo el poder de `Business Intelligence (BI)` a la vista principal del sistema.
+*   **Seguridad y Despliegue:** Todo el código fue recompilado sin errores y se procedió a **desplegar directamente en Producción** mediante la plataforma **Vercel** usando el Token Maestro autorizado (`vcp_...`). 
+
+### ⏳ ¿Qué quedó pendiente para la jornada?
+*   **Bloqueo Criptográfico en Fisiatría:** Tal como figuraba en la bitácora anterior, el usuario `yadira_fisiatra` sigue presentando inestabilidad para iniciar sesión, lo cual requiere que el ingeniero borre su registro y lo re-construya enteramente en la DB, para la correcta inserción del enrutamiento Hash local en Supabase.
+*   Carlos Fuentes auditará la validación de las nuevas gráficas restauradas en Producción.
+
+**CIERRE DE ACTUALIZACIÓN DEL TABLERO. ESPERANDO NUEVAS ÓRDENES.**
