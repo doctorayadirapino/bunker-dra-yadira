@@ -38,7 +38,7 @@ export default function FisiatriaDashboard() {
         <div className="fisiatria-container fade-in" style={{ padding: '20px' }}>
             <header style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <h2 style={{ color: 'var(--fisiatria-purple)', fontSize: '2rem', fontWeight: 800 }}>BÚNKER FISIATRÍA</h2>
+                    <h2 style={{ color: 'var(--fisiatria-purple)', fontSize: '2rem', fontWeight: 800 }}>CONSULTA FISIATRICA</h2>
                     <p style={{ color: 'var(--text-secondary)' }}>Especialidad en Rehabilitación y Medicina Física</p>
                 </div>
                 <div style={{ display: 'flex', gap: '10px' }}>

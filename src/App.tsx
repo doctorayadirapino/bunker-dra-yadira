@@ -332,7 +332,7 @@ export default function App() {
             <div className="sidebar-header">
               <h1 className="brand-title">
                 <Activity className="brand-icon" size={28} />
-                {userRole === 'fisiatria' ? 'Búnker Fisiatría' : 'Salud Laboral'}
+                {userRole === 'fisiatria' ? 'CONSULTA FISIATRICA' : 'Salud Laboral'}
               </h1>
             </div>
 
