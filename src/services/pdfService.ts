@@ -160,9 +160,9 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, dynamicLineY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v5.1
+        doc.setTextColor('#64748b'); // Gris suave para crédito dec
         doc.setFontSize(7);
-        doc.text('BÚNKER v5.1 [SISTEMA DE GESTIÓN MÉDICA]', 15, 275);
+        doc.text('desarrolador lic carlos fuentes 04129581040', 15, 275);
 
         doc.save(`Certificado_${data.paciente.cedula}.pdf`);
     } catch (err) {
@@ -306,9 +306,9 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, drawY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v5.1
+        doc.setTextColor('#64748b');
         doc.setFontSize(7);
-        doc.text('BÚNKER v5.1 [SISTEMA DE GESTIÓN MÉDICA]', 15, 275);
+        doc.text('desarrolador lic carlos fuentes 04129581040', 15, 275);
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {
@@ -368,9 +368,9 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
             margin: { bottom: 5 }
         });
 
-        doc.setTextColor('#d97706'); // AMBAR v5.1
+        doc.setTextColor('#64748b');
         doc.setFontSize(7);
-        doc.text('BÚNKER v5.1 [LISTADO LIMPIO]', 15, 205);
+        doc.text('desarrolador lic carlos fuentes 04129581040', 15, 205);
 
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {
@@ -553,9 +553,9 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.setFontSize(6);
     doc.text(`C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964`, 160, footerY + 14, { align: 'center' });
 
-    doc.setTextColor('#10b981'); // VERDE ESMERALDA v5.1
+    doc.setTextColor('#10b981');
     doc.setFontSize(7);
-    doc.text('BÚNKER v5.1 [SISTEMA DE GESTIÓN MÉDICA]', 15, 275);
+    doc.text('desarrolador lic carlos fuentes 04129581040', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
 };
