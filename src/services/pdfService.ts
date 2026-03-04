@@ -78,38 +78,39 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         doc.text(subtitulo, 105, 25, { align: 'center' });
         doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 29, { align: 'center' });
         doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 33, { align: 'center' });
+        doc.text(`Telfs.: 0414-241.5697 | 0412-701.4041`, 105, 36, { align: 'center' });
 
         doc.setDrawColor(blueColor);
         doc.setLineWidth(0.5);
-        doc.line(15, 37, 195, 37);
+        doc.line(15, 40, 195, 40);
 
         doc.setTextColor(blueColor);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
-        doc.text('CERTIFICADO DE APTITUD MÉDICA', 105, 46, { align: 'center' });
+        doc.text('CERTIFICADO DE APTITUD MÉDICA', 105, 49, { align: 'center' });
 
         doc.setTextColor(textColor);
         doc.setFontSize(11);
         const fecha = new Date().toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
         const ciudadActual = data.consulta.ciudad || 'Guarenas';
-        doc.text(`En la ciudad de ${ciudadActual}, a los ${fecha}.`, 15, 58);
+        doc.text(`En la ciudad de ${ciudadActual}, a los ${fecha}.`, 15, 61);
 
         doc.setFont('helvetica', 'bold');
-        doc.text('HACE CONSTAR:', 15, 67);
+        doc.text('HACE CONSTAR:', 15, 70);
 
         doc.setFont('helvetica', 'normal');
         const parrafo = `Que el ciudadano(a) ${data.paciente.nombre}, titular de la Cédula de Identidad N° ${data.paciente.cedula}, trabajador de la empresa ${data.empresa.nombre} (RIF: ${data.empresa.rif}), ha sido sometido a una evaluación médica ocupacional de tipo ${data.consulta.tipo.toLowerCase()}.`;
 
         const splitText = doc.splitTextToSize(parrafo, 180);
-        doc.text(splitText, 15, 76);
+        doc.text(splitText, 15, 79);
 
         doc.setDrawColor(blueColor);
-        doc.rect(15, 100, 186, 22); // Compacted
+        doc.rect(15, 103, 186, 22); // Compacted
         doc.setFont('helvetica', 'bold');
-        doc.text('CONCLUSIÓN DE APTITUD:', 20, 106);
+        doc.text('CONCLUSIÓN DE APTITUD:', 20, 109);
         doc.setFontSize(16);
         doc.setTextColor(data.consulta.aptitud === 'APTO' ? '#10b981' : '#f59e0b');
-        doc.text(data.consulta.aptitud, 108, 114, { align: 'center' });
+        doc.text(data.consulta.aptitud, 108, 117, { align: 'center' });
 
         let nextY = 155;
         if (data.consulta.dias_reposo && data.consulta.dias_reposo > 0) {
@@ -159,9 +160,9 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, dynamicLineY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v5.0
+        doc.setTextColor('#d97706'); // AMBAR v5.1
         doc.setFontSize(7);
-        doc.text('BÚNKER v5.0 [ULTRA-CLEAN]', 15, 275);
+        doc.text('BÚNKER v5.1 [SISTEMA DE GESTIÓN MÉDICA]', 15, 275);
 
         doc.save(`Certificado_${data.paciente.cedula}.pdf`);
     } catch (err) {
@@ -220,42 +221,42 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         doc.setFont('helvetica', 'normal');
         const subtitulo = 'LOPCYMAT DIPLOMADO EN SALUD OCUPACIONAL DIPLOMADO DE ERGONOMIA';
         doc.text(subtitulo, 105, 25, { align: 'center' });
-        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 29, { align: 'center' });
         doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 33, { align: 'center' });
+        doc.text(`Telfs.: 0414-241.5697 | 0412-701.4041`, 105, 36, { align: 'center' });
 
         doc.setDrawColor(blueColor);
         doc.setLineWidth(0.5);
-        doc.line(15, 37, 195, 37);
+        doc.line(15, 40, 195, 40);
 
         doc.setTextColor(blueColor);
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        doc.text('INFORME EPIDEMIOLÓGICO MENSUAL (LOPCYMAT)', 105, 46, { align: 'center' });
+        doc.text('INFORME EPIDEMIOLÓGICO MENSUAL (LOPCYMAT)', 105, 49, { align: 'center' });
 
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(textColor);
-        doc.text(`EMPRESA: ${data.companyName.toUpperCase()}`, 105, 52, { align: 'center' });
-        doc.text(`PERÍODO: ${data.month}`, 105, 57, { align: 'center' });
+        doc.text(`EMPRESA: ${data.companyName.toUpperCase()}`, 105, 55, { align: 'center' });
+        doc.text(`PERÍODO: ${data.month}`, 105, 60, { align: 'center' });
 
         doc.setFillColor('#f8fafc');
-        doc.rect(15, 63, 60, 18, 'F');
-        doc.rect(78, 63, 60, 18, 'F');
-        doc.rect(141, 63, 60, 18, 'F');
+        doc.rect(15, 66, 60, 18, 'F');
+        doc.rect(78, 66, 60, 18, 'F');
+        doc.rect(141, 66, 60, 18, 'F');
 
         doc.setTextColor(blueColor);
         doc.setFontSize(16);
-        doc.text(`${data.stats.totalPatients}`, 45, 70, { align: 'center' });
-        doc.text(`${data.stats.absenteeismRate}%`, 108, 70, { align: 'center' });
-        doc.text(`${data.stats.totalConsultations}`, 171, 70, { align: 'center' });
+        doc.text(`${data.stats.totalPatients}`, 45, 73, { align: 'center' });
+        doc.text(`${data.stats.absenteeismRate}%`, 108, 73, { align: 'center' });
+        doc.text(`${data.stats.totalConsultations}`, 171, 73, { align: 'center' });
 
         doc.setFontSize(8);
-        doc.text('POBLACIÓN TOTAL', 45, 76, { align: 'center' });
-        doc.text('ÍNDICE AUSENTISMO', 108, 76, { align: 'center' });
-        doc.text('CONSULTAS TOTALES', 171, 76, { align: 'center' });
+        doc.text('POBLACIÓN TOTAL', 45, 79, { align: 'center' });
+        doc.text('ÍNDICE AUSENTISMO', 108, 79, { align: 'center' });
+        doc.text('CONSULTAS TOTALES', 171, 79, { align: 'center' });
 
         autoTable(doc, {
-            startY: 85,
+            startY: 88,
             head: [['Morbilidad por Sistema', 'Casos', '%']],
             body: data.stats.topPathologies.map(p => [
                 p.name,
@@ -305,9 +306,9 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             doc.text(`INPSASEL: MIR116871964`, 108, drawY + 15, { align: 'center' });
         }
 
-        doc.setTextColor('#d97706'); // AMBAR v5.0
+        doc.setTextColor('#d97706'); // AMBAR v5.1
         doc.setFontSize(7);
-        doc.text('BÚNKER v5.0 [ULTRA-CLEAN]', 15, 275);
+        doc.text('BÚNKER v5.1 [SISTEMA DE GESTIÓN MÉDICA]', 15, 275);
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {
@@ -340,13 +341,14 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
         doc.text(`Dra. YADIRA PINO R.`, 140, 15, { align: 'center' });
 
         doc.setTextColor(blueColor);
-        doc.setFontSize(10);
+        doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
-        doc.text('Fisiatra / Medico Ocupacional | C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964', 140, 21, { align: 'center' });
+        doc.text('Fisiatra / Medico Ocupacional | C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | RIF V-6871964-6 | INPSASEL MIR116871964', 140, 21, { align: 'center' });
+        doc.text('Telfs.: 0414-241.5697 | 0412-701.4041', 140, 25, { align: 'center' });
 
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(13);
-        doc.text(`LISTADO DE EVALUACIONES MÉDICAS - ${companyName}`, 140, 30, { align: 'center' });
+        doc.text(`LISTADO DE EVALUACIONES MÉDICAS - ${companyName}`, 140, 32, { align: 'center' });
 
         const body = consultas.map(c => [
             new Date(c.fecha_consulta).toLocaleDateString(),
@@ -358,7 +360,7 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
         ]);
 
         autoTable(doc, {
-            startY: 36,
+            startY: 38,
             head: [['Fecha', 'Paciente', 'Cédula', 'Tipo', 'Aptitud', 'Diagnóstico']],
             body: body,
             theme: 'striped',
@@ -366,9 +368,9 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
             margin: { bottom: 5 }
         });
 
-        doc.setTextColor('#d97706'); // AMBAR v5.0
+        doc.setTextColor('#d97706'); // AMBAR v5.1
         doc.setFontSize(7);
-        doc.text('BÚNKER v5.0 [LISTADO LIMPIO]', 15, 205);
+        doc.text('BÚNKER v5.1 [LISTADO LIMPIO]', 15, 205);
 
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {
@@ -438,26 +440,27 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.text(subtitulo, 105, 25, { align: 'center' });
     doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 29, { align: 'center' });
     doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 33, { align: 'center' });
+    doc.text(`Telfs.: 0414-241.5697 | 0412-701.4041`, 105, 36, { align: 'center' });
 
     doc.setDrawColor(blueColor);
     doc.setLineWidth(0.5);
-    doc.line(15, 37, 195, 37);
+    doc.line(15, 40, 195, 40);
 
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
     if (data.reposo.tipo === 'REPOSO') {
         doc.setTextColor(pinkColor);
-        doc.text('CONSTANCIA DE REPOSO', 105, 50, { align: 'center' });
+        doc.text('CONSTANCIA DE REPOSO', 105, 52, { align: 'center' });
     } else {
         doc.setTextColor(blueColor);
-        doc.text('CONSTANCIA DE ASISTENCIA', 105, 50, { align: 'center' });
+        doc.text('CONSTANCIA DE ASISTENCIA', 105, 52, { align: 'center' });
     }
 
     doc.setTextColor(textColor);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
 
-    let currentY = 65;
+    let currentY = 68;
     doc.text('Sr(a). o Paciente:', 15, currentY);
     doc.line(48, currentY + 1, 140, currentY + 1);
     doc.setFont('helvetica', 'bold');
@@ -550,9 +553,9 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.setFontSize(6);
     doc.text(`C.I. V-6.871.964 | MPPS 41171 | CMM 13012 | INPSASEL: MIR116871964`, 160, footerY + 14, { align: 'center' });
 
-    doc.setTextColor('#10b981'); // VERDE ESMERALDA v5.0
+    doc.setTextColor('#10b981'); // VERDE ESMERALDA v5.1
     doc.setFontSize(7);
-    doc.text('BÚNKER v5.0 [PROTOCOLO SELLO HÚMEDO]', 15, 275);
+    doc.text('BÚNKER v5.1 [SISTEMA DE GESTIÓN MÉDICA]', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
 };
