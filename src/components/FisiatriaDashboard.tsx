@@ -2,14 +2,20 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import {
     Users,
-    PlusCircle,
-    Search
+    Search,
+    UserPlus,
+    History as HistoryIcon
 } from 'lucide-react';
+import FisiatriaPatientModal from './FisiatriaPatientModal';
+import FisiatriaHistoryModal from './FisiatriaHistoryModal';
 
 export default function FisiatriaDashboard() {
     const [view, setView] = useState<'home' | 'pacientes' | 'vademecum'>('home');
     const [patients, setPatients] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedPatient, setSelectedPatient] = useState<any>(null);
+    const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
+    const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
     useEffect(() => {
         fetchPatients();
@@ -23,7 +29,7 @@ export default function FisiatriaDashboard() {
         if (data) setPatients(data);
     };
 
-    const filteredPatients = patients.filter(p =>
+    const filteredPatients = patients.filter((p: any) =>
         p.nombre_completo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.cedula.includes(searchTerm)
     );
@@ -65,8 +71,8 @@ export default function FisiatriaDashboard() {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
-                            <button className="btn-purple-action" onClick={() => { }}>
-                                <PlusCircle size={18} /> Nueva Historia
+                            <button className="btn-purple-action" onClick={() => setIsPatientModalOpen(true)}>
+                                <UserPlus size={18} /> Nueva Historia
                             </button>
                         </div>
                     </div>
@@ -89,7 +95,16 @@ export default function FisiatriaDashboard() {
                                             <td>{p.nombre_completo}</td>
                                             <td>{p.cedula}</td>
                                             <td>
-                                                <button className="nav-pill" style={{ fontSize: '0.8rem' }}>Ver Historia</button>
+                                                <button
+                                                    className="nav-pill"
+                                                    style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                                                    onClick={() => {
+                                                        setSelectedPatient(p);
+                                                        setIsHistoryModalOpen(true);
+                                                    }}
+                                                >
+                                                    <HistoryIcon size={14} /> Ver Historia
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
@@ -98,6 +113,20 @@ export default function FisiatriaDashboard() {
                         )}
                     </div>
                 </div>
+            )}
+
+            {isPatientModalOpen && (
+                <FisiatriaPatientModal
+                    onClose={() => setIsPatientModalOpen(false)}
+                    onSuccess={fetchPatients}
+                />
+            )}
+
+            {isHistoryModalOpen && selectedPatient && (
+                <FisiatriaHistoryModal
+                    patient={selectedPatient}
+                    onClose={() => setIsHistoryModalOpen(false)}
+                />
             )}
 
             <style>{`
