@@ -340,6 +340,10 @@ export default function App() {
 
               {userRole === 'laboral' && (
                 <>
+                  <button className="new-eval-btn-sidebar" onClick={() => setShowForm(true)} style={{ marginBottom: '20px' }}>
+                    <PlusCircle size={20} />
+                    Nueva Evaluación
+                  </button>
                   <button
                     className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
                     onClick={() => setActiveView('dashboard')}
