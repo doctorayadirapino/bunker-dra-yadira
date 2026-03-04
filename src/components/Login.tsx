@@ -99,7 +99,7 @@ export default function Login() {
                             textTransform: 'uppercase',
                             letterSpacing: '1px'
                         }}>
-                            Búnker Corporativo V2.2
+                            Búnker Corporativo V7.5
                         </div>
                         {recoveryMode && (
                             <p className="login-subtitle">Rescate de Acceso</p>

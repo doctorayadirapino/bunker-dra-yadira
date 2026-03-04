@@ -256,7 +256,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
 
         const drawSection = (title: string, content: string) => {
             if (!content) return;
-            doc.setTextColor(blueColor);
+            doc.setTextColor(textColor);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(9);
             doc.text(title.toUpperCase(), 15, currentY);
@@ -285,7 +285,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         if (data.recipes.length > 0) {
             if (currentY > 210) { doc.addPage(); currentY = 30; } // Ensure space for new section
             doc.setFontSize(11);
-            doc.setTextColor(pinkColor);
+            doc.setTextColor(textColor);
             doc.setFont('helvetica', 'bold');
             doc.text('CONDUCTA FARMACOLÓGICA / INDICACIONES:', 15, currentY);
             currentY += 8;
@@ -319,7 +319,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
 
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(blueColor);
+        doc.setTextColor(textColor);
         doc.text('Dra. YADIRA PINO R.', 105, footerY + 8, { align: 'center' });
         doc.setFontSize(9);
         doc.setTextColor(textColor);
@@ -327,7 +327,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         doc.text('Especialista en Medicina Física y Rehabilitación (Fisiatría)', 105, footerY + 13, { align: 'center' });
 
         doc.setFontSize(7);
-        doc.setTextColor(blueColor);
+        doc.setTextColor(textColor);
         doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
 
         doc.save(`Consulta_${data.paciente.cedula}.pdf`);

@@ -147,7 +147,7 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                                             <div style={{ display: 'flex', gap: '8px' }}>
                                                 <button onClick={() => handlePrintConsultation(c)} className="btn-print-fisiatria"><Printer size={14} /> Informe</button>
                                                 {c.fisiatria_recipes?.length > 0 && (
-                                                    <button onClick={() => handlePrintRecipe(c)} className="btn-print-fisiatria" style={{ background: '#10b981' }}><Pill size={14} /> Récipe</button>
+                                                    <button onClick={() => handlePrintRecipe(c)} className="btn-print-fisiatria btn-print-recipe"><Pill size={14} /> Récipe</button>
                                                 )}
                                             </div>
                                         </div>
@@ -190,20 +190,29 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
 
             <style>{`
                 .btn-print-fisiatria {
-                    background: var(--fisiatria-purple);
+                    background: #0284c7;
                     color: white;
                     border: none;
-                    padding: 5px 10px;
-                    border-radius: 6px;
+                    padding: 8px 16px;
+                    border-radius: 10px;
                     display: flex;
                     align-items: center;
-                    gap: 5px;
-                    font-size: 0.7rem;
-                    font-weight: 700;
+                    gap: 8px;
+                    font-size: 0.95rem;
+                    font-weight: 800;
+                    text-transform: uppercase;
                     cursor: pointer;
                     transition: all 0.2s;
+                    box-shadow: 0 4px 6px rgba(2, 132, 199, 0.1);
                 }
-                .btn-print-fisiatria:hover { opacity: 0.9; transform: translateY(-1px); }
+                .btn-print-fisiatria:hover { 
+                    opacity: 0.95; 
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 12px rgba(2, 132, 199, 0.2);
+                }
+                .btn-print-recipe {
+                    background: #e91e63;
+                }
             `}</style>
         </div>
     );
