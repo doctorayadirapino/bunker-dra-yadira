@@ -207,8 +207,11 @@ export default function Login() {
                     )}
 
                     <div className="login-footer">
-                        <div className="developer-badge" style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                            <Shield size={14} color="var(--medical-turquoise)" /> DESARROLLADOR: LIC. CARLOS FUENTES
+                        <div className="developer-badge" style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Shield size={14} color="var(--medical-turquoise)" /> DESARROLLADOR: LIC. CARLOS FUENTES
+                            </div>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>04129581040</span>
                         </div>
                         <p>© {new Date().getFullYear()} Syntax Software Venezolana.</p>
                     </div>
