@@ -67,7 +67,7 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'mm',
-            format: 'letter'
+            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
         });
 
         const pinkColor = '#e91e63';
@@ -153,9 +153,9 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             nextY += (obs.length * 6) + 12;
         }
 
-        // v6.4: Blindaje antisobreposición - Calibración Quirúrgica
+        // v8.5: Reducción de márgenes inferiores para forzar Escala 100% al imprimir
         let dynamicLineY = Math.max(nextY + 15, 235);
-        if (dynamicLineY > 265) {
+        if (dynamicLineY > 255) {
             doc.addPage();
             dynamicLineY = 35;
         }
@@ -196,7 +196,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'mm',
-            format: 'letter'
+            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
         });
 
         // v6.4: Unified Brand Colors (Pink/Blue)
@@ -300,9 +300,9 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
             });
         }
 
-        // --- FIRMA CON BLINDAJE ANTI-SOBREPOSICIÓN v7.0 ---
-        let footerY = Math.max(currentY + 25, 240);
-        if (footerY > 265) { doc.addPage(); footerY = 40; }
+        // --- FIRMA CON BLINDAJE ANTI-MARGIN ESCALADO v8.5 ---
+        let footerY = Math.max(currentY + 20, 235);
+        if (footerY > 255) { doc.addPage(); footerY = 40; }
 
         if (data.conFirmaDigital) {
             try {
@@ -341,7 +341,7 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'mm',
-            format: 'letter'
+            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
         });
 
         const pinkColor = '#e91e63';
@@ -396,9 +396,9 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
             if (currentY > 250) { doc.addPage(); currentY = 20; }
         });
 
-        // v6.4: Blindaje antisobreposición Récipe
-        let footerY = Math.max(currentY + 25, 240);
-        if (footerY > 270) {
+        // v8.5: Blindaje antisobreposición Récipe (Escala Carta)
+        let footerY = Math.max(currentY + 20, 235);
+        if (footerY > 255) {
             doc.addPage();
             footerY = 40;
         }
@@ -442,7 +442,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'mm',
-            format: 'letter'
+            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
         });
 
         const pinkColor = '#e91e63';
@@ -532,7 +532,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         // v6.4: Blindaje Vigilancia
         let drawY = Math.max((doc as any).lastAutoTable.finalY + 20, 235);
 
-        if (drawY > 265) {
+        if (drawY > 255) {
             doc.addPage();
             drawY = 40;
         }
@@ -573,7 +573,7 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
         const doc = new jsPDF({
             orientation: 'l',
             unit: 'mm',
-            format: 'letter'
+            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
         });
 
         const pinkColor = '#e91e63';
@@ -661,7 +661,7 @@ export const generarReposoPDF = async (data: ReposoData) => {
     const doc = new jsPDF({
         orientation: 'p',
         unit: 'mm',
-        format: 'letter'
+        format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
     });
 
     // v6.4: Unified Brand Colors (Pink/Blue)
@@ -785,9 +785,9 @@ export const generarReposoPDF = async (data: ReposoData) => {
     const mes = fechaActual.toLocaleString('es-VE', { month: 'long' });
     doc.text(`en: ${data.reposo.ciudad}, el ${fechaActual.getDate()} de ${mes} de ${fechaActual.getFullYear()}.`, 15, currentY);
 
-    // v6.4: Blindaje Máximo Reposo [EVITAR SOBREPOSICIÓN]
-    let footerY = Math.max(currentY + 25, 240);
-    if (footerY > 265) {
+    // v8.5: Blindaje Máximo Reposo [ESCALA CARTA 100%]
+    let footerY = Math.max(currentY + 20, 235);
+    if (footerY > 255) {
         doc.addPage();
         footerY = 35;
     }
