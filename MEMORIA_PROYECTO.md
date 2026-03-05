@@ -252,18 +252,22 @@ El día de hoy se ejecutó una corrección en la vista del módulo Laboral refer
     3.  **Módulo de Reposo Dinámico:** El componente `ReposoModulo.tsx` ahora detecta el rol del usuario (`laboral` vs `fisiatria`) para ajustar su título a "REPOSO MÉDICO LABORAL" o "REPOSO MÉDICO FISIÁTRICO" manteniendo la coherencia de los colores corporativos.
     4.  **Protocolo de Consentimiento:** Se inyectó una validación de seguridad que pregunta explícitamente a la doctora si desea incluir la firma digital cuando ésta se encuentra desactivada, evitando emisiones accidentales sin rúbrica.
 
-### ✅ ESTADO FINAL OPERATIVO (v7.5)
-1.  **Aesthetics:** 100% Pink (#e91e63) and Blue (#0284c7) integration. No more purple traces.
-2.  **PDF Quality:** Consistent high-end headers across all modules.
-3.  **Signature:** Anti-overlap geometry verified.
-4.  **Security:** Explicit consent protocol for document generation.
+### 12. 📜 HISTORIAL DE REPOSOS Y GEOMETRÍA CARTA ESTRICTA (v8.7) - CARLOS FUENTES
+*   **Problema Legal/Auditoría:** No existía un registro donde se pudiera verificar qué reposos había emitido la doctora, lo que es crítico para validaciones de autoridades o empresas.
+*   **Problema de Escala PDF:** Al imprimir Reposos o Informes, algunos equipos, debido al estándar A4 global o la detección del margen inferior, redimensionaban el documento al 94%, arruinando la proporción del membrete.
+*   **Ajuste Matemático de Tinta (Firma):** El texto dentro de la imagen de la firma chocaba con la línea divisoria inferior.
+*   **Solución Arquitectónica (v8.7):**
+    1.  **Tablero de Auditoría (Historial):** Se inyectó código reactivo en `ReposoModulo.tsx` para incorporar pestañas ("Nuevo Documento" y "Ver Historial"). Ahora el sistema antes de imprimir, obligatoriamente guardará el registro en la base de datos `historial_reposos`.
+    2.  **Consulta Dinámica Supabase:** El historial permite verificar la Fecha de Emisión, Días Otorgados, Diagnóstico y Tipo de Firma.
+    3.  **Matemática de Impresión Pura:** Se cambió el genérico `'letter'` de jsPDF por el array estructurado `[215.9, 279.4]` (mm). Se implementó un algoritmo de protección de zona muerta `(footerY > 255)` que corta toda escritura en el último 1.5cm de la hoja, forzando a Google Chrome a inyectar tinta al **100% de escala**.
+    4.  **Calibración del Centro (X=108):** Se calculó el área transversal del documento Carta (216mm) para anclar estáticamente el bloque de la firma y el registro M.P.P.S al centro absoluto `align: 'center'`.
 
-**ENTREGA DE VERSIÓN 7.5 FINALIZADA - LISTO PARA AUDITORÍA DE CARLOS FUENTES.**
+### ✅ ESTADO FINAL OPERATIVO (v8.7)
+1.  **Auditoría Activa:** Módulo de Historial de Reposos implementado en frontend.
+2.  **Calibración Quirúrgica:** Tinta reposando sobre la línea al fin asimilada.
+3.  **Geometría:** 100% Escala "Carta" forzada por hardware de navegador. 
+4.  **Acción Pendiente (Carlos Fuentes):** Carlos debe correr el script SQL de creación de la tabla `historial_reposos` en su Dashboard de Supabase para activar permanentemente el guardado.
 
-### ✅ ESTADO ACTUAL DEL BÚNKER (v6.2)
-1.  **Módulo Laboral:** Operativo con gráficas BI restauradas y reportes epidemiológicos avanzados.
-2.  **Módulo Fisiatría:** 100% Funcional con historia clínica, recetas e impresión profesional.
-3.  **Seguridad:** Protocolo de sesión volátil y enrutamiento por roles verificado.
-4.  **Despliegue:** Versión `6.2` desplegada exitosamente en el dominio principal de Vercel.
+**CIERRE DE AUDITORÍA DE REPOSOS Y FORMATOS - LIC CARLOS FUENTES.**
 
 **CIERRE DE AUDITORÍA Y ENTREGA DE MÓDULO FISIÁTRICO - LIC CARLOS FUENTES.**
