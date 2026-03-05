@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, History, PlusCircle, Calendar, Pill, Printer } from 'lucide-react';
+import { X, History, PlusCircle, Calendar, Pill, Printer, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import FisiatriaConsultationModal from './FisiatriaConsultationModal';
 import FisiatriaPatientModal from './FisiatriaPatientModal';
 import { generarConsultaFisiatriaPDF, generarRecipeFisiatriaPDF, generarReferenciaFisiatriaPDF, generarRadiodiagnosticoFisiatriaPDF } from '../services/pdfService';
@@ -16,6 +16,9 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
     const [showNewConsultation, setShowNewConsultation] = useState(false);
     const [showEditPatient, setShowEditPatient] = useState(false);
     const [patientData, setPatientData] = useState(patient);
+
+    // v8.6: Estado para Edición
+    const [editingConsultation, setEditingConsultation] = useState<any>(null);
 
     useEffect(() => {
         fetchConsultations();
@@ -114,6 +117,35 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
         generarRecipeFisiatriaPDF(payload);
     };
 
+    // --- ACCIONES CRUD (EDICIÓN Y ELIMINACIÓN) v8.6 ---
+    const handleDeleteConsultation = async (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (window.confirm("⚠️ ADVERTENCIA: ¿Está segura que desea ELIMINAR esta consulta fisiátrica y sus récipes internos de manera permanente? Esta acción no se puede deshacer.")) {
+            // Se borran las recetas primero por si acaso (aunque haya ON DELETE CASCADE)
+            await supabase.from('fisiatria_recipes').delete().eq('consulta_id', id);
+            const { error } = await supabase.from('fisiatria_consultas').delete().eq('id', id);
+            if (error) {
+                alert("Error al eliminar la consulta: " + error.message);
+            } else {
+                fetchConsultations(); // Refrescar vista
+            }
+        }
+    };
+
+    const handleDeleteHistory = async () => {
+        if (window.prompt("PELIGRO DE PÉRDIDA DE DATOS\n\nEstá a punto de borrar TODA LA HISTORIA CLÍNICA FISIÁTRICA de este paciente.\n\nEscriba la palabra ELIMINAR para confirmar:") === "ELIMINAR") {
+            setLoading(true);
+            const { error } = await supabase.from('fisiatria_consultas').delete().eq('paciente_id', patient.id);
+            if (error) {
+                alert("Error crítico al eliminar historial: " + error.message);
+                setLoading(false);
+            } else {
+                alert("La Historia Clínica ha sido purgada exitosamente de la base de datos.");
+                onClose(); // Cerrar el modal principal porque ya no hay historia
+            }
+        }
+    };
+
     return (
         <div className="modal-overlay" style={{ zIndex: 1000 }}>
             <div className="modal-content" style={{ maxWidth: '1000px', width: '95%' }}>
@@ -150,6 +182,34 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                             <button className="btn-purple-action" style={{ width: '100%', marginTop: '30px', justifyContent: 'center', padding: '12px' }} onClick={() => setShowNewConsultation(true)}>
                                 <PlusCircle size={20} /> Nueva Consulta
                             </button>
+
+                            {/* v8.6 Botón de Purga Total */}
+                            {consultations.length > 0 && (
+                                <button
+                                    onClick={handleDeleteHistory}
+                                    style={{
+                                        width: '100%',
+                                        marginTop: '15px',
+                                        background: '#fff1f2',
+                                        color: '#e11d48',
+                                        border: '1px solid #fda4af',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        fontWeight: 800,
+                                        fontSize: '0.85rem',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseOver={(e) => { e.currentTarget.style.background = '#ffe4e6'; e.currentTarget.style.transform = 'scale(1.02)' }}
+                                    onMouseOut={(e) => { e.currentTarget.style.background = '#fff1f2'; e.currentTarget.style.transform = 'scale(1)' }}
+                                >
+                                    <AlertTriangle size={18} /> PURGAR HISTORIA CLÍNICA
+                                </button>
+                            )}
                         </div>
                     </aside>
 
@@ -273,6 +333,24 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                                                         REFERENCIA
                                                     </button>
                                                 )}
+
+                                                {/* Controles CRUD */}
+                                                <div style={{ display: 'flex', gap: '5px', marginLeft: '10px', borderLeft: '2px solid #ddd6fe', paddingLeft: '15px' }}>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setEditingConsultation(c); }}
+                                                        style={{ background: 'transparent', border: 'none', color: '#0284c7', cursor: 'pointer', padding: '5px' }}
+                                                        title="Editar Consulta"
+                                                    >
+                                                        <Edit size={20} />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => handleDeleteConsultation(c.id, e)}
+                                                        style={{ background: 'transparent', border: 'none', color: '#e11d48', cursor: 'pointer', padding: '5px' }}
+                                                        title="Eliminar Consulta"
+                                                    >
+                                                        <Trash2 size={20} />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div style={{ padding: '15px' }}>
@@ -296,6 +374,19 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                     patientTelefono={patientData.telefono}
                     onClose={() => setShowNewConsultation(false)}
                     onSuccess={() => { fetchConsultations(); setShowNewConsultation(false); }}
+                />
+            )}
+
+            {editingConsultation && (
+                <FisiatriaConsultationModal
+                    patientId={patientData.id}
+                    patientName={patientData.nombre_completo}
+                    patientCedula={patientData.cedula}
+                    patientEdad={patientData.edad}
+                    patientTelefono={patientData.telefono}
+                    initialData={editingConsultation}
+                    onClose={() => setEditingConsultation(null)}
+                    onSuccess={() => { fetchConsultations(); setEditingConsultation(null); }}
                 />
             )}
 

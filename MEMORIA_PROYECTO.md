@@ -286,3 +286,26 @@ Para preservar la integridad de este proyecto v8.8 en adelante es mandato genera
 5.  **Cierre y Candados de Seguridad:** Sistema de Login optimizado.
 
 **CIERRE DE AUDITOR√çA Y ENTREGA DE PLATAFORMA M√âDICA INTEGRAL - LIC CARLOS FUENTES.**
+
+---
+
+## ?? BIT¡CORA DE INTERVENCIONES ESTRAT…GICAS (2026-03-05 - EDICI”N Y AUDITORÕA DE HISTORIA) - CARLOS FUENTES
+El dÌa de hoy se ejecutÛ el requerimiento final de la doctora sobre la trazabilidad y maleabilidad de sus propios diagnÛsticos mediante inyecciÛn CRUD Reactiva en el MÛdulo Fisi·trico.
+
+### 1. ?? EDICI”N BIDIRECCIONAL Y REORDENAMIENTO DE VADEM…CUM
+*   **Problema:** La doctora necesitaba poder modificar consultas previamente guardadas sin crear duplicidades, reasignando rÈcipes si hubiese cometido un error.
+*   **SoluciÛn ArquitectÛnica:** 
+    1. Se mutÛ el componente \`FisiatriaConsultationModal.tsx\` de un modal *puro (solo INSERT)* a un *HÌbrido (INSERT/UPDATE)* inyectando la propiedad \`initialData\`.
+    2. Se implementÛ una lÛgica de destrucciÛn controlada: al editar una consulta, el sistema borra silenciosamente (\`DELETE\`) los rÈcipes antiguos asociados a ese ID y re-escribe los nuevos (\`INSERT\`) bajo la misma Primary Key, asegurando que la base de datos Supabase jam·s acumule medicamentos huÈrfanos.
+
+### 2. ??? ESCUDOS DE PURGA Y ON-CASCADE DELETION
+*   **Problema:** Eliminar historias requerÌa control absoluto evitando toques accidentales en pantallas t·ctiles.
+*   **SoluciÛn Seguridad:** 
+    1. **Purga Individual:** EliminaciÛn de consulta 1 a 1 en el \`FisiatriaHistoryModal.tsx\` bajo validaciÛn nativa estricta de advertencia.
+    2. **Purga Nivel AtÛmico (Total):** Se creÛ el botÛn "Purgar Historia ClÌnica" inyectado en la ficha superior del paciente. Solo se ejecuta si la doctora o Carlos Fuentes escriben manualmente la palabra \`ELIMINAR\` en la ventana del navegador.
+
+### ? ESTADO FINAL OPERATIVO (EDICI”N Y ELIMINACI”N)
+1.  **TypeScript Build:** ComprobaciÛn de integridad pasada (\`tsc -b && vite build\`) con Cero Errores.
+2.  **Supabase:** Los deletes act˙an en cascada.
+3.  **App:** Totalmente lista para dispositivos mÛviles, escritorio y gestiÛn completa de pacientes.
+

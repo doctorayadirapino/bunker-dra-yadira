@@ -9,6 +9,7 @@ interface Props {
     patientCedula?: string;
     patientEdad?: string | number;
     patientTelefono?: string;
+    initialData?: any; // v8.6: Modo Edición
     onClose: () => void;
     onSuccess: () => void;
 }
@@ -18,7 +19,7 @@ interface RecipeItem {
     indicaciones: string;
 }
 
-export default function FisiatriaConsultationModal({ patientId, patientName, patientCedula, patientEdad, patientTelefono, onClose, onSuccess }: Props) {
+export default function FisiatriaConsultationModal({ patientId, patientName, patientCedula, patientEdad, patientTelefono, initialData, onClose, onSuccess }: Props) {
     const [loading, setLoading] = useState(false);
     const [useDigitalSignature, setUseDigitalSignature] = useState(false);
     const [vademecumList, setVademecumList] = useState<string[]>([]);
@@ -44,7 +45,27 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
 
     useEffect(() => {
         fetchVademecum();
-    }, []);
+        if (initialData) {
+            setFormData({
+                referido_por: initialData.referido_por || '',
+                motivo_consulta: initialData.motivo_consulta || '',
+                examen_fisico: initialData.examen_fisico || '',
+                diagnostico: initialData.diagnostico || '',
+                plan_sugerencia: initialData.plan_sugerencia || '',
+                referencia: initialData.referencia || '',
+                reposo_constancia: initialData.reposo_constancia || '',
+                referencia_medico: initialData.referencia_medico || '',
+                referencia_especialidad: initialData.referencia_especialidad || '',
+                referencia_motivo: initialData.referencia_motivo || '',
+                radiodiagnostico_detalle: initialData.radiodiagnostico_detalle || '',
+                fecha_consulta: initialData.fecha_consulta ? new Date(initialData.fecha_consulta).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+            });
+
+            if (initialData.fisiatria_recipes && initialData.fisiatria_recipes.length > 0) {
+                setRecipes(initialData.fisiatria_recipes);
+            }
+        }
+    }, [initialData]);
 
     const fetchVademecum = async () => {
         const { data } = await supabase
@@ -76,19 +97,34 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
         setLoading(true);
 
         try {
-            // 1. Insertar Consulta
-            const { data: consultaData, error: consultaError } = await supabase
-                .from('fisiatria_consultas')
-                .insert([
-                    {
-                        paciente_id: patientId,
-                        ...formData
-                    }
-                ])
-                .select()
-                .single();
+            let consultaData;
 
-            if (consultaError) throw consultaError;
+            if (initialData?.id) {
+                // MODO EDICIÓN
+                const { data: updatedConsulta, error: consultaError } = await supabase
+                    .from('fisiatria_consultas')
+                    .update(formData)
+                    .eq('id', initialData.id)
+                    .select()
+                    .single();
+
+                if (consultaError) throw consultaError;
+                consultaData = updatedConsulta;
+
+                // Borrar récipes antiguos para recrearlos
+                await supabase.from('fisiatria_recipes').delete().eq('consulta_id', initialData.id);
+
+            } else {
+                // MODO CREACIÓN
+                const { data: newConsulta, error: consultaError } = await supabase
+                    .from('fisiatria_consultas')
+                    .insert([{ paciente_id: patientId, ...formData }])
+                    .select()
+                    .single();
+
+                if (consultaError) throw consultaError;
+                consultaData = newConsulta;
+            }
 
             // 2. Insertar Récipes
             const validRecipes = recipes.filter(r => r.medicamento.trim() !== '');
@@ -178,7 +214,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                 <div className="modal-header" style={{ background: 'white', borderBottom: '3px solid #e91e63' }}>
                     <h2 style={{ color: '#e91e63', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 900 }}>
                         <ClipboardList size={24} />
-                        Consulta Médica Fisiátrica: {patientName}
+                        {initialData ? 'Editar Consulta Fisiátrica:' : 'Consulta Médica Fisiátrica:'} {patientName}
                     </h2>
                     <button onClick={onClose} className="close-btn"><X size={24} /></button>
                 </div>
