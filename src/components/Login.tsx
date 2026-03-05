@@ -24,7 +24,7 @@ export default function Login() {
         if (normalizedUsername === 'yadira_laboral') {
             internalEmail = 'yadirapinorujano288@gmail.com';
         } else if (normalizedUsername === 'yadira_fisiatra') {
-            internalEmail = 'doctora.fisiatria@sistema.com';
+            internalEmail = 'doctora.fisiatria@bunker.com'; // Este es el ID real de supabase, no se puede cambiar a sistema
         } else {
             // Si no es un alias, verificamos si es un correo directo (solo para soporte)
             if (normalizedUsername.includes('@')) {
@@ -59,7 +59,7 @@ export default function Login() {
         // Solo permitir recuperación por alias conocidos
         let targetEmail = username;
         if (username === 'yadira_laboral') targetEmail = 'yadirapinorujano288@gmail.com';
-        if (username === 'yadira_fisiatra') targetEmail = 'doctora.fisiatria@sistema.com';
+        if (username === 'yadira_fisiatra') targetEmail = 'doctora.fisiatria@bunker.com';
 
         try {
             const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(targetEmail, {
