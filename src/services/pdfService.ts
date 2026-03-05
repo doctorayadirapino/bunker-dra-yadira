@@ -327,35 +327,36 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
             });
         }
 
-        // --- FIRMA CON BLINDAJE ANTI-MARGIN ESCALADO v8.5 ---
-        let footerY = Math.max(currentY + 20, 310);
-        if (footerY > 330) {
+        // --- FIRMA CENTRADA Y PROTEGIDA CONTRA COLISIONES ---
+        let footerY = Math.max(currentY + 35, 305);
+        if (footerY > 325) {
             doc.addPage();
             renderHeader();
-            footerY = 45;
+            footerY = 60; // Margen superior amplio al saltar página
         }
 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 85, footerY - 28, 45, 30); // Elevación exacta sobre la línea
+                // Centro exacto de Oficio/Carta = 215.9 / 2 ≈ 108. Ancho imagen 45 (108 - 22.5 = 85.5)
+                doc.addImage(img, 'PNG', 85.5, footerY - 28, 45, 30);
             } catch (e) {
                 doc.setDrawColor(blueColor);
-                doc.line(80, footerY, 130, footerY);
+                doc.line(83, footerY, 133, footerY);
             }
         }
 
         doc.setDrawColor(blueColor);
-        doc.line(80, footerY + 2, 130, footerY + 2);
+        doc.line(83, footerY + 2, 133, footerY + 2); // Línea centrada exacta
 
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(textColor);
-        doc.text('Dra. YADIRA PINO R.', 105, footerY + 8, { align: 'center' });
+        doc.text('Dra. YADIRA PINO R.', 108, footerY + 8, { align: 'center' });
         doc.setFontSize(9);
         doc.setTextColor(textColor);
         doc.setFont('helvetica', 'normal');
-        doc.text('FISIATRA', 105, footerY + 13, { align: 'center' });
+        doc.text('FISIATRA', 108, footerY + 13, { align: 'center' });
 
         doc.setFontSize(7);
         doc.setTextColor(blueColor);
@@ -989,23 +990,34 @@ export const generarReferenciaFisiatriaPDF = async (data: FisiatriaConsultaData)
         const motivoLine = doc.splitTextToSize(motivo, 170);
         doc.text(motivoLine, 20, currentY);
 
-        let footerY = Math.max(currentY + (motivoLine.length * 6) + 30, 310);
-        if (footerY > 330) {
+        let footerY = Math.max(currentY + (motivoLine.length * 6) + 35, 305);
+        if (footerY > 325) {
             doc.addPage();
             renderHeader();
-            footerY = 45;
+            footerY = 60;
         }
 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 140, footerY - 25, 40, 25);
-            } catch (e) { }
+                doc.addImage(img, 'PNG', 85.5, footerY - 28, 45, 30);
+            } catch (e) {
+                doc.setDrawColor(blueColor);
+                doc.line(83, footerY, 133, footerY);
+            }
         }
+
         doc.setDrawColor(blueColor);
-        doc.line(135, footerY, 185, footerY);
-        doc.setFontSize(8);
-        doc.text('Firma y Sello del Médico', 160, footerY + 5, { align: 'center' });
+        doc.line(83, footerY + 2, 133, footerY + 2);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(textColor);
+        doc.text('Dra. YADIRA PINO R.', 108, footerY + 8, { align: 'center' });
+        doc.setFontSize(9);
+        doc.setTextColor(textColor);
+        doc.setFont('helvetica', 'normal');
+        doc.text('FISIATRA', 108, footerY + 13, { align: 'center' });
 
         doc.save(`Referencia_${data.paciente.cedula}.pdf`);
     } catch (e) {
@@ -1078,23 +1090,34 @@ export const generarRadiodiagnosticoFisiatriaPDF = async (data: FisiatriaConsult
         const detalleLine = doc.splitTextToSize(detalle, 170);
         doc.text(detalleLine, 20, currentY);
 
-        let footerY = Math.max(currentY + (detalleLine.length * 6) + 30, 310);
-        if (footerY > 330) {
+        let footerY = Math.max(currentY + (detalleLine.length * 6) + 35, 305);
+        if (footerY > 325) {
             doc.addPage();
             renderHeader();
-            footerY = 45;
+            footerY = 60;
         }
 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 140, footerY - 25, 40, 25);
-            } catch (e) { }
+                doc.addImage(img, 'PNG', 85.5, footerY - 28, 45, 30);
+            } catch (e) {
+                doc.setDrawColor(blueColor);
+                doc.line(83, footerY, 133, footerY);
+            }
         }
+
         doc.setDrawColor(blueColor);
-        doc.line(135, footerY, 185, footerY);
-        doc.setFontSize(8);
-        doc.text('Firma y Sello del Médico', 160, footerY + 5, { align: 'center' });
+        doc.line(83, footerY + 2, 133, footerY + 2);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(textColor);
+        doc.text('Dra. YADIRA PINO R.', 108, footerY + 8, { align: 'center' });
+        doc.setFontSize(9);
+        doc.setTextColor(textColor);
+        doc.setFont('helvetica', 'normal');
+        doc.text('FISIATRA', 108, footerY + 13, { align: 'center' });
 
         doc.save(`Radiodiagnostico_${data.paciente.cedula}.pdf`);
     } catch (e) {
