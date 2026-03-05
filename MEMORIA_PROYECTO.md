@@ -262,12 +262,27 @@ El día de hoy se ejecutó una corrección en la vista del módulo Laboral refer
     3.  **Matemática de Impresión Pura:** Se cambió el genérico `'letter'` de jsPDF por el array estructurado `[215.9, 279.4]` (mm). Se implementó un algoritmo de protección de zona muerta `(footerY > 255)` que corta toda escritura en el último 1.5cm de la hoja, forzando a Google Chrome a inyectar tinta al **100% de escala**.
     4.  **Calibración del Centro (X=108):** Se calculó el área transversal del documento Carta (216mm) para anclar estáticamente el bloque de la firma y el registro M.P.P.S al centro absoluto `align: 'center'`.
 
-### ✅ ESTADO FINAL OPERATIVO (v8.7)
+### 13. 🛡️ RE-BRANDING Y BLINDAJE DE SEGURIDAD (v8.8) - CARLOS FUENTES
+*   **Problema Dualidad/Incongruencia:** El sistema todavía tenía remanentes del nombre "Búnker" que, aunque es un término técnico interno de Carlos Fuentes, no era adecuado para la vista final de la empresa que contrata a la doctora.
+*   **Problemas de Interfaz y Vulnerabilidades de Login:** El login mostraba explícitamente usuarios ejemplos comprometiendo la seguridad. Además, había un botón de recuperación de contraseña que en el esquema "Fisiatría" no servía porque no había correos reales asociados. 
+*   **Solución Arquitectónica (v8.8):**
+    1.  **Limpieza Lexicológica:** Se erradicó universalmente la palabra "Búnker" de la interfaz gráfica del usuario de ambas vistas, siendo sustituída por el término "Sistema" o "Plataforma Médica".
+    2.  **Toggle Visible:** Se incluyó un mecanismo (`lucide-react Eye/EyeOff`) en el campo contraseña para permitirle a los médicos previsualizar la clave y no bloquearse el acceso, esto sin exponer el input original.
+    3.  **Remoción de Falsas Promesas:** Se eliminó todo código (`handleRecovery`, formularios condicionales) asociado a "¿Nueva Clave?", obligando un uso interno del reseteo SQL.
+    4.  **Limpieza General:** Se purgaron archivos temporales inanes (vite.svg, react.svg, tmp_log.txt) dándole un Title Tag más profesional al HTML Index base.
+    5.  **Reajuste Visual Fisiatría:** Se eliminó el inoperativo botón de "Pacientes" de la barra de control en Fisiatría, dejando un entorno mínimo, usable e ideal para arrancar.
+    6.  **Purga Data Prueba:** Se lanzaron sub-comandos TRUNCATE vía Supabase inyectando Token MCP directo a las tablas de prueba de Fisiatría quedando en status Zero-Days para arrancar de 0.
+
+### 🚨 REGLAS INNEGOCIABLES DE TRABAJO IMPUESTAS POR EL ARQUITECTO
+Para preservar la integridad de este proyecto v8.8 en adelante es mandato general que cualquier nuevo Agente AI que asuma este espacio cumpla obligatoriamente estas directrices:
+1. **[PRIORIDAD CERO] USO OBLIGATORIO DE TOKENS DE ACCESO:** Esta estricta y rotundamente prohibido pedirle confirmación, cuentas, contraseñas o iniciar sesiones a Carlos Fuentes para Supabase, Github o Vercel. **TODO debe ser manejado mediante tokens de acceso CLI/API** que el bunker ya ha autorizado internamente (`npx vercel --token`, Integración MCP nativa, etc.). Esta regla es **INNEGOCIABLE**.
+2. **[PRIORIDAD CERO] SELECCIÓN DE ENTORNO ANTES DE EJECUCIÓN:** El agente asistente bajo ninguna circunstancia puede inferir u arrancar el código de manera libre. Su primera interacción con Carlos Fuentes es **PREGUNTAR OBLIGATORIAMENTE EN QUÉ MÓDULO VA A TRABAJAR (Laboral vs Fisiátrico)**. La orden que dicte el licenciado Carlos es ley absoluta y jamás se debe saltar ese dictamen para ese turno de trabajo.
+
+### ✅ ESTADO FINAL OPERATIVO (v8.8)
 1.  **Auditoría Activa:** Módulo de Historial de Reposos implementado en frontend.
 2.  **Calibración Quirúrgica:** Tinta reposando sobre la línea al fin asimilada.
 3.  **Geometría:** 100% Escala "Carta" forzada por hardware de navegador. 
-4.  **Acción Pendiente (Carlos Fuentes):** Carlos debe correr el script SQL de creación de la tabla `historial_reposos` en su Dashboard de Supabase para activar permanentemente el guardado.
+4.  **Data Cero:** Bóveda Fisiátrica lista para su primer paciente real.
+5.  **Cierre y Candados de Seguridad:** Sistema de Login optimizado.
 
-**CIERRE DE AUDITORÍA DE REPOSOS Y FORMATOS - LIC CARLOS FUENTES.**
-
-**CIERRE DE AUDITORÍA Y ENTREGA DE MÓDULO FISIÁTRICO - LIC CARLOS FUENTES.**
+**CIERRE DE AUDITORÍA Y ENTREGA DE PLATAFORMA MÉDICA INTEGRAL - LIC CARLOS FUENTES.**
