@@ -117,7 +117,6 @@ export default function Login() {
                                     value={username}
                                     autoComplete="username"
                                     onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="yadira_laboral / yadira_fisiatra"
                                 />
                             </div>
 
