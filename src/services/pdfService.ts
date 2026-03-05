@@ -340,7 +340,7 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'mm',
-            format: [215.9, 355.6] // Oficio Estricta 8.5 x 14 in
+            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
         });
 
         const pinkColor = '#e91e63';
@@ -396,12 +396,12 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
 
             currentY += 15;
 
-            if (currentY > 320) { doc.addPage(); renderHeader(); currentY = 45; }
+            if (currentY > 240) { doc.addPage(); renderHeader(); currentY = 45; }
         });
 
-        // v8.5: Blindaje antisobreposición Récipe (Escala Oficio)
-        let footerY = Math.max(currentY + 20, 310);
-        if (footerY > 330) {
+        // v8.5: Blindaje antisobreposición Récipe (Escala Carta)
+        let footerY = Math.max(currentY + 20, 235);
+        if (footerY > 255) {
             doc.addPage();
             renderHeader();
             footerY = 45;
@@ -447,12 +447,12 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
 
             indY += (indicationsText.length * 5) + 8;
 
-            if (indY > 320) { doc.addPage(); renderHeader(); indY = 45; }
+            if (indY > 240) { doc.addPage(); renderHeader(); indY = 45; }
         });
 
         // Firma en Indicaciones
-        let indFooterY = Math.max(indY + 20, 310);
-        if (indFooterY > 330) {
+        let indFooterY = Math.max(indY + 20, 235);
+        if (indFooterY > 255) {
             doc.addPage();
             renderHeader();
             indFooterY = 45;
