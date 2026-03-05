@@ -269,7 +269,7 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                         </div>
 
                         {paciente.tipoDocumento === 'REPOSO' && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                            <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '25px' }}>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-primary)', fontWeight: 600 }}>Días de Reposo</label>
                                     <input

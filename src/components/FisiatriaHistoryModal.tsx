@@ -125,7 +125,7 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                     <button onClick={onClose} className="close-btn"><X size={24} /></button>
                 </div>
 
-                <div className="modal-body" style={{ padding: '20px', display: 'grid', gridTemplateColumns: '280px 1fr', gap: '25px', maxHeight: '85vh', overflowY: 'auto' }}>
+                <div className="modal-body responsive-grid" style={{ padding: '20px', display: 'grid', gridTemplateColumns: '280px 1fr', gap: '25px', maxHeight: '85vh', overflowY: 'auto' }}>
                     <aside style={{ height: 'fit-content', position: 'sticky', top: 0 }}>
                         <div style={{ background: 'var(--fisiatria-purple-light)', padding: '20px', borderRadius: '15px', border: '1px solid var(--fisiatria-purple-border)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '2px solid var(--fisiatria-purple-border)', paddingBottom: '8px' }}>

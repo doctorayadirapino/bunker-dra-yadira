@@ -178,8 +178,8 @@ export default function PatientsList({ selectedCompany = 'GENERAL' }: { selected
 
             {/* MODAL DE DETALLES Y EVOLUCIÓN */}
             {selectedPatient && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, padding: '20px' }} onClick={() => setSelectedPatient(null)}>
-                    <div style={{ background: 'var(--bg-primary)', width: '100%', maxWidth: '700px', borderRadius: '24px', padding: '30px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', position: 'relative', overflowY: 'auto', maxHeight: '90vh' }} onClick={e => e.stopPropagation()}>
+                <div className="modal-overlay" style={{ zIndex: 3000, padding: '20px' }} onClick={() => setSelectedPatient(null)}>
+                    <div className="modal-content" style={{ maxWidth: '700px', borderRadius: '24px', padding: '30px', background: 'var(--bg-primary)' }} onClick={e => e.stopPropagation()}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                             <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.5rem' }}>Expediente: {selectedPatient.nombre_completo}</h3>
                             <button onClick={() => setSelectedPatient(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>

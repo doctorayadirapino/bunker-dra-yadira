@@ -188,7 +188,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                     {/* SECCIÓN 1: DATOS GENERALES */}
                     <div className="form-section-fisiatria">
                         <h3 className="section-title">1. Evolución Clínica</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+                        <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label className="label">Referido por</label>
                                 <input
@@ -254,7 +254,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                             />
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                        <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label className="label">Reposo o Constancia</label>
                                 <input
@@ -289,7 +289,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                                 />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '15px', marginBottom: '8px' }}>
+                            <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '15px', marginBottom: '8px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <label className="label" style={{ color: '#e91e63' }}>Hoja de Referencia (Médico Dirigido)</label>
                                     <input
