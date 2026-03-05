@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Activity, Lock, User, ChevronRight, Shield } from 'lucide-react';
+import { Activity, Lock, User, ChevronRight, Shield, Eye, EyeOff } from 'lucide-react';
 import './Login.css';
 
 export default function Login() {
@@ -10,6 +10,7 @@ export default function Login() {
     const [error, setError] = useState<string | null>(null);
     const [recoveryMode, setRecoveryMode] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -131,14 +132,40 @@ export default function Login() {
                                         ¿Nueva clave?
                                     </button>
                                 </label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={password}
-                                    autoComplete="current-password"
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                />
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        required
+                                        value={password}
+                                        autoComplete="current-password"
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        style={{ paddingRight: '45px', width: '100%', boxSizing: 'border-box' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: 'absolute',
+                                            right: '12px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            background: 'none',
+                                            border: 'none',
+                                            color: 'var(--text-muted)',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            padding: '4px',
+                                            opacity: 0.7,
+                                            transition: 'opacity 0.2s',
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+                                        title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                                    >
+                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
+                                </div>
                             </div>
 
                             {error && <div className="login-error-alert">⚠️ {error}</div>}
