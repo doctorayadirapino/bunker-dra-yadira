@@ -399,13 +399,6 @@ export default function App() {
                     Consulta Fisiátrica
                   </button>
                   <button
-                    className={`nav-item ${activeView === 'pacientes_fisiatria' ? 'active' : ''}`}
-                    onClick={() => setActiveView('pacientes_fisiatria')}
-                  >
-                    <Users size={20} />
-                    Pacientes
-                  </button>
-                  <button
                     className={`nav-item ${activeView === 'vademecum' ? 'active' : ''}`}
                     onClick={() => setActiveView('vademecum')}
                   >
