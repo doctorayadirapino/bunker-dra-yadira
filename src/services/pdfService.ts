@@ -204,32 +204,36 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         const blueColor = '#0284c7';
         const textColor = '#1e293b';
 
-        // v7.0: UNIFIED BRAND HEADER (LABORAL STYLE)
-        doc.setFillColor(233, 30, 99); // Rosa
-        doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
-        doc.circle(180, 15, 12, 'F');
-        doc.setFillColor(2, 132, 199); // Azul
-        doc.circle(200, 25, 9, 'F');
-        doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
+        // Función Helper para inyectar Cabecera de Fisiatría
+        const renderHeader = () => {
+            doc.setFillColor(233, 30, 99); // Rosa
+            doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
+            doc.circle(180, 15, 12, 'F');
+            doc.setFillColor(2, 132, 199); // Azul
+            doc.circle(200, 25, 9, 'F');
+            doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
 
-        doc.setTextColor(pinkColor);
-        doc.setFont('times', 'italic');
-        doc.setFontSize(22);
-        doc.text(`Dra. YADIRA PINO R.`, 105, 15, { align: 'center' });
+            doc.setTextColor(pinkColor);
+            doc.setFont('times', 'italic');
+            doc.setFontSize(22);
+            doc.text(`Dra. YADIRA PINO R.`, 105, 15, { align: 'center' });
 
-        doc.setTextColor(blueColor);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(12);
-        doc.text('FISIATRA', 105, 21, { align: 'center' });
+            doc.setTextColor(blueColor);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text('FISIATRA', 105, 21, { align: 'center' });
 
-        doc.setTextColor('#64748b');
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 25, { align: 'center' });
+            doc.setTextColor('#64748b');
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 25, { align: 'center' });
 
-        doc.setDrawColor(blueColor);
-        doc.setLineWidth(0.5);
-        doc.line(15, 38, 195, 38);
+            doc.setDrawColor(blueColor);
+            doc.setLineWidth(0.5);
+            doc.line(15, 34, 195, 34);
+        };
+
+        renderHeader();
 
         // --- TÍTULO DEL DOCUMENTO ---
         doc.setTextColor(pinkColor);
@@ -282,7 +286,8 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
 
         // --- RÉCIPE SI EXISTE ---
         if (data.recipes.length > 0) {
-            if (currentY > 210) { doc.addPage(); currentY = 30; } // Ensure space for new section
+            if (currentY > 300) { doc.addPage(); renderHeader(); currentY = 45; } // Ensure space for new section
+
             doc.setFontSize(11);
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'bold');
@@ -296,12 +301,18 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
                 const ind = doc.splitTextToSize(r.indicaciones, 160);
                 doc.text(ind, 30, currentY + 5);
                 currentY += (ind.length * 5) + 10;
+
+                if (currentY > 320) { doc.addPage(); renderHeader(); currentY = 45; }
             });
         }
 
         // --- FIRMA CON BLINDAJE ANTI-MARGIN ESCALADO v8.5 ---
-        let footerY = Math.max(currentY + 20, 235);
-        if (footerY > 255) { doc.addPage(); footerY = 40; }
+        let footerY = Math.max(currentY + 20, 310);
+        if (footerY > 330) {
+            doc.addPage();
+            renderHeader();
+            footerY = 45;
+        }
 
         if (data.conFirmaDigital) {
             try {
@@ -323,11 +334,11 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         doc.setFontSize(9);
         doc.setTextColor(textColor);
         doc.setFont('helvetica', 'normal');
-        doc.text('Especialista en Medicina Física y Rehabilitación (Fisiatría)', 105, footerY + 13, { align: 'center' });
+        doc.text('FISIATRA', 105, footerY + 13, { align: 'center' });
 
         doc.setFontSize(7);
-        doc.setTextColor(textColor);
-        doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
+        doc.setTextColor(blueColor);
+        doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 345);
 
         doc.save(`Consulta_${data.paciente.cedula}.pdf`);
     } catch (error) {
