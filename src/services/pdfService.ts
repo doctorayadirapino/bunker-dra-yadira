@@ -163,7 +163,7 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png?v=4.2');
-                doc.addImage(img, 'PNG', 80, dynamicLineY - 17, 50, 35); // Ajuste fino para reposar en línea
+                doc.addImage(img, 'PNG', 80, dynamicLineY - 33, 50, 35); // Ajuste fino final
             } catch (e) {
                 console.error('Error firma:', e);
             }
@@ -307,7 +307,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 85, footerY - 18, 45, 30); // Bajada para anclar tinta sobre la línea v8.2
+                doc.addImage(img, 'PNG', 85, footerY - 28, 45, 30); // Elevación exacta sobre la línea
             } catch (e) {
                 doc.setDrawColor(blueColor);
                 doc.line(80, footerY, 130, footerY);
@@ -407,8 +407,8 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                // v8.2: Posicionada tocando la línea
-                doc.addImage(img, 'PNG', 140, footerY - 16, 40, 25);
+                // Posición ajustada para reposar
+                doc.addImage(img, 'PNG', 140, footerY - 25, 40, 25);
             } catch (e) { }
         }
         doc.setDrawColor(blueColor);
@@ -541,7 +541,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png?v=4.2');
-                doc.addImage(img, 'PNG', 83, drawY - 15, 50, 35);
+                doc.addImage(img, 'PNG', 83, drawY - 33, 50, 35);
             } catch (e) {
                 console.error('Error firma:', e);
             }
@@ -795,11 +795,11 @@ export const generarReposoPDF = async (data: ReposoData) => {
 
     // Bloque de contacto removido por solicitud v5.0
 
-    // Bloque de Firma v8.2 [POSICIÓN SOBRE LÍNEA]
+    // Bloque de Firma Final
     if (data.conFirmaDigital) {
         try {
             const img = await loadImage('/firma_doctora.png');
-            doc.addImage(img, 'PNG', 135, footerY - 22, 50, 35);
+            doc.addImage(img, 'PNG', 135, footerY - 33, 50, 35);
         } catch (e) {
             console.error('Error firma reposo:', e);
         }
