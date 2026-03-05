@@ -24,13 +24,13 @@ export default function Login() {
         if (normalizedUsername === 'yadira_laboral') {
             internalEmail = 'yadirapinorujano288@gmail.com';
         } else if (normalizedUsername === 'yadira_fisiatra') {
-            internalEmail = 'doctora.fisiatria@bunker.com';
+            internalEmail = 'doctora.fisiatria@sistema.com';
         } else {
             // Si no es un alias, verificamos si es un correo directo (solo para soporte)
             if (normalizedUsername.includes('@')) {
                 internalEmail = normalizedUsername;
             } else {
-                setError('El usuario ingresado no existe en el registro del Búnker.');
+                setError('El usuario ingresado no existe en el registro del sistema.');
                 setLoading(false);
                 return;
             }
@@ -59,7 +59,7 @@ export default function Login() {
         // Solo permitir recuperación por alias conocidos
         let targetEmail = username;
         if (username === 'yadira_laboral') targetEmail = 'yadirapinorujano288@gmail.com';
-        if (username === 'yadira_fisiatra') targetEmail = 'doctora.fisiatria@bunker.com';
+        if (username === 'yadira_fisiatra') targetEmail = 'doctora.fisiatria@sistema.com';
 
         try {
             const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(targetEmail, {
@@ -99,7 +99,7 @@ export default function Login() {
                             textTransform: 'uppercase',
                             letterSpacing: '1px'
                         }}>
-                            Búnker Corporativo V7.5
+                            Plataforma Médica
                         </div>
                         {recoveryMode && (
                             <p className="login-subtitle">Rescate de Acceso</p>
@@ -144,7 +144,7 @@ export default function Login() {
                             {error && <div className="login-error-alert">⚠️ {error}</div>}
 
                             <button type="submit" className="login-submit-btn" disabled={loading}>
-                                {loading ? <span className="loader">Validando...</span> : <>Entrar al Búnker <ChevronRight size={20} /></>}
+                                {loading ? <span className="loader">Validando...</span> : <>Entrar al Sistema <ChevronRight size={20} /></>}
                             </button>
                         </form>
                     ) : (

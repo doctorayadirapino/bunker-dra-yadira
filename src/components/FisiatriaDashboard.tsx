@@ -97,7 +97,7 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
                 <div className="stat-card-fisiatria" style={{ borderColor: '#e91e63' }}>
                     <Activity className="icon" style={{ color: '#e91e63', background: '#fff1f2' }} />
                     <div className="info">
-                        <span className="label">Estado del Búnker</span>
+                        <span className="label">Estado del Sistema</span>
                         <span className="value">ACTIVO</span>
                     </div>
                 </div>

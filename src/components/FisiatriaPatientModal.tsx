@@ -121,7 +121,7 @@ export default function FisiatriaPatientModal({ onClose, onSuccess, patientToEdi
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
                         <button type="button" onClick={onClose} className="btn-cancel">Cancelar</button>
                         <button type="submit" className="btn-purple-action" disabled={loading} style={{ background: 'var(--fisiatria-purple)' }}>
-                            <Save size={18} /> {loading ? 'Guardando...' : 'Guardar en Búnker'}
+                            <Save size={18} /> {loading ? 'Guardando...' : 'Guardar Paciente'}
                         </button>
                     </div>
                 </form>

@@ -174,7 +174,7 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                 <h2 style={{ color: userRole === 'fisiatria' ? '#e91e63' : 'var(--corporate-blue)', fontSize: '1.8rem', fontWeight: 900 }}>
                     {userRole === 'fisiatria' ? 'REPOSO MÉDICO FISIÁTRICO' : 'REPOSO MÉDICO LABORAL'}
                 </h2>
-                <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Generación de justificativos oficiales con respaldo en Búnker</p>
+                <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Generación de justificativos oficiales con respaldo en el sistema</p>
             </div>
 
             <div style={{ display: 'flex', gap: '15px', marginBottom: '30px' }}>

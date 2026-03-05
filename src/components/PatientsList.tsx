@@ -35,7 +35,7 @@ export default function PatientsList({ selectedCompany = 'GENERAL' }: { selected
     };
 
     const handleDelete = async (id: string, nombre: string) => {
-        const confirmed = window.confirm(`⚠️ ADVERTENCIA DE SEGURIDAD ⚠️\n\n¿Carlos Fuentes, está totalmente seguro de eliminar el EXPEDIENTE COMPLETO de ${nombre}?\n\nEsta acción borrará permanentemente sus datos personales y TODAS sus consultas médicas del Búnker de forma irreversible.`);
+        const confirmed = window.confirm(`⚠️ ADVERTENCIA DE SEGURIDAD ⚠️\n\n¿Carlos Fuentes, está totalmente seguro de eliminar el EXPEDIENTE COMPLETO de ${nombre}?\n\nEsta acción borrará permanentemente sus datos personales y TODAS sus consultas médicas del sistema de forma irreversible.`);
 
         if (confirmed) {
             try {
@@ -98,7 +98,7 @@ export default function PatientsList({ selectedCompany = 'GENERAL' }: { selected
             </div>
 
             {loading ? (
-                <div style={{ textAlign: 'center', padding: '50px', color: 'var(--corporate-blue)' }}>Consultando archivos del búnker...</div>
+                <div style={{ textAlign: 'center', padding: '50px', color: 'var(--corporate-blue)' }}>Consultando archivos del sistema...</div>
             ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
                     {filteredPatients.map(p => {

@@ -315,7 +315,7 @@ export default function NewEvaluationForm({ onClose, editConsultaId }: FormProps
 
         } catch (err: any) {
             console.error(err);
-            setError(err.message || 'Error desconocido al guardar en el búnker.');
+            setError(err.message || 'Error desconocido al guardar en el sistema.');
         } finally {
             setLoading(false);
         }

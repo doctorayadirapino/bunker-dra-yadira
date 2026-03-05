@@ -114,7 +114,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                 }
             }
 
-            alert("¡CONSULTA Y RÉCIPE REGISTRADOS EXITOSAMENTE EN EL BÚNKER!");
+            alert("¡CONSULTA Y RÉCIPE REGISTRADOS EXITOSAMENTE EN LA PLATAFORMA!");
 
             // 4. Preguntar por Impresión de Informe
             if (window.confirm("¿Desea generar e imprimir el INFORME MÉDICO ahora?")) {
@@ -327,7 +327,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px', paddingBottom: '20px' }}>
                         <button type="button" onClick={onClose} className="btn-cancel">Cancelar</button>
                         <button type="submit" className="btn-brand-action" disabled={loading} style={{ background: 'linear-gradient(135deg, #e91e63, #0284c7)', color: 'white', padding: '15px 30px', fontSize: '1.1rem', borderRadius: '15px', border: 'none', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(233, 30, 99, 0.2)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Save size={22} /> {loading ? 'Sincronizando con Búnker...' : 'GUARDAR CONSULTA Y RÉCIPE'}
+                            <Save size={22} /> {loading ? 'Sincronizando con la plataforma...' : 'GUARDAR CONSULTA Y RÉCIPE'}
                         </button>
                     </div>
                 </form>

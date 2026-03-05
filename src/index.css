@@ -348,7 +348,7 @@ body {
   color: var(--medical-turquoise);
 }
 
-/* RESPONSIVE DESIGN (BUNKER MOBILE) */
+/* RESPONSIVE DESIGN (MOBILE) */
 @media (max-width: 1024px) {
   .kpi-grid {
     grid-template-columns: repeat(2, 1fr);

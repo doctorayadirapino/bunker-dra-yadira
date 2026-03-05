@@ -30,7 +30,7 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
     };
 
     const handleDeleteCompany = async (id: string, nombre: string) => {
-        const confirmed = window.confirm(`⚠️ ADVERTENCIA DE SEGURIDAD ⚠️\n\n¿Carlos Fuentes, está totalmente seguro de eliminar a la empresa ${nombre} del Búnker?\n\nLos trabajadores asociados no se borrarán, sino que pasarán a ser pacientes particulares.`);
+        const confirmed = window.confirm(`⚠️ ADVERTENCIA DE SEGURIDAD ⚠️\n\n¿Carlos Fuentes, está totalmente seguro de eliminar a la empresa ${nombre} del sistema?\n\nLos trabajadores asociados no se borrarán, sino que pasarán a ser pacientes particulares.`);
 
         if (confirmed) {
             try {
@@ -138,7 +138,7 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
                     {filtered.length === 0 && (
                         <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '100px', color: 'var(--text-muted)', background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px dashed var(--border-color)' }}>
                             <BriefcaseMedical size={50} style={{ marginBottom: '15px', opacity: 0.3 }} />
-                            <p>No se encontraron empresas en el búnker.</p>
+                            <p>No se encontraron empresas en el sistema.</p>
                         </div>
                     )}
                 </div>
