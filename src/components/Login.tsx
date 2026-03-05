@@ -8,15 +8,12 @@ export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
-    const [recoveryMode, setRecoveryMode] = useState(false);
-    const [message, setMessage] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        setMessage(null);
 
         // Mapeo Maestro de Identidades Corporativas (Exclusivo)
         let internalEmail = '';
@@ -51,30 +48,6 @@ export default function Login() {
         }
     };
 
-    const handleRecovery = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        setMessage(null);
-
-        // Solo permitir recuperación por alias conocidos
-        let targetEmail = username;
-        if (username === 'yadira_laboral') targetEmail = 'yadirapinorujano288@gmail.com';
-        if (username === 'yadira_fisiatra') targetEmail = 'doctora.fisiatria@bunker.com';
-
-        try {
-            const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(targetEmail, {
-                redirectTo: window.location.origin,
-            });
-
-            if (recoveryError) throw recoveryError;
-            setMessage("Instrucciones de seguridad enviadas al usuario.");
-        } catch (err: any) {
-            setError('No se pudo procesar la recuperación. Contacte al administrador.');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
         <div className="login-container">
@@ -102,109 +75,66 @@ export default function Login() {
                         }}>
                             Plataforma Médica
                         </div>
-                        {recoveryMode && (
-                            <p className="login-subtitle">Rescate de Acceso</p>
-                        )}
                     </div>
 
-                    {!recoveryMode ? (
-                        <form onSubmit={handleLogin} className="login-form">
-                            <div className="input-group">
-                                <label><User size={18} /> Nombre de Usuario</label>
+                    <form onSubmit={handleLogin} className="login-form">
+                        <div className="input-group">
+                            <label><User size={18} /> Nombre de Usuario</label>
+                            <input
+                                type="text"
+                                required
+                                value={username}
+                                autoComplete="username"
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="input-group">
+                            <label style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Lock size={18} /> Contraseña</span>
+                            </label>
+                            <div style={{ position: 'relative' }}>
                                 <input
-                                    type="text"
+                                    type={showPassword ? "text" : "password"}
                                     required
-                                    value={username}
-                                    autoComplete="username"
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    value={password}
+                                    autoComplete="current-password"
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    style={{ paddingRight: '45px', width: '100%', boxSizing: 'border-box' }}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{
+                                        position: 'absolute',
+                                        right: '12px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        background: 'none',
+                                        border: 'none',
+                                        color: 'var(--text-muted)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        padding: '4px',
+                                        opacity: 0.7,
+                                        transition: 'opacity 0.2s',
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                                    onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+                                    title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
                             </div>
+                        </div>
 
-                            <div className="input-group">
-                                <label style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Lock size={18} /> Contraseña</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setRecoveryMode(true)}
-                                        className="forgot-password-link"
-                                    >
-                                        ¿Nueva clave?
-                                    </button>
-                                </label>
-                                <div style={{ position: 'relative' }}>
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        required
-                                        value={password}
-                                        autoComplete="current-password"
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="••••••••"
-                                        style={{ paddingRight: '45px', width: '100%', boxSizing: 'border-box' }}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        style={{
-                                            position: 'absolute',
-                                            right: '12px',
-                                            top: '50%',
-                                            transform: 'translateY(-50%)',
-                                            background: 'none',
-                                            border: 'none',
-                                            color: 'var(--text-muted)',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            padding: '4px',
-                                            opacity: 0.7,
-                                            transition: 'opacity 0.2s',
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
-                                        title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
-                                    >
-                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                    </button>
-                                </div>
-                            </div>
+                        {error && <div className="login-error-alert">⚠️ {error}</div>}
 
-                            {error && <div className="login-error-alert">⚠️ {error}</div>}
-
-                            <button type="submit" className="login-submit-btn" disabled={loading}>
-                                {loading ? <span className="loader">Validando...</span> : <>Entrar al Sistema <ChevronRight size={20} /></>}
-                            </button>
-                        </form>
-                    ) : (
-                        <form onSubmit={handleRecovery} className="login-form">
-                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', marginBottom: '15px' }}>
-                                Introduzca su nombre de usuario para el rescate.
-                            </p>
-                            <div className="input-group">
-                                <label><User size={18} /> Usuario</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="Ej: yadira_laboral"
-                                />
-                            </div>
-
-                            {error && <div className="login-error-alert">⚠️ {error}</div>}
-                            {message && <div className="login-success-alert">✅ {message}</div>}
-
-                            <button type="submit" className="login-submit-btn" disabled={loading}>
-                                {loading ? <span className="loader">Enviando...</span> : <>Confirmar Rescate <ChevronRight size={20} /></>}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => setRecoveryMode(false)}
-                                className="back-to-login-btn"
-                            >
-                                Volver al Ingreso
-                            </button>
-                        </form>
-                    )}
+                        <button type="submit" className="login-submit-btn" disabled={loading}>
+                            {loading ? <span className="loader">Validando...</span> : <>Entrar al Sistema <ChevronRight size={20} /></>}
+                        </button>
+                    </form>
 
                     <div className="login-footer">
                         <div className="developer-badge" style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', marginBottom: '8px' }}>
