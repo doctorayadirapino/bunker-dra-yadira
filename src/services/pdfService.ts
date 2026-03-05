@@ -794,29 +794,29 @@ export const generarReposoPDF = async (data: ReposoData) => {
 
     // Bloque de contacto removido por solicitud v5.0
 
-    // Bloque de Firma Final
+    // Bloque de Firma Final (Centrado v8.6)
     if (data.conFirmaDigital) {
         try {
             const img = await loadImage('/firma_doctora.png');
-            doc.addImage(img, 'PNG', 135, footerY - 33, 50, 35);
+            doc.addImage(img, 'PNG', 83, footerY - 33, 50, 35); // X=83 (Centro de 216 - 50/2)
         } catch (e) {
             console.error('Error firma reposo:', e);
         }
     }
 
     doc.setDrawColor(blueColor);
-    doc.line(130, footerY + 2, 190, footerY + 2);
+    doc.line(78, footerY + 2, 138, footerY + 2); // Línea de 60mm centrada (108 +/- 30)
 
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(blueColor);
-    doc.text(`Dra. ${data.doctora.nombre} R.`, 160, footerY + 8, { align: 'center' });
+    doc.text(`Dra. ${data.doctora.nombre} R.`, 108, footerY + 8, { align: 'center' }); // X=108 Centro
     doc.setFontSize(8);
     doc.setTextColor(textColor);
     doc.setFont('helvetica', 'normal');
     const esp = data.doctora.especialidad === 'Fisiatra' ? 'Fisiatra / Médico Ocupacional' : data.doctora.especialidad;
-    doc.text(esp, 160, footerY + 12, { align: 'center' });
-    doc.text(`C.I.: V-${data.doctora.ci} | M.P.PS: ${data.doctora.mpps} | C.M.M: ${data.doctora.cmm}`, 160, footerY + 16, { align: 'center' });
+    doc.text(esp, 108, footerY + 12, { align: 'center' });
+    doc.text(`C.I.: V-${data.doctora.ci} | M.P.PS: ${data.doctora.mpps} | C.M.M: ${data.doctora.cmm}`, 108, footerY + 16, { align: 'center' });
 
     doc.setFontSize(7);
     doc.setTextColor(blueColor);
