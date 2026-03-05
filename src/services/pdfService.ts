@@ -280,8 +280,29 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         if (data.consulta.reposo_constancia) {
             drawSection('Reposo / Constancia:', data.consulta.reposo_constancia);
         }
+
+        // Referencias Anteriores / Básicas (Mantenimiento)
         if (data.consulta.referencia) {
             drawSection('Referencia:', data.consulta.referencia);
+        }
+
+        // Nuevos Campos de Referencias Médicas
+        const refDra = (data.consulta as any).referencia_medico;
+        const refEsp = (data.consulta as any).referencia_especialidad;
+        const refMotivo = (data.consulta as any).referencia_motivo;
+
+        if (refDra || refEsp || refMotivo) {
+            let textoReferencia = '';
+            if (refDra) textoReferencia += `A: DR(A). ${refDra}\n`;
+            if (refEsp) textoReferencia += `ESPECIALIDAD: ${refEsp}\n`;
+            if (refMotivo) textoReferencia += `MOTIVO: ${refMotivo}`;
+            drawSection('Referencia Médica a Especialista:', textoReferencia.trim());
+        }
+
+        // Nuevo campo de Radiodiagnóstico
+        const radDetalle = (data.consulta as any).radiodiagnostico_detalle;
+        if (radDetalle) {
+            drawSection('Orden de Estudios Médicos / Radiodiagnóstico:', radDetalle);
         }
 
         // --- RÉCIPE SI EXISTE ---
