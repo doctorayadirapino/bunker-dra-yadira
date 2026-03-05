@@ -346,6 +346,7 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
 
         const pinkColor = '#e91e63';
         const blueColor = '#0284c7';
+        const textColor = '#1e293b'; // Definido para B&W compliance
 
         // v7.0: UNIFIED BRAND HEADER (LABORAL STYLE)
         doc.setFillColor(233, 30, 99); // Rosa
@@ -375,24 +376,22 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         doc.setTextColor('#1e293b');
         doc.setFontSize(11);
         doc.text(`Paciente: ${data.paciente.nombre}`, 15, 45);
+        doc.text(`C.I.: V-${data.paciente.cedula}`, 15, 51); // Añadida Cédula de Identidad
         doc.text(`Fecha: ${new Date(data.consulta.fecha).toLocaleDateString()}`, 160, 45);
         doc.setFontSize(16);
-        doc.setTextColor(pinkColor);
-        doc.text('RÉCIPE E INDICACIONES MÉDICAS', 105, 55, { align: 'center' });
-        doc.line(75, 56, 135, 56);
+        doc.setTextColor(textColor); // Título en negro (B&W compliance)
+        doc.text('RÉCIPE', 105, 62, { align: 'center' }); // Solo RÉCIPE
+        doc.line(95, 63, 115, 63);
 
-        let currentY = 70;
+        let currentY = 75;
         data.recipes.forEach((r, idx) => {
-            doc.setTextColor(blueColor);
+            doc.setTextColor(textColor); // Negro puro
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
             doc.text(`${idx + 1}. ${r.medicamento}`, 20, currentY);
 
-            doc.setTextColor('#1e293b');
-            doc.setFont('helvetica', 'normal');
-            const ind = doc.splitTextToSize(r.indicaciones, 170);
-            doc.text(ind, 25, currentY + 6);
-            currentY += (ind.length * 6) + 15;
+            // Se elimina por completo la impresión de indicaciones en este documento (v8.4)
+            currentY += 15;
 
             if (currentY > 250) { doc.addPage(); currentY = 20; }
         });
