@@ -433,23 +433,34 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         });
 
         // v8.5: Blindaje antisobreposición Récipe (Escala Carta)
-        let footerY = Math.max(currentY + 20, 235);
-        if (footerY > 255) {
+        let footerY = Math.max(currentY + 35, 230);
+        if (footerY > 250) {
             doc.addPage();
             renderHeader();
-            footerY = 45;
+            footerY = 55;
         }
 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 140, footerY - 25, 40, 25);
-            } catch (e) { }
+                doc.addImage(img, 'PNG', 85.5, footerY - 28, 45, 30);
+            } catch (e) {
+                doc.setDrawColor(blueColor);
+                doc.line(83, footerY, 133, footerY);
+            }
         }
+
         doc.setDrawColor(blueColor);
-        doc.line(135, footerY, 185, footerY);
-        doc.setFontSize(8);
-        doc.text('Firma y Sello del Médico', 160, footerY + 5, { align: 'center' });
+        doc.line(83, footerY + 2, 133, footerY + 2);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(textColor);
+        doc.text('Dra. YADIRA PINO R.', 108, footerY + 8, { align: 'center' });
+        doc.setFontSize(9);
+        doc.setTextColor(textColor);
+        doc.setFont('helvetica', 'normal');
+        doc.text('FISIATRA', 108, footerY + 13, { align: 'center' });
 
         // --- SEGUNDA PÁGINA: INDICACIONES MÉDICAS ---
         doc.addPage();
@@ -484,23 +495,34 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         });
 
         // Firma en Indicaciones
-        let indFooterY = Math.max(indY + 20, 235);
-        if (indFooterY > 255) {
+        let indFooterY = Math.max(indY + 35, 230);
+        if (indFooterY > 250) {
             doc.addPage();
             renderHeader();
-            indFooterY = 45;
+            indFooterY = 55;
         }
 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 140, indFooterY - 25, 40, 25);
-            } catch (e) { }
+                doc.addImage(img, 'PNG', 85.5, indFooterY - 28, 45, 30);
+            } catch (e) {
+                doc.setDrawColor(blueColor);
+                doc.line(83, indFooterY, 133, indFooterY);
+            }
         }
+
         doc.setDrawColor(blueColor);
-        doc.line(135, indFooterY, 185, indFooterY);
-        doc.setFontSize(8);
-        doc.text('Firma y Sello del Médico', 160, indFooterY + 5, { align: 'center' });
+        doc.line(83, indFooterY + 2, 133, indFooterY + 2);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(textColor);
+        doc.text('Dra. YADIRA PINO R.', 108, indFooterY + 8, { align: 'center' });
+        doc.setFontSize(9);
+        doc.setTextColor(textColor);
+        doc.setFont('helvetica', 'normal');
+        doc.text('FISIATRA', 108, indFooterY + 13, { align: 'center' });
 
         doc.save(`Recipe_Indicaciones_${data.paciente.cedula}.pdf`);
     } catch (error) {
