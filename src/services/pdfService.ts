@@ -163,7 +163,7 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png?v=4.2');
-                doc.addImage(img, 'PNG', 80, dynamicLineY - 25, 50, 35);
+                doc.addImage(img, 'PNG', 80, dynamicLineY - 17, 50, 35); // Ajuste fino para reposar en línea
             } catch (e) {
                 console.error('Error firma:', e);
             }
@@ -307,7 +307,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 85, footerY - 45, 45, 30); // Subida 13mm más para no tapar el nombre
+                doc.addImage(img, 'PNG', 85, footerY - 18, 45, 30); // Bajada para anclar tinta sobre la línea v8.2
             } catch (e) {
                 doc.setDrawColor(blueColor);
                 doc.line(80, footerY, 130, footerY);
@@ -407,8 +407,8 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                // v6.5: Shifted UP to avoid overlap
-                doc.addImage(img, 'PNG', 140, footerY - 32, 40, 25);
+                // v8.2: Posicionada tocando la línea
+                doc.addImage(img, 'PNG', 140, footerY - 16, 40, 25);
             } catch (e) { }
         }
         doc.setDrawColor(blueColor);
@@ -795,11 +795,11 @@ export const generarReposoPDF = async (data: ReposoData) => {
 
     // Bloque de contacto removido por solicitud v5.0
 
-    // Bloque de Firma v7.0 [POSICIÓN ELEVADA ANTI-SOBREPOSICIÓN]
+    // Bloque de Firma v8.2 [POSICIÓN SOBRE LÍNEA]
     if (data.conFirmaDigital) {
         try {
             const img = await loadImage('/firma_doctora.png');
-            doc.addImage(img, 'PNG', 135, footerY - 45, 50, 35);
+            doc.addImage(img, 'PNG', 135, footerY - 22, 50, 35);
         } catch (e) {
             console.error('Error firma reposo:', e);
         }
