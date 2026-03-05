@@ -133,7 +133,7 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
     };
 
     const handleDeleteHistory = async () => {
-        if (window.prompt("PELIGRO DE PÉRDIDA DE DATOS\n\nEstá a punto de borrar TODA LA HISTORIA CLÍNICA FISIÁTRICA de este paciente.\n\nEscriba la palabra ELIMINAR para confirmar:") === "ELIMINAR") {
+        if (window.prompt("PELIGRO DE PÉRDIDA DE DATOS\n\nEstá a punto de borrar TODA LA HISTORIA CLÍNICA FISIÁTRICA de este paciente (Consultas).\n\nEscriba la palabra ELIMINAR para confirmar:") === "ELIMINAR") {
             setLoading(true);
             const { error } = await supabase.from('fisiatria_consultas').delete().eq('paciente_id', patient.id);
             if (error) {
@@ -142,6 +142,20 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
             } else {
                 alert("La Historia Clínica ha sido purgada exitosamente de la base de datos.");
                 onClose(); // Cerrar el modal principal porque ya no hay historia
+            }
+        }
+    };
+
+    const handleDeletePatientMaster = async () => {
+        if (window.prompt("ALERTA MÁXIMA CORPORATIVA\n\nEstá a punto de ELIMINAR A ESTE PACIENTE por completo de la base de datos Fisiátrica.\nSe borrará su ficha, sus consultas y todos sus récipes de forma irreversible.\n\nEscriba SUPRIMIR para confirmar su orden:") === "SUPRIMIR") {
+            setLoading(true);
+            const { error } = await supabase.from('fisiatria_pacientes').delete().eq('id', patient.id);
+            if (error) {
+                alert("Error crítico al suprimir paciente: " + error.message);
+                setLoading(false);
+            } else {
+                alert("El paciente y toda su historia han sido erradicados de la Plataforma Fisiátrica.");
+                onClose(); // Esto obligará a recargar la lista principal en PatientsList
             }
         }
     };
@@ -182,8 +196,6 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                             <button className="btn-purple-action" style={{ width: '100%', marginTop: '30px', justifyContent: 'center', padding: '12px' }} onClick={() => setShowNewConsultation(true)}>
                                 <PlusCircle size={20} /> Nueva Consulta
                             </button>
-
-                            {/* v8.6 Botón de Purga Total */}
                             {consultations.length > 0 && (
                                 <button
                                     onClick={handleDeleteHistory}
@@ -207,9 +219,36 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                                     onMouseOver={(e) => { e.currentTarget.style.background = '#ffe4e6'; e.currentTarget.style.transform = 'scale(1.02)' }}
                                     onMouseOut={(e) => { e.currentTarget.style.background = '#fff1f2'; e.currentTarget.style.transform = 'scale(1)' }}
                                 >
-                                    <AlertTriangle size={18} /> PURGAR HISTORIA CLÍNICA
+                                    <AlertTriangle size={18} /> PURGAR CONSULTAS
                                 </button>
                             )}
+
+                            {/* v8.8 Botón Maestro de Erradicación de Paciente */}
+                            <button
+                                onClick={handleDeletePatientMaster}
+                                style={{
+                                    width: '100%',
+                                    marginTop: '8px',
+                                    background: '#7f1d1d',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '12px',
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    fontWeight: 800,
+                                    fontSize: '0.80rem',
+                                    textTransform: 'uppercase',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.background = '#991b1b'; e.currentTarget.style.transform = 'scale(1.02)' }}
+                                onMouseOut={(e) => { e.currentTarget.style.background = '#7f1d1d'; e.currentTarget.style.transform = 'scale(1)' }}
+                            >
+                                <Trash2 size={18} /> ELIMINAR PACIENTE DEFINITIVO
+                            </button>
                         </div>
                     </aside>
 
