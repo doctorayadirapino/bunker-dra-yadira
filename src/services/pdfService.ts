@@ -196,7 +196,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'mm',
-            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
+            format: [215.9, 355.6] // Oficio Estricta 8.5 x 14 in
         });
 
         // v6.4: Unified Brand Colors (Pink/Blue)
@@ -220,13 +220,12 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         doc.setTextColor(blueColor);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
-        doc.text('Fisiatra / Medico Ocupacional', 105, 21, { align: 'center' });
+        doc.text('FISIATRA', 105, 21, { align: 'center' });
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
         doc.setFont('helvetica', 'normal');
-        doc.text('LOPCYMAT DIPLOMADO EN SALUD OCUPACIONAL DIPLOMADO DE ERGONOMIA', 105, 25, { align: 'center' });
-        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 29, { align: 'center' });
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 25, { align: 'center' });
 
         doc.setDrawColor(blueColor);
         doc.setLineWidth(0.5);
@@ -341,72 +340,76 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'mm',
-            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
+            format: [215.9, 355.6] // Oficio Estricta 8.5 x 14 in
         });
 
         const pinkColor = '#e91e63';
         const blueColor = '#0284c7';
         const textColor = '#1e293b'; // Definido para B&W compliance
 
-        // v7.0: UNIFIED BRAND HEADER (LABORAL STYLE)
-        doc.setFillColor(233, 30, 99); // Rosa
-        doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
-        doc.circle(180, 15, 12, 'F');
-        doc.setFillColor(2, 132, 199); // Azul
-        doc.circle(200, 25, 9, 'F');
-        doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
+        // Función Helper para inyectar Cabecera de Fisiatría
+        const renderHeader = () => {
+            doc.setFillColor(233, 30, 99); // Rosa
+            doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
+            doc.circle(180, 15, 12, 'F');
+            doc.setFillColor(2, 132, 199); // Azul
+            doc.circle(200, 25, 9, 'F');
+            doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
 
-        doc.setTextColor(pinkColor);
-        doc.setFont('times', 'italic');
-        doc.setFontSize(22);
-        doc.text(`Dra. YADIRA PINO R.`, 105, 15, { align: 'center' });
+            doc.setTextColor(pinkColor);
+            doc.setFont('times', 'italic');
+            doc.setFontSize(22);
+            doc.text(`Dra. YADIRA PINO R.`, 105, 15, { align: 'center' });
 
-        doc.setTextColor(blueColor);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(12);
-        doc.text('Fisiatra / Medico Ocupacional', 105, 21, { align: 'center' });
+            doc.setTextColor(blueColor);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text('FISIATRA', 105, 21, { align: 'center' });
 
-        doc.setTextColor('#64748b');
-        doc.setFontSize(7);
-        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 29, { align: 'center' });
+            doc.setTextColor('#64748b');
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 25, { align: 'center' });
 
-        doc.setDrawColor(blueColor);
-        doc.line(15, 38, 195, 38);
+            doc.setDrawColor(blueColor);
+            doc.line(15, 34, 195, 34);
+        };
+
+        renderHeader();
 
         doc.setTextColor('#1e293b');
         doc.setFontSize(11);
-        doc.text(`Paciente: ${data.paciente.nombre}`, 15, 45);
-        doc.text(`C.I.: V-${data.paciente.cedula}`, 15, 51); // Añadida Cédula de Identidad
-        doc.text(`Fecha: ${new Date(data.consulta.fecha).toLocaleDateString()}`, 160, 45);
+        doc.text(`Paciente: ${data.paciente.nombre}`, 15, 41);
+        doc.text(`C.I.: V-${data.paciente.cedula}`, 15, 47); // Añadida Cédula de Identidad
+        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 160, 41);
         doc.setFontSize(16);
         doc.setTextColor(textColor); // Título en negro (B&W compliance)
-        doc.text('RÉCIPE', 105, 62, { align: 'center' }); // Solo RÉCIPE
-        doc.line(95, 63, 115, 63);
+        doc.text('RÉCIPE', 105, 58, { align: 'center' }); // Solo RÉCIPE
+        doc.line(95, 59, 115, 59);
 
-        let currentY = 75;
+        let currentY = 70;
         data.recipes.forEach((r, idx) => {
             doc.setTextColor(textColor); // Negro puro
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(12);
             doc.text(`${idx + 1}. ${r.medicamento}`, 20, currentY);
 
-            // Se elimina por completo la impresión de indicaciones en este documento (v8.4)
             currentY += 15;
 
-            if (currentY > 250) { doc.addPage(); currentY = 20; }
+            if (currentY > 320) { doc.addPage(); renderHeader(); currentY = 45; }
         });
 
-        // v8.5: Blindaje antisobreposición Récipe (Escala Carta)
-        let footerY = Math.max(currentY + 20, 235);
-        if (footerY > 255) {
+        // v8.5: Blindaje antisobreposición Récipe (Escala Oficio)
+        let footerY = Math.max(currentY + 20, 310);
+        if (footerY > 330) {
             doc.addPage();
-            footerY = 40;
+            renderHeader();
+            footerY = 45;
         }
 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                // Posición ajustada para reposar
                 doc.addImage(img, 'PNG', 140, footerY - 25, 40, 25);
             } catch (e) { }
         }
@@ -415,7 +418,58 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         doc.setFontSize(8);
         doc.text('Firma y Sello del Médico', 160, footerY + 5, { align: 'center' });
 
-        doc.save(`Recipe_${data.paciente.cedula}.pdf`);
+        // --- SEGUNDA PÁGINA: INDICACIONES MÉDICAS ---
+        doc.addPage();
+        renderHeader();
+
+        doc.setTextColor('#1e293b');
+        doc.setFontSize(11);
+        doc.text(`Paciente: ${data.paciente.nombre}`, 15, 41);
+        doc.text(`C.I.: V-${data.paciente.cedula}`, 15, 47);
+        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 160, 41);
+
+        doc.setFontSize(16);
+        doc.setTextColor(textColor);
+        doc.text('INDICACIONES', 105, 58, { align: 'center' });
+        doc.line(85, 59, 125, 59);
+
+        let indY = 70;
+        data.recipes.forEach((r, idx) => {
+            doc.setTextColor(textColor);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.text(`${idx + 1}. ${r.medicamento}:`, 20, indY);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            const indicationsText = doc.splitTextToSize(r.indicaciones, 160);
+            doc.text(indicationsText, 25, indY + 6);
+
+            indY += (indicationsText.length * 5) + 8;
+
+            if (indY > 320) { doc.addPage(); renderHeader(); indY = 45; }
+        });
+
+        // Firma en Indicaciones
+        let indFooterY = Math.max(indY + 20, 310);
+        if (indFooterY > 330) {
+            doc.addPage();
+            renderHeader();
+            indFooterY = 45;
+        }
+
+        if (data.conFirmaDigital) {
+            try {
+                const img = await loadImage('/firma_doctora.png');
+                doc.addImage(img, 'PNG', 140, indFooterY - 25, 40, 25);
+            } catch (e) { }
+        }
+        doc.setDrawColor(blueColor);
+        doc.line(135, indFooterY, 185, indFooterY);
+        doc.setFontSize(8);
+        doc.text('Firma y Sello del Médico', 160, indFooterY + 5, { align: 'center' });
+
+        doc.save(`Recipe_Indicaciones_${data.paciente.cedula}.pdf`);
     } catch (error) {
         console.error('Error Recipe PDF:', error);
     }
@@ -823,4 +877,195 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
+};
+
+export const generarReferenciaFisiatriaPDF = async (data: FisiatriaConsultaData) => {
+    try {
+        const doc = new jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: [215.9, 355.6]
+        });
+
+        const pinkColor = '#e91e63';
+        const blueColor = '#0284c7';
+        const textColor = '#1e293b';
+
+        const renderHeader = () => {
+            doc.setFillColor(233, 30, 99);
+            doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
+            doc.circle(180, 15, 12, 'F');
+            doc.setFillColor(2, 132, 199);
+            doc.circle(200, 25, 9, 'F');
+            doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
+
+            doc.setTextColor(pinkColor);
+            doc.setFont('times', 'italic');
+            doc.setFontSize(22);
+            doc.text(`Dra. YADIRA PINO R.`, 105, 15, { align: 'center' });
+
+            doc.setTextColor(blueColor);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text('FISIATRA', 105, 21, { align: 'center' });
+
+            doc.setTextColor('#64748b');
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 25, { align: 'center' });
+
+            doc.setDrawColor(blueColor);
+            doc.line(15, 34, 195, 34);
+        };
+
+        renderHeader();
+
+        doc.setTextColor('#1e293b');
+        doc.setFontSize(11);
+        doc.text(`Paciente: ${data.paciente.nombre}`, 15, 41);
+        doc.text(`C.I.: V-${data.paciente.cedula}`, 15, 47);
+        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 160, 41);
+
+        doc.setFontSize(16);
+        doc.setTextColor(textColor);
+        doc.text('HOJA DE REFERENCIA', 105, 58, { align: 'center' });
+        doc.line(80, 59, 130, 59);
+
+        let currentY = 75;
+
+        const medico = (data.consulta as any).referencia_medico || '';
+        const especialidad = (data.consulta as any).referencia_especialidad || '';
+        const motivo = (data.consulta as any).referencia_motivo || '';
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('A: Dr(a).', 20, currentY);
+        doc.setFont('helvetica', 'normal');
+        doc.text(medico, 40, currentY);
+
+        currentY += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.text('Especialidad:', 20, currentY);
+        doc.setFont('helvetica', 'normal');
+        doc.text(especialidad, 48, currentY);
+
+        currentY += 15;
+        doc.setFont('helvetica', 'bold');
+        doc.text('Breve resumen / Motivo de referencia:', 20, currentY);
+        currentY += 8;
+        doc.setFont('helvetica', 'normal');
+        const motivoLine = doc.splitTextToSize(motivo, 170);
+        doc.text(motivoLine, 20, currentY);
+
+        let footerY = Math.max(currentY + (motivoLine.length * 6) + 30, 310);
+        if (footerY > 330) {
+            doc.addPage();
+            renderHeader();
+            footerY = 45;
+        }
+
+        if (data.conFirmaDigital) {
+            try {
+                const img = await loadImage('/firma_doctora.png');
+                doc.addImage(img, 'PNG', 140, footerY - 25, 40, 25);
+            } catch (e) { }
+        }
+        doc.setDrawColor(blueColor);
+        doc.line(135, footerY, 185, footerY);
+        doc.setFontSize(8);
+        doc.text('Firma y Sello del Médico', 160, footerY + 5, { align: 'center' });
+
+        doc.save(`Referencia_${data.paciente.cedula}.pdf`);
+    } catch (e) {
+        console.error('Error Referencia PDF:', e);
+    }
+};
+
+export const generarRadiodiagnosticoFisiatriaPDF = async (data: FisiatriaConsultaData) => {
+    try {
+        const doc = new jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: [215.9, 355.6]
+        });
+
+        const pinkColor = '#e91e63';
+        const blueColor = '#0284c7';
+        const textColor = '#1e293b';
+
+        const renderHeader = () => {
+            doc.setFillColor(233, 30, 99);
+            doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
+            doc.circle(180, 15, 12, 'F');
+            doc.setFillColor(2, 132, 199);
+            doc.circle(200, 25, 9, 'F');
+            doc.setGState(new (doc as any).GState({ opacity: 1.0 }));
+
+            doc.setTextColor(pinkColor);
+            doc.setFont('times', 'italic');
+            doc.setFontSize(22);
+            doc.text(`Dra. YADIRA PINO R.`, 105, 15, { align: 'center' });
+
+            doc.setTextColor(blueColor);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text('FISIATRA', 105, 21, { align: 'center' });
+
+            doc.setTextColor('#64748b');
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 25, { align: 'center' });
+
+            doc.setDrawColor(blueColor);
+            doc.line(15, 34, 195, 34);
+        };
+
+        renderHeader();
+
+        doc.setTextColor('#1e293b');
+        doc.setFontSize(11);
+        doc.text(`Paciente: ${data.paciente.nombre}`, 15, 41);
+        doc.text(`C.I.: V-${data.paciente.cedula}`, 15, 47);
+        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 160, 41);
+
+        doc.setFontSize(16);
+        doc.setTextColor(textColor);
+        doc.text('ORDEN DE RADIODIAGNÓSTICO', 105, 58, { align: 'center' });
+        doc.line(70, 59, 140, 59);
+
+        let currentY = 75;
+
+        const detalle = (data.consulta as any).radiodiagnostico_detalle || '';
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Se solicita:', 20, currentY);
+        currentY += 8;
+
+        doc.setFont('helvetica', 'normal');
+        const detalleLine = doc.splitTextToSize(detalle, 170);
+        doc.text(detalleLine, 20, currentY);
+
+        let footerY = Math.max(currentY + (detalleLine.length * 6) + 30, 310);
+        if (footerY > 330) {
+            doc.addPage();
+            renderHeader();
+            footerY = 45;
+        }
+
+        if (data.conFirmaDigital) {
+            try {
+                const img = await loadImage('/firma_doctora.png');
+                doc.addImage(img, 'PNG', 140, footerY - 25, 40, 25);
+            } catch (e) { }
+        }
+        doc.setDrawColor(blueColor);
+        doc.line(135, footerY, 185, footerY);
+        doc.setFontSize(8);
+        doc.text('Firma y Sello del Médico', 160, footerY + 5, { align: 'center' });
+
+        doc.save(`Radiodiagnostico_${data.paciente.cedula}.pdf`);
+    } catch (e) {
+        console.error('Error Radiodiagnostico PDF:', e);
+    }
 };

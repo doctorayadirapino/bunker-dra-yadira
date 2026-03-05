@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { X, ClipboardList, Save, Plus, Trash2, Printer, Mail } from 'lucide-react';
-import { generarConsultaFisiatriaPDF } from '../services/pdfService';
+import { generarConsultaFisiatriaPDF, generarReferenciaFisiatriaPDF, generarRadiodiagnosticoFisiatriaPDF } from '../services/pdfService';
 
 interface Props {
     patientId: string;
@@ -31,6 +31,10 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
         plan_sugerencia: '',
         referencia: '',
         reposo_constancia: '',
+        referencia_medico: '',
+        referencia_especialidad: '',
+        referencia_motivo: '',
+        radiodiagnostico_detalle: '',
         fecha_consulta: new Date().toISOString().split('T')[0]
     });
 
@@ -139,12 +143,24 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                         diagnostico: formData.diagnostico,
                         plan_sugerencia: formData.plan_sugerencia,
                         referencia: formData.referencia,
-                        reposo_constancia: formData.reposo_constancia
+                        reposo_constancia: formData.reposo_constancia,
+                        referencia_medico: formData.referencia_medico,
+                        referencia_especialidad: formData.referencia_especialidad,
+                        referencia_motivo: formData.referencia_motivo,
+                        radiodiagnostico_detalle: formData.radiodiagnostico_detalle
                     },
                     recipes: validRecipes,
                     conFirmaDigital: firmaFinal
                 };
                 generarConsultaFisiatriaPDF(payload);
+
+                if (formData.radiodiagnostico_detalle && window.confirm("¿Desea generar e imprimir la ORDEN DE RADIODIAGNÓSTICO?")) {
+                    generarRadiodiagnosticoFisiatriaPDF(payload);
+                }
+
+                if (formData.referencia_medico && window.confirm("¿Desea generar e imprimir la HOJA DE REFERENCIA MÉDICA?")) {
+                    generarReferenciaFisiatriaPDF(payload);
+                }
             }
 
             onSuccess();
@@ -258,6 +274,53 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                                 />
                             </div>
                         </div>
+
+                        {/* SUBSECCIÓN: HOJA DE REFERENCIA Y RADIODIAGNÓSTICO */}
+                        <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', marginTop: '15px', border: '1px solid #e2e8f0' }}>
+                            <h4 style={{ fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '15px' }}>Documentos Anexos Especiales</h4>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '15px' }}>
+                                <label className="label" style={{ color: '#0284c7' }}>Orden de Radiodiagnóstico (RX, RMN, TAC)</label>
+                                <input
+                                    className="eval-input"
+                                    value={formData.radiodiagnostico_detalle}
+                                    onChange={(e) => setFormData({ ...formData, radiodiagnostico_detalle: e.target.value.toUpperCase() })}
+                                    placeholder="EJ: RX DE 1/3 DISTAL DE RADIO, RESONANCIA MAGNÉTICA..."
+                                />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '15px', marginBottom: '8px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <label className="label" style={{ color: '#e91e63' }}>Hoja de Referencia (Médico Dirigido)</label>
+                                    <input
+                                        className="eval-input"
+                                        value={formData.referencia_medico}
+                                        onChange={(e) => setFormData({ ...formData, referencia_medico: e.target.value.toUpperCase() })}
+                                        placeholder="EJ: JUAN PEREZ"
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <label className="label" style={{ color: '#e91e63' }}>Especialidad</label>
+                                    <input
+                                        className="eval-input"
+                                        value={formData.referencia_especialidad}
+                                        onChange={(e) => setFormData({ ...formData, referencia_especialidad: e.target.value.toUpperCase() })}
+                                        placeholder="EJ: TRAUMATOLOGÍA"
+                                    />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label className="label" style={{ color: '#e91e63' }}>Breve resumen o motivo de la Referencia</label>
+                                <textarea
+                                    className="eval-input"
+                                    rows={2}
+                                    value={formData.referencia_motivo}
+                                    onChange={(e) => setFormData({ ...formData, referencia_motivo: e.target.value.toUpperCase() })}
+                                    placeholder="RESUMEN CLÍNICO PARA EL ESPECIALISTA..."
+                                />
+                            </div>
+                        </div>
+
                     </div>
 
                     {/* SECCIÓN 3: RÉCIPE / VADEMÉCUM (INTELIGENTE) */}

@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { X, History, PlusCircle, Calendar, Pill, Printer } from 'lucide-react';
 import FisiatriaConsultationModal from './FisiatriaConsultationModal';
 import FisiatriaPatientModal from './FisiatriaPatientModal';
-import { generarConsultaFisiatriaPDF, generarRecipeFisiatriaPDF } from '../services/pdfService';
+import { generarConsultaFisiatriaPDF, generarRecipeFisiatriaPDF, generarReferenciaFisiatriaPDF, generarRadiodiagnosticoFisiatriaPDF } from '../services/pdfService';
 
 interface Props {
     patient: any;
@@ -50,12 +50,42 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                 diagnostico: c.diagnostico,
                 plan_sugerencia: c.plan_sugerencia,
                 referencia: c.referencia,
-                reposo_constancia: c.reposo_constancia
+                reposo_constancia: c.reposo_constancia,
+                referencia_medico: c.referencia_medico,
+                referencia_especialidad: c.referencia_especialidad,
+                referencia_motivo: c.referencia_motivo,
+                radiodiagnostico_detalle: c.radiodiagnostico_detalle
             },
             recipes: c.fisiatria_recipes || [],
             conFirmaDigital: conFirma
         };
-        generarConsultaFisiatriaPDF(payload);
+        generarConsultaFisiatriaPDF(payload as any);
+    };
+
+    const handlePrintRadiodiagnostico = (c: any) => {
+        const conFirma = window.confirm("¿Desea incluir su FIRMA DIGITAL en la Orden de Radiodiagnóstico?");
+        const payload = {
+            paciente: { nombre: patientData.nombre_completo, cedula: patientData.cedula, edad: patientData.edad?.toString() || '', telefono: patientData.telefono },
+            consulta: { radiodiagnostico_detalle: c.radiodiagnostico_detalle },
+            recipes: [],
+            conFirmaDigital: conFirma
+        };
+        generarRadiodiagnosticoFisiatriaPDF(payload as any);
+    };
+
+    const handlePrintReferencia = (c: any) => {
+        const conFirma = window.confirm("¿Desea incluir su FIRMA DIGITAL en la Hoja de Referencia?");
+        const payload = {
+            paciente: { nombre: patientData.nombre_completo, cedula: patientData.cedula, edad: patientData.edad?.toString() || '', telefono: patientData.telefono },
+            consulta: {
+                referencia_medico: c.referencia_medico,
+                referencia_especialidad: c.referencia_especialidad,
+                referencia_motivo: c.referencia_motivo
+            },
+            recipes: [],
+            conFirmaDigital: conFirma
+        };
+        generarReferenciaFisiatriaPDF(payload as any);
     };
 
     const handlePrintRecipe = (c: any) => {
@@ -191,6 +221,56 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                                                         onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                                     >
                                                         <Pill size={18} /> IMPRIMIR RÉCIPE
+                                                    </button>
+                                                )}
+                                                {c.radiodiagnostico_detalle && (
+                                                    <button
+                                                        onClick={() => handlePrintRadiodiagnostico(c)}
+                                                        style={{
+                                                            background: '#f59e0b',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            padding: '10px 20px',
+                                                            borderRadius: '12px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '8px',
+                                                            fontSize: '0.9rem',
+                                                            fontWeight: 900,
+                                                            textTransform: 'uppercase',
+                                                            cursor: 'pointer',
+                                                            boxShadow: '0 4px 10px rgba(245, 158, 11, 0.3)',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                                    >
+                                                        RADIODIAGNÓSTICO
+                                                    </button>
+                                                )}
+                                                {c.referencia_medico && (
+                                                    <button
+                                                        onClick={() => handlePrintReferencia(c)}
+                                                        style={{
+                                                            background: '#8b5cf6',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            padding: '10px 20px',
+                                                            borderRadius: '12px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '8px',
+                                                            fontSize: '0.9rem',
+                                                            fontWeight: 900,
+                                                            textTransform: 'uppercase',
+                                                            cursor: 'pointer',
+                                                            boxShadow: '0 4px 10px rgba(139, 92, 246, 0.3)',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                                    >
+                                                        REFERENCIA
                                                     </button>
                                                 )}
                                             </div>
