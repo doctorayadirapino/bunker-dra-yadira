@@ -153,33 +153,34 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             nextY += (obs.length * 6) + 12;
         }
 
-        // v8.5: Reducción de márgenes inferiores para forzar Escala 100% al imprimir
-        let dynamicLineY = Math.max(nextY + 15, 235);
+        // v8.9: Ajustes Geométricos Híbridos (Firma + Texto Garantizado)
+        let dynamicLineY = Math.max(nextY + 35, 235);
         if (dynamicLineY > 255) {
             doc.addPage();
-            dynamicLineY = 35;
+            dynamicLineY = 40;
         }
 
         if (data.conFirmaDigital) {
             try {
-                const img = await loadImage('/firma_doctora.png?v=4.2');
-                doc.addImage(img, 'PNG', 80, dynamicLineY - 33, 50, 35); // Ajuste fino final
+                const img = await loadImage('/firma_doctora.png');
+                doc.addImage(img, 'PNG', 80, dynamicLineY - 28, 50, 30); // Ajuste fino final
             } catch (e) {
                 console.error('Error firma:', e);
             }
-        } else {
-            doc.setDrawColor(blueColor);
-            doc.line(78, dynamicLineY, 138, dynamicLineY);
-
-            doc.setFontSize(10);
-            doc.setTextColor(textColor);
-            doc.setFont('helvetica', 'bold');
-            doc.text(`Dra. ${data.doctora.nombre} R.`, 108, dynamicLineY + 6, { align: 'center' });
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, dynamicLineY + 11, { align: 'center' });
-            doc.text(`INPSASEL: MIR116871964`, 108, dynamicLineY + 15, { align: 'center' });
         }
+
+        // Siempre dibujar Línea y Credenciales debajo (Estética Universal Fisiatría/Laboral)
+        doc.setDrawColor(blueColor);
+        doc.line(78, dynamicLineY, 138, dynamicLineY);
+
+        doc.setFontSize(10);
+        doc.setTextColor(textColor);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Dra. YADIRA PINO R.`, 108, dynamicLineY + 6, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, dynamicLineY + 11, { align: 'center' });
+        doc.text(`INPSASEL: MIR116871964`, 108, dynamicLineY + 15, { align: 'center' });
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
@@ -638,8 +639,8 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
             margin: { bottom: 5 }
         });
 
-        // v6.4: Blindaje Vigilancia
-        let drawY = Math.max((doc as any).lastAutoTable.finalY + 20, 235);
+        // v8.9: Ajustes Geométricos Híbridos (Firma + Texto Garantizado)
+        let drawY = Math.max((doc as any).lastAutoTable.finalY + 35, 235);
 
         if (drawY > 255) {
             doc.addPage();
@@ -648,24 +649,26 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
 
         if (data.conFirmaDigital) {
             try {
-                const img = await loadImage('/firma_doctora.png?v=4.2');
-                doc.addImage(img, 'PNG', 83, drawY - 33, 50, 35);
+                // Posicionar imagen 28mm sobre el texto (evitando solapamiento con tablas)
+                const img = await loadImage('/firma_doctora.png');
+                doc.addImage(img, 'PNG', 83, drawY - 28, 50, 30);
             } catch (e) {
                 console.error('Error firma:', e);
             }
-        } else {
-            doc.setDrawColor(blueColor);
-            doc.line(78, drawY, 138, drawY);
-
-            doc.setFontSize(10);
-            doc.setTextColor(textColor);
-            doc.setFont('helvetica', 'bold');
-            doc.text(`Dra. YADIRA PINO R.`, 108, drawY + 6, { align: 'center' });
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, drawY + 11, { align: 'center' });
-            doc.text(`INPSASEL: MIR116871964`, 108, drawY + 15, { align: 'center' });
         }
+
+        // Siempre dibujar Línea y Credenciales debajo (Estética Universal Fisiatría/Laboral)
+        doc.setDrawColor(blueColor);
+        doc.line(78, drawY, 138, drawY);
+
+        doc.setFontSize(10);
+        doc.setTextColor(textColor);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Dra. YADIRA PINO R.`, 108, drawY + 6, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 108, drawY + 11, { align: 'center' });
+        doc.text(`INPSASEL: MIR116871964`, 108, drawY + 15, { align: 'center' });
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
