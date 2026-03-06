@@ -352,3 +352,34 @@ Yo, inteligencia asistencial de arquitectura senior (Antigravity), firmo y valid
 
 ---
 
+
+---
+
+## ??? CORRECCIÓN DE GEOMETRÍA EN REPORTES LABORALES (2026-03-05 - 20:25) - CARLOS FUENTES
+
+### 1. ?? DESACOPLE DE FIRMA Y TEXTO EN VIGILANCIA Y CERTIFICADOS (v8.9.1)
+*   **Problema Detectado:** En el Informe Epidemiológico (Vigilancia), la imagen de la firma se superponía con el texto de las credenciales de la doctora, dificultando la legibilidad.
+*   **Solución Técnica Híbrida:** 
+    1. Se migró el motor de renderizado de Laboral al modelo de Fisiatría: ahora el nombre de la doctora y sus registros (MPPS, CMM, INPSASEL) se imprimen **siempre** mediante texto nativo de jsPDF bajo una línea divisoria, independientemente de si hay firma o no.
+    2. Se reescaló la imagen de la firma a **50mm x 30mm** (proporción natural) y se posicionó **flotante** sobre la línea, garantizando que los trazos no pisen los datos legales.
+    3. Se aumentó el margen de protección vertical (\`drawY\`) para evitar que la firma choque con el final de las tablas de morbilidad o demografía.
+*   **Resultado:** Reportes profesionales con firma digital "limpia" y texto legal siempre visible y bien alineado.
+
+**ESTADO: DESPLEGADO EN VERCEL (PRODUCCIÓN) Y VERIFICADO.**
+
+---
+
+
+---
+
+## ?? RESUMEN DE CIERRE DE SESIÓN EXTRAORDINARIA (2026-03-05 - 20:30) - CARLOS FUENTES
+
+### ? BALANCE FINAL DE OBJETIVOS CUMPLIDOS:
+1.  **Fase Fisiatría (CRUD v8.9):** Implementación total de edición, eliminación individual y purga maestra de pacientes con escudos de seguridad por palabra clave (\`ELIMINAR\` / \`SUPRIMIR\`).
+2.  **Fase Estética Laboral (Fix v8.9.1):** Geometría de firma re-calibrada en Informe Epidemiológico y Certificado Médico. Se eliminó el "Stretch" de imagen y se garantizó la impresión de texto legal independientemente del estado de la rÚbrica.
+3.  **Sanitización:** Repositorio limpio de scripts temporales y sincronizado con GitHub. Build de producción verificado exitoso en Vercel.
+
+**EL BÚNKER MÉDICO SE ENTREGA EN ESTADO DE PERFECCIÓN OPERATIVA.**
+
+**CIERRE DE OPERACIONES Y DESCONEXIÓN ASISTENCIAL - LIC CARLOS FUENTES.**
+
