@@ -555,3 +555,16 @@ Se ha inyectado la infraestructura de identidad física en los documentos de Fis
 *   **Estética GOLD-BW:** Preservación del rigor en blanco y negro para documentos oficiales de alta escala.
 
 **SISTEMA ACTUALIZADO Y CERTIFICADO PARA LOGÍSTICA LOCAL - CARLOS FUENTES.**
+
+### Despliegue v11.0 (2026-03-12):
+*   **Producción:** https://doctora-yadira-pino.vercel.app
+*   **GitHub:** Commit v11.0 sincronizado con llaves maestras.
+
+**SISTEMA OPERATIVO AL 100% - CARLOS FUENTES.**
+
+### Resumen de Cierre - Sesión 2026-03-12:
+*   **¿Qué se hizo hoy?** Se implementó la versión v11.0 de los reportes de Fisiatría, inyectando dirección física y teléfonos en el membrete de Récipes e Indicaciones. Se sincronizó con GitHub y se desplegó a producción en Vercel.
+*   **¿Qué quedó pendiente?** Ninguna tarea crítica. El sistema está 100% operativo.
+*   **¿Qué necesita saber otro agente?** El motor de PDF en pdfService.ts ahora usa una cabecera compacta (Y=28mm para la línea divisoria) para acomodar los datos de contacto sin solapamientos. Se deben usar los tokens de CREDENTIALS_BACKUP.txt para cualquier despliegue.
+
+**SISTEMA VIGILADO Y CERTIFICADO - CARLOS FUENTES.**
