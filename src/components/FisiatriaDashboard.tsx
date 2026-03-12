@@ -99,6 +99,7 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
                     <div className="info">
                         <span className="label">Estado del Sistema</span>
                         <span className="value">ACTIVO</span>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#000', marginTop: '5px', opacity: 0.8 }}>SISTEMA v10.0-GOLD CERTIFICADO</div>
                     </div>
                 </div>
             </div>
@@ -107,21 +108,21 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
             {
                 view === 'home' && (
                     <div className="history-section animate-slide-up">
-                        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', background: '#fff1f2', padding: '20px', borderRadius: '15px', border: '1px solid #fecdd3' }}>
+                        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', background: '#f8fafc', padding: '20px', borderRadius: '15px', border: '1px solid #e2e8f0' }}>
                             <div>
-                                <h3 style={{ color: '#e91e63', fontWeight: 800 }}>BÚSQUEDA RÁPIDA DE HISTORIAS</h3>
+                                <h3 style={{ color: '#000000', fontWeight: 800 }}>BÚSQUEDA RÁPIDA DE HISTORIAS</h3>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Localice al paciente por Cédula o Nombre para iniciar consulta</p>
                             </div>
                             <div style={{ display: 'flex', gap: '15px' }}>
                                 <div className="search-box-large">
-                                    <Search size={20} color="#e91e63" />
+                                    <Search size={20} color="#000000" />
                                     <input
                                         placeholder="Cédula o Nombre del paciente..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                <button className="btn-brand-action" onClick={() => setIsPatientModalOpen(true)} style={{ background: '#e91e63', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(233, 30, 99, 0.2)' }}>
+                                <button className="btn-brand-action" onClick={() => setIsPatientModalOpen(true)} style={{ background: '#000000', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)' }}>
                                     <UserPlus size={20} /> NUEVA HISTORIA
                                 </button>
                             </div>
@@ -218,9 +219,9 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
 
             <style>{`
                 :root {
-                    --fisiatria-pink: #e91e63;
-                    --fisiatria-pink-light: #fff1f2;
-                    --fisiatria-pink-border: #fecdd3;
+                    --fisiatria-primary: #000000;
+                    --fisiatria-bg-soft: #f8fafc;
+                    --fisiatria-border: #e2e8f0;
                 }
                 .nav-pill {
                     padding: 10px 20px;
@@ -236,13 +237,13 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
                     transition: all 0.3s;
                 }
                 .nav-pill.active {
-                    background: var(--fisiatria-pink);
+                    background: var(--fisiatria-primary);
                     color: white;
-                    box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
                 }
                 .stat-card-fisiatria {
                     background: white;
-                    border: 1px solid var(--fisiatria-pink-border);
+                    border: 1px solid var(--fisiatria-border);
                     padding: 24px;
                     border-radius: 20px;
                     display: flex;
@@ -251,8 +252,8 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
                     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
                 }
                 .stat-card-fisiatria .icon {
-                    color: var(--fisiatria-pink);
-                    background: var(--fisiatria-pink-light);
+                    color: var(--fisiatria-primary);
+                    background: var(--fisiatria-bg-soft);
                     padding: 12px;
                     border-radius: 15px;
                     width: 50px;
@@ -271,7 +272,7 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
                     color: var(--text-primary);
                 }
                 .btn-brand-action {
-                    background: var(--fisiatria-pink);
+                    background: var(--fisiatria-primary);
                     color: white;
                     border: none;
                     padding: 12px 24px;
@@ -281,14 +282,14 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
                     gap: 10px;
                     cursor: pointer;
                     font-weight: 900;
-                    box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3);
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
                 }
                 .search-box-large {
                     display: flex;
                     align-items: center;
                     gap: 12px;
                     background: white;
-                    border: 2px solid var(--fisiatria-pink-border);
+                    border: 1px solid var(--fisiatria-border);
                     padding: 0 20px;
                     border-radius: 15px;
                     min-width: 350px;
@@ -303,41 +304,51 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
                 .patient-card {
                     background: white;
                     border: 1px solid var(--border-color);
-                    padding: 20px;
+                    padding: 15px 20px;
                     border-radius: 18px;
                     display: flex;
                     align-items: center;
+                    justify-content: space-between; /* Clave para evitar solapamiento */
                     gap: 15px;
                     cursor: pointer;
                     transition: all 0.2s;
-                    position: relative;
                 }
                 .patient-card:hover {
-                    border-color: var(--fisiatria-pink);
+                    border-color: var(--fisiatria-primary);
                     transform: translateY(-2px);
-                    box-shadow: 0 10px 15px -3px rgba(233, 30, 99, 0.1);
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
                 }
                 .patient-card .avatar {
-                    width: 50px;
-                    height: 50px;
-                    background: var(--fisiatria-pink);
+                    width: 45px;
+                    height: 45px;
+                    background: var(--fisiatria-primary);
                     color: white;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    border-radius: 15px;
+                    border-radius: 12px;
                     font-weight: 900;
-                    font-size: 1.5rem;
+                    font-size: 1.3rem;
+                    flex-shrink: 0;
+                }
+                .patient-card .details {
+                    flex-grow: 1;
+                    min-width: 0; /* Permite truncado si es necesario */
+                }
+                .patient-card h4 {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
                 .action-tag {
-                    position: absolute;
-                    right: 20px;
                     font-size: 0.65rem;
                     font-weight: 900;
-                    color: var(--fisiatria-pink);
-                    background: var(--fisiatria-pink-light);
-                    padding: 5px 10px;
+                    color: white;
+                    background: var(--fisiatria-primary);
+                    padding: 6px 12px;
                     border-radius: 8px;
+                    flex-shrink: 0;
+                    letter-spacing: 0.5px;
                 }
                 .vademecum-table {
                     width: 100%;
@@ -346,11 +357,11 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
                 .vademecum-table th {
                     text-align: left;
                     padding: 15px;
-                    background: #fdf2f8;
-                    border-bottom: 2px solid #fbcfe8;
+                    background: #f8fafc;
+                    border-bottom: 2px solid #e2e8f0;
                     font-size: 0.8rem;
                     text-transform: uppercase;
-                    color: #be185d;
+                    color: #475569;
                 }
                 .vademecum-table td {
                     padding: 15px;

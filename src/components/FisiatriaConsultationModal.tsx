@@ -24,6 +24,15 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
     const [useDigitalSignature, setUseDigitalSignature] = useState(false);
     const [vademecumList, setVademecumList] = useState<string[]>([]);
 
+    // Helper para obtener fecha local YYYY-MM-DD (Evita desfase UTC)
+    const getLocalDate = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     const [formData, setFormData] = useState({
         referido_por: '',
         motivo_consulta: '',
@@ -36,7 +45,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
         referencia_especialidad: '',
         referencia_motivo: '',
         radiodiagnostico_detalle: '',
-        fecha_consulta: new Date().toISOString().split('T')[0]
+        fecha_consulta: getLocalDate()
     });
 
     const [recipes, setRecipes] = useState<RecipeItem[]>([
@@ -58,7 +67,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                 referencia_especialidad: initialData.referencia_especialidad || '',
                 referencia_motivo: initialData.referencia_motivo || '',
                 radiodiagnostico_detalle: initialData.radiodiagnostico_detalle || '',
-                fecha_consulta: initialData.fecha_consulta ? new Date(initialData.fecha_consulta).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                fecha_consulta: initialData.fecha_consulta ? initialData.fecha_consulta : getLocalDate()
             });
 
             if (initialData.fisiatria_recipes && initialData.fisiatria_recipes.length > 0) {
@@ -100,15 +109,26 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
             let consultaData;
 
             if (initialData?.id) {
-                // MODO EDICIÓN
+                // MODO EDICIÓN v10.0-GOLD
+                console.log('AUDITORIA v10.0 - Intentando actualizar ID:', initialData.id);
+                console.log('AUDITORIA v10.0 - Fecha a guardar:', formData.fecha_consulta);
+
                 const { data: updatedConsulta, error: consultaError } = await supabase
                     .from('fisiatria_consultas')
-                    .update(formData)
+                    .update({
+                        ...formData,
+                        fecha_consulta: formData.fecha_consulta
+                    })
                     .eq('id', initialData.id)
                     .select()
                     .single();
 
-                if (consultaError) throw consultaError;
+                if (consultaError) {
+                    console.error('ERROR CRÍTICO v10.0:', consultaError);
+                    throw consultaError;
+                }
+
+                console.log('AUDITORIA v10.0 - ÉXITO. Fecha confirmada en DB:', updatedConsulta.fecha_consulta);
                 consultaData = updatedConsulta;
 
                 // Borrar récipes antiguos para recrearlos
@@ -154,10 +174,10 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                 }
             }
 
-            alert("¡CONSULTA Y RÉCIPE REGISTRADOS EXITOSAMENTE EN LA PLATAFORMA!");
+            alert("¡SISTEMA v10.0-GOLD: CAMBIOS CERTIFICADOS Y GUARDADOS EXITOSAMENTE!");
 
             // 4. Preguntar por Impresión de Informe
-            if (window.confirm("¿Desea generar e imprimir el INFORME MÉDICO ahora?")) {
+            if (window.confirm("¿Desea generar e imprimir el INFORME MÉDICO ACTUALIZADO ahora?")) {
                 // v6.8: Confirmación de Firma (Protocolo Carlos Fuentes)
                 let firmaFinal = useDigitalSignature;
                 if (!firmaFinal) {

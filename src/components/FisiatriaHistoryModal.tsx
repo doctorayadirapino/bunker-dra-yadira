@@ -36,6 +36,16 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
         setLoading(false);
     };
 
+    // v9.8: Formateo literal para evitar el "Salto de Fecha UTC" en la lista
+    const formatFechaEstatica = (fechaISO: string) => {
+        if (!fechaISO) return 'N/A';
+        const partes = fechaISO.split('T')[0].split('-');
+        if (partes.length === 3) {
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+        return fechaISO;
+    };
+
     const handlePrintConsultation = (c: any) => {
         const conFirma = window.confirm("¿Desea incluir su FIRMA DIGITAL en este reporte?");
         const payload = {
@@ -270,7 +280,7 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                                     <div key={c.id} style={{ background: 'white', border: '1px solid var(--border-color)', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                                         <div style={{ background: '#f5f3ff', padding: '12px 20px', borderBottom: '1px solid #ddd6fe', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                                <span style={{ fontWeight: 800, color: 'var(--fisiatria-purple)' }}>{new Date(c.fecha_consulta).toLocaleDateString()}</span>
+                                                <span style={{ fontWeight: 800, color: 'var(--fisiatria-purple)' }}>{formatFechaEstatica(c.fecha_consulta)}</span>
                                                 <span style={{ fontSize: '0.8rem', color: '#666' }}>REF: {c.referido_por || 'DIRECTO'}</span>
                                             </div>
                                             <div style={{ display: 'flex', gap: '12px' }}>
