@@ -61,7 +61,8 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                 examen_fisico: c.examen_fisico,
                 causa_reposo: c.causa_reposo,
                 dias_reposo: c.dias_reposo,
-                ciudad: ciudadPersonalizada.toUpperCase()
+                ciudad: ciudadPersonalizada.toUpperCase(),
+                fecha: c.fecha_consulta
             },
             doctora: {
                 nombre: "YADIRA PINO",

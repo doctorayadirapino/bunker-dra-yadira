@@ -568,3 +568,27 @@ Se ha inyectado la infraestructura de identidad física en los documentos de Fis
 *   **¿Qué necesita saber otro agente?** El motor de PDF en pdfService.ts ahora usa una cabecera compacta (Y=28mm para la línea divisoria) para acomodar los datos de contacto sin solapamientos. Se deben usar los tokens de CREDENTIALS_BACKUP.txt para cualquier despliegue.
 
 **SISTEMA VIGILADO Y CERTIFICADO - CARLOS FUENTES.**
+
+---
+
+## MEMORIA DE MANTENIMIENTO FUNCIONAL v11.1 (2026-03-14) - SESION CODEX
+
+Se ejecutaron correcciones de estabilidad funcional sin despliegue a produccion.
+
+### Ajustes realizados:
+*   **Sincronizacion de Pacientes en Edicion:** NewEvaluationForm.tsx ahora actualiza los datos del paciente existente en Supabase cuando se edita una evaluacion, evitando que nombre, sexo, telefono, fecha de nacimiento o empresa queden desfasados.
+*   **Antecedentes Laborales Sin Duplicados:** antes de guardar antecedentes en antecedentes_laborales, el formulario elimina los registros previos del paciente y vuelve a insertar solo los vigentes.
+*   **Blindaje de Dias de Reposo:** ReposoModulo.tsx normaliza el valor de dias para impedir NaN, alinea automaticamente la fecha hasta y usa el valor validado tanto para historial como para PDF.
+*   **Vigilancia Desacoplada del Catalogo de Empresas:** SurveillanceModule.tsx ya no depende de que la tabla empresas cargue correctamente para calcular los indicadores epidemiologicos; ahora recalcula directamente al cambiar la empresa seleccionada.
+
+### Verificacion local:
+*   **TypeScript:** validacion completada con npx.cmd tsc -b sin errores.
+*   **Build Vite:** no se certifico build final dentro del sandbox por fallo de entorno spawn EPERM al levantar esbuild; pendiente solo de validacion en entorno local/produccion si se desea.
+
+### Estado de cierre:
+*   **Despliegue:** no realizado en esta sesion por decision del usuario.
+*   **Archivos tocados:** src/components/NewEvaluationForm.tsx, src/components/ReposoModulo.tsx, src/components/SurveillanceModule.tsx.
+*   **Pendiente sugerido:** refactor estructural de src/services/pdfService.ts para reducir duplicacion y centralizar encabezados, pies y firmas.
+
+**SESION CERRADA CON MEMORIA ACTUALIZADA.**
+

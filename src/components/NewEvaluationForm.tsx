@@ -227,11 +227,21 @@ export default function NewEvaluationForm({ onClose, editConsultaId }: FormProps
                 pacId = newPac.id;
             } else {
                 pacId = pacData.id;
-                // Upsert simple de actualización si aplica
+                const { error: errPacUpd } = await supabase
+                    .from('pacientes')
+                    .update(payloadPaciente)
+                    .eq('id', pacId);
+                if (errPacUpd) throw errPacUpd;
             }
 
-            // 2.5 Insertar Antecedentes Laborales si existen
+            // 2.5 Sincronizar antecedentes laborales para evitar duplicados en edición/re-registro
             const antecedentesValidos = antecedentes.filter(a => a.empresa && a.cargo);
+            const { error: errDeleteAnt } = await supabase
+                .from('antecedentes_laborales')
+                .delete()
+                .eq('paciente_id', pacId);
+            if (errDeleteAnt) throw errDeleteAnt;
+
             if (antecedentesValidos.length > 0) {
                 const { error: errAnt } = await supabase.from('antecedentes_laborales').insert(
                     antecedentesValidos.map((a, index) => ({

@@ -18,6 +18,7 @@ interface CertificadoData {
         causa_reposo?: string;
         dias_reposo?: number;
         ciudad?: string;
+        fecha?: string;
     };
     doctora: {
         nombre: string;
@@ -102,7 +103,18 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
 
         doc.setTextColor(textColor);
         doc.setFontSize(11);
-        const fecha = new Date().toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
+        
+        // Uso de fecha inyectada, o fallback a fecha actual
+        let fecha = 'N/A';
+        if (data.consulta.fecha) {
+            const tempDate = new Date(data.consulta.fecha);
+            // Ajuste UTC para evitar corrimiento de un día hacia atrás
+            const localDate = new Date(tempDate.getTime() + Math.abs(tempDate.getTimezoneOffset() * 60000));
+            fecha = localDate.toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
+        } else {
+            fecha = new Date().toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
         const ciudadActual = data.consulta.ciudad || 'Guarenas';
         doc.text(`En la ciudad de ${ciudadActual}, a los ${fecha}.`, 15, 61);
 
