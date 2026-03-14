@@ -592,3 +592,17 @@ Se ejecutaron correcciones de estabilidad funcional sin despliegue a produccion.
 
 **SESION CERRADA CON MEMORIA ACTUALIZADA.**
 
+
+---
+
+## GESTIÓN HISTÓRICA LABORAL v12.0 (2026-03-14) - CARLOS FUENTES
+
+Se ha inyectado un motor de control temporal retrospectivo para el Módulo de Consulta Laboral, evadiendo la limitación de la fecha UTC forzada.
+
+### Certificación Técnica v12.0:
+*   **Controladores de Fecha (Frontend):** Inyección de estado \echa_consulta\ en \NewEvaluationForm.tsx\ permitiendo el _backdating_ de certificados.
+*   **Sincronización de Base de Datos:** Los registros guardan fielmente la fecha estipulada por el operador, y no la New Date() por defecto.
+*   **Motor de Renderizado PDF (v10.0-GOLD):** \pdfService.ts\ fue actualizado para ingerir la nueva fecha y mapearla al formato local (\es-VE\) evadiendo reducciones generadas por desajustes UTC.
+*   **Despliegue de Producción (Vercel):** https://doctora-yadira-pino.vercel.app
+
+**SISTEMA ACTUALIZADO Y CERTIFICADO PARA EL CONTROL HISTÓRICO - CARLOS FUENTES.**
