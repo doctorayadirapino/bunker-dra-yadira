@@ -165,7 +165,11 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                                     <td style={{ padding: '15px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)' }}>
                                             <Calendar size={14} color="var(--corporate-blue)" />
-                                            {new Date(c.fecha_consulta).toLocaleDateString()}
+                                            {(() => {
+                                                if (!c.fecha_consulta) return 'N/A';
+                                                const partes = c.fecha_consulta.split('T')[0].split('-');
+                                                return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : c.fecha_consulta;
+                                            })()}
                                         </div>
                                     </td>
                                     <td style={{ padding: '15px' }}>
