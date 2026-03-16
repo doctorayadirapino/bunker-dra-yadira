@@ -162,7 +162,7 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                         <tbody>
                             {filtered.map((c) => (
                                 <tr key={c.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s' }} className="table-row-hover">
-                                    <td style={{ padding: '15px' }}>
+                                    <td data-label="FECHA" style={{ padding: '15px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)' }}>
                                             <Calendar size={14} color="var(--corporate-blue)" />
                                             {(() => {
@@ -172,14 +172,14 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                                             })()}
                                         </div>
                                     </td>
-                                    <td style={{ padding: '15px' }}>
+                                    <td data-label="PACIENTE" style={{ padding: '15px' }}>
                                         <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{c.pacientes.nombre_completo}</div>
                                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>V-{c.pacientes.cedula}</div>
                                     </td>
-                                    <td style={{ padding: '15px' }}>
+                                    <td data-label="EMPRESA" style={{ padding: '15px' }}>
                                         <div style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{c.empresas?.nombre || 'Independiente'}</div>
                                     </td>
-                                    <td style={{ padding: '15px' }}>
+                                    <td data-label="TIPO / APTITUD" style={{ padding: '15px' }}>
                                         <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>{c.tipo_consulta}</div>
                                         <div style={{
                                             display: 'inline-block',
@@ -193,7 +193,7 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                                             {c.aptitud_medica}
                                         </div>
                                     </td>
-                                    <td style={{ padding: '15px', textAlign: 'center' }}>
+                                    <td data-label="ACCIONES" style={{ padding: '15px', textAlign: 'center' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                             <button
                                                 onClick={() => handlePrint(c)}

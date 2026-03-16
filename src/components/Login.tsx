@@ -141,9 +141,21 @@ export default function Login() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <Shield size={14} color="var(--medical-turquoise)" /> DESARROLLADOR: LIC. CARLOS FUENTES
                             </div>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>04129581040</span>
+                            <span style={{ 
+                                fontSize: '1.1rem', 
+                                fontWeight: 800, 
+                                color: '#ffffff', 
+                                background: 'rgba(11, 203, 203, 0.2)',
+                                border: '1px solid var(--medical-turquoise)',
+                                padding: '4px 15px',
+                                borderRadius: '12px',
+                                marginTop: '5px',
+                                boxShadow: '0 0 20px rgba(11, 203, 203, 0.15)',
+                                letterSpacing: '1.5px'
+                            }}>
+                                0412-9581040
+                            </span>
                         </div>
-                        <p>© {new Date().getFullYear()} Syntax Software Venezolana.</p>
                     </div>
                 </div>
             </div>

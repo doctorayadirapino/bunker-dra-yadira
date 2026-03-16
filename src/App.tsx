@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import {
   Activity, Users, FileText, CalendarDays, AlertTriangle,
-  PlusCircle, BriefcaseMedical, Stethoscope, Printer, LogOut, BookOpen
+  PlusCircle, BriefcaseMedical, Stethoscope, Printer, LogOut, BookOpen,
+  Menu, X
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip as RechartsTooltip,
@@ -18,6 +19,7 @@ import ConsultasModule from './components/ConsultasModule';
 import ReposoModulo from './components/ReposoModulo';
 import Login from './components/Login';
 import FisiatriaDashboard from './components/FisiatriaDashboard';
+import BIAnalytics from './components/BIAnalytics';
 import type { Session } from '@supabase/supabase-js';
 
 // Definición de Interfaces para TypeScript
@@ -48,6 +50,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState('dashboard');
   const [session, setSession] = useState<Session | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Estados de Datos Reales (Supabase Cloud)
   const [kpis, setKpis] = useState({ total_pacientes: 0, consultas_mes: 0, dias_reposo: 0, ausentismo: 0 });
@@ -95,7 +98,6 @@ export default function App() {
       'Nov': { month: 'Nov', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
       'Dic': { month: 'Dic', enf_comun: 0, acc_laboral: 0, enf_ocupacional: 0, acc_comun: 0 },
     };
-
     const ageGroups = ['18-25', '26-35', '36-45', '46-55', '55+'];
     const demoMap: Record<string, any> = {};
     const absentMap: Record<string, any> = {};
@@ -103,22 +105,28 @@ export default function App() {
       demoMap[g] = { group: g, Masc: 0, Fem: 0 };
       absentMap[g] = { group: g, Masc: 0, Fem: 0 };
     });
-
     const uniquePatients = new Set();
+
+    // 🔒 HELPER: Parseo de fecha sin zona horaria (Anti-UTC Offset Bug)
+    const parseFechaStr = (str: string) => {
+      const partes = (str || '').split('T')[0].split('-');
+      if (partes.length === 3) return { año: parseInt(partes[0]), mes: parseInt(partes[1]) - 1, dia: parseInt(partes[2]) };
+      return null;
+    };
 
     filtered.forEach(row => {
       diasReposoTotal += row.dias_reposo || 0;
-      const d = new Date(row.fecha_consulta);
-      if (d.getMonth() === mesActual && d.getFullYear() === añoActual) consultasMes++;
+      const parsed = parseFechaStr(row.fecha_consulta);
+      if (parsed && parsed.mes === mesActual && parsed.año === añoActual) consultasMes++;
 
       // Paciente Único (Simulando conteo por filtrado)
       uniquePatients.add(row.pacientes?.nombre_completo);
 
-      // Demografía
+      // Demografía (parseo sin desfase de zona horaria)
       let age = 0;
       if (row.pacientes?.fecha_nacimiento) {
-        const birth = new Date(row.pacientes.fecha_nacimiento);
-        age = new Date().getFullYear() - birth.getFullYear();
+        const nacParts = row.pacientes.fecha_nacimiento.split('T')[0].split('-');
+        if (nacParts.length === 3) age = añoActual - parseInt(nacParts[0]);
       }
       let group = '55+';
       if (age < 26) group = '18-25';
@@ -140,8 +148,10 @@ export default function App() {
       patMap[row.tipo_patologia] = (patMap[row.tipo_patologia] || 0) + 1;
 
       const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-      const mName = monthNames[d.getMonth()];
-      if (monthTrends[mName]) {
+      // Usamos el parsed del inicio del loop si lo tenemos
+      const parsedFecha = parseFechaStr(row.fecha_consulta);
+      const mName = parsedFecha ? monthNames[parsedFecha.mes] : null;
+      if (mName && monthTrends[mName]) {
         if (row.categoria_reposo === 'ENFERMEDAD COMUN') monthTrends[mName].enf_comun++;
         if (row.categoria_reposo === 'ACCIDENTE LABORAL') monthTrends[mName].acc_laboral++;
         if (row.categoria_reposo === 'ENFERMEDAD OCUPACIONAL') monthTrends[mName].enf_ocupacional++;
@@ -327,8 +337,16 @@ export default function App() {
         <Login />
       ) : (
         <div className="app-container">
+          {/* BOTÓN HAMBURGUESA MÓVIL (v12.2) */}
+          <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+
+          {/* OVERLAY PARA CERRAR SIDEBAR */}
+          <div className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)} />
+
           {/* SIDEBAR */}
-          <aside className="sidebar">
+          <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-header">
               <h1 className="brand-title">
                 <Activity className="brand-icon" size={28} />
@@ -340,51 +358,58 @@ export default function App() {
 
               {userRole === 'laboral' && (
                 <>
-                  <button className="new-eval-btn-sidebar" onClick={() => setShowForm(true)} style={{ marginBottom: '20px' }}>
+                  <button className="new-eval-btn-sidebar" onClick={() => { setShowForm(true); setIsSidebarOpen(false); }} style={{ marginBottom: '20px' }}>
                     <PlusCircle size={20} />
                     Nueva Evaluación
                   </button>
                   <button
                     className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
-                    onClick={() => setActiveView('dashboard')}
+                    onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}
                   >
                     <Activity size={20} />
                     Dashboard
                   </button>
                   <button
                     className={`nav-item ${activeView === 'patients' ? 'active' : ''}`}
-                    onClick={() => setActiveView('patients')}
+                    onClick={() => { setActiveView('patients'); setIsSidebarOpen(false); }}
                   >
                     <Users size={20} />
                     Pacientes
                   </button>
                   <button
                     className={`nav-item ${activeView === 'companies' ? 'active' : ''}`}
-                    onClick={() => setActiveView('companies')}
+                    onClick={() => { setActiveView('companies'); setIsSidebarOpen(false); }}
                   >
                     <BriefcaseMedical size={20} />
                     Empresas
                   </button>
                   <button
                     className={`nav-item ${activeView === 'surveillance' ? 'active' : ''}`}
-                    onClick={() => setActiveView('surveillance')}
+                    onClick={() => { setActiveView('surveillance'); setIsSidebarOpen(false); }}
                   >
                     <FileText size={20} />
                     Vigilancia
                   </button>
                   <button
                     className={`nav-item ${activeView === 'consultas' ? 'active' : ''}`}
-                    onClick={() => setActiveView('consultas')}
+                    onClick={() => { setActiveView('consultas'); setIsSidebarOpen(false); }}
                   >
                     <Printer size={20} />
                     Consultas
                   </button>
-                  <button
+                   <button
                     className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`}
-                    onClick={() => setActiveView('reposo')}
+                    onClick={() => { setActiveView('reposo'); setIsSidebarOpen(false); }}
                   >
                     <CalendarDays size={20} />
                     Reposo Médico
+                  </button>
+                  <button
+                    className={`nav-item ${activeView === 'bi_analytics' ? 'active' : ''}`}
+                    onClick={() => { setActiveView('bi_analytics'); setIsSidebarOpen(false); }}
+                  >
+                    <Activity size={20} />
+                    BI & Analytics
                   </button>
                 </>
               )}
@@ -393,24 +418,31 @@ export default function App() {
                 <>
                   <button
                     className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
-                    onClick={() => setActiveView('dashboard')}
+                    onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}
                   >
                     <Activity size={20} />
                     Consulta Fisiátrica
                   </button>
                   <button
                     className={`nav-item ${activeView === 'vademecum' ? 'active' : ''}`}
-                    onClick={() => setActiveView('vademecum')}
+                    onClick={() => { setActiveView('vademecum'); setIsSidebarOpen(false); }}
                   >
                     <BookOpen size={20} />
                     Vademécum
                   </button>
                   <button
                     className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`}
-                    onClick={() => setActiveView('reposo')}
+                    onClick={() => { setActiveView('reposo'); setIsSidebarOpen(false); }}
                   >
                     <CalendarDays size={20} />
                     Reposo Médico
+                  </button>
+                  <button
+                    className={`nav-item ${activeView === 'bi_analytics' ? 'active' : ''}`}
+                    onClick={() => { setActiveView('bi_analytics'); setIsSidebarOpen(false); }}
+                  >
+                    <Activity size={20} />
+                    BI & Analytics
                   </button>
                 </>
               )}
@@ -667,24 +699,30 @@ export default function App() {
                                 </tr>
                               </thead>
                               <tbody>
-                                {latestConsultations.map(cons => (
-                                  <tr key={cons.id}>
-                                    <td>{new Date(cons.fecha_consulta).toLocaleDateString()}</td>
-                                    <td>{cons.pacientes?.nombre_completo || 'Anónimo'}</td>
-                                    <td>{cons.empresas?.nombre || 'Independiente'} ({cons.empresas?.rif})</td>
-                                    <td>{cons.tipo_consulta}</td>
-                                    <td>{cons.tipo_patologia}</td>
-                                    <td>
-                                      {cons.categoria_reposo === 'NINGUNO' ? (
-                                        <span className="badge badge-info">SIN REPOSO</span>
-                                      ) : cons.categoria_reposo.includes('ACCIDENTE') ? (
-                                        <span className="badge badge-danger">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
-                                      ) : (
-                                        <span className="badge badge-warning">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                ))}
+                                  {latestConsultations.map(cons => (
+                                    <tr key={cons.id}>
+                                      <td data-label="Fecha">
+                                        {(() => {
+                                          if (!cons.fecha_consulta) return 'N/A';
+                                          const partes = cons.fecha_consulta.split('T')[0].split('-');
+                                          return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : cons.fecha_consulta;
+                                        })()}
+                                      </td>
+                                      <td data-label="Paciente">{cons.pacientes?.nombre_completo || 'Anónimo'}</td>
+                                      <td data-label="Empresa (RIF)">{cons.empresas?.nombre || 'Independiente'} ({cons.empresas?.rif})</td>
+                                      <td data-label="Tipo Consulta">{cons.tipo_consulta}</td>
+                                      <td data-label="Patología">{cons.tipo_patologia}</td>
+                                      <td data-label="Reposo">
+                                        {cons.categoria_reposo === 'NINGUNO' ? (
+                                          <span className="badge badge-info">SIN REPOSO</span>
+                                        ) : cons.categoria_reposo.includes('ACCIDENTE') ? (
+                                          <span className="badge badge-danger">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
+                                        ) : (
+                                          <span className="badge badge-warning">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
                               </tbody>
                             </table>
                           )}
@@ -702,6 +740,7 @@ export default function App() {
                     )}
                     {activeView === 'consultas' && <ConsultasModule key="consultas-view" selectedCompany={selectedCompany} />}
                     {activeView === 'reposo' && <ReposoModulo key="reposo-view" selectedCompany={selectedCompany} userRole={userRole} />}
+                    {activeView === 'bi_analytics' && <BIAnalytics key="bi-view" selectedCompany={selectedCompany} />}
                   </>
                 )}
               </div>

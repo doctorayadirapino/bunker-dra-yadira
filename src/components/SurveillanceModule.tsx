@@ -13,28 +13,14 @@ export default function SurveillanceModule({
     selectedCompanyProp: string;
 }) {
     const [loading, setLoading] = useState(true);
-    const [empresas, setEmpresas] = useState<any[]>([]);
     const selectedEmpresa = selectedCompanyProp; // Vinculamos localmente para no romper lógica existente
     const [analytics, setAnalytics] = useState<any>(null);
     const [downloading, setDownloading] = useState(false);
     const [rawConsultas, setRawConsultas] = useState<any[]>([]);
 
     useEffect(() => {
-        fetchInitialData();
-    }, []);
-
-    useEffect(() => {
-        if (empresas.length > 0) {
-            calculateSurveillance();
-        }
-    }, [selectedEmpresa, empresas]);
-
-    const fetchInitialData = async () => {
-        setLoading(true);
-        const { data: empData } = await supabase.from('empresas').select('*');
-        if (empData) setEmpresas(empData);
-        setLoading(false);
-    };
+        calculateSurveillance();
+    }, [selectedEmpresa]);
 
     const calculateSurveillance = async () => {
         setLoading(true);

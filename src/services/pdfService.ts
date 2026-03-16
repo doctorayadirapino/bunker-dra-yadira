@@ -107,12 +107,18 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         // Uso de fecha inyectada, o fallback a fecha actual
         let fecha = 'N/A';
         if (data.consulta.fecha) {
-            const tempDate = new Date(data.consulta.fecha);
-            // Ajuste UTC para evitar corrimiento de un día hacia atrás
-            const localDate = new Date(tempDate.getTime() + Math.abs(tempDate.getTimezoneOffset() * 60000));
-            fecha = localDate.toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
+            // 🔒 Parseo sin zona horaria (Anti-UTC Offset Bug)
+            const partes = String(data.consulta.fecha).split('T')[0].split('-');
+            if (partes.length === 3) {
+                const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+                fecha = `${parseInt(partes[2])} de ${meses[parseInt(partes[1]) - 1]} de ${partes[0]}`;
+            } else {
+                fecha = data.consulta.fecha;
+            }
         } else {
-            fecha = new Date().toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
+            const hoy = new Date();
+            const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+            fecha = `${hoy.getDate()} de ${meses[hoy.getMonth()]} de ${hoy.getFullYear()}`;
         }
 
         const ciudadActual = data.consulta.ciudad || 'Guarenas';
@@ -660,7 +666,10 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
         doc.text(`LISTADO DE EVALUACIONES MÉDICAS - ${companyName}`, 140, 32, { align: 'center' });
 
         const body = consultas.map(c => [
-            new Date(c.fecha_consulta).toLocaleDateString(),
+            (() => {
+                const partes = (c.fecha_consulta || '').split('T')[0].split('-');
+                return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : c.fecha_consulta;
+            })(),
             c.pacientes?.nombre_completo || 'N/A',
             c.pacientes?.cedula || 'N/A',
             c.tipo_consulta,
@@ -806,12 +815,14 @@ export const generarReposoPDF = async (data: ReposoData) => {
         doc.text('Desde:', 135, currentY);
         doc.line(150, currentY + 1, 168, currentY + 1);
         doc.setFont('helvetica', 'bold');
-        doc.text(new Date(data.reposo.desde + 'T12:00:00').toLocaleDateString(), 151, currentY);
+        const desdePartes = (data.reposo.desde || '').split('-');
+        doc.text(desdePartes.length === 3 ? `${desdePartes[2]}/${desdePartes[1]}/${desdePartes[0]}` : data.reposo.desde, 151, currentY);
         doc.setFont('helvetica', 'normal');
         doc.text('Hasta:', 170, currentY);
         doc.line(184, currentY + 1, 202, currentY + 1);
         doc.setFont('helvetica', 'bold');
-        doc.text(new Date(data.reposo.hasta + 'T12:00:00').toLocaleDateString(), 185, currentY);
+        const hastaPartes = (data.reposo.hasta || '').split('-');
+        doc.text(hastaPartes.length === 3 ? `${hastaPartes[2]}/${hastaPartes[1]}/${hastaPartes[0]}` : data.reposo.hasta, 185, currentY);
     } else {
         doc.setFont('helvetica', 'bold');
         doc.text('X', 86, currentY - 0.5);

@@ -24,6 +24,10 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
     });
     const [useDigitalSignature, setUseDigitalSignature] = useState(false);
 
+    const normalizedDias = paciente.tipoDocumento === 'REPOSO' && paciente.ameritaReposo
+        ? Math.max(1, Number.isFinite(paciente.dias) ? paciente.dias : 1)
+        : 0;
+
     // Actualizar empresa si cambia el filtro global
     useEffect(() => {
         if (selectedCompany !== 'GENERAL') {
@@ -33,17 +37,19 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
 
     // --- AUTOMATIZACIÓN DE FECHAS DE REPOSO ---
     useEffect(() => {
-        if (paciente.desde && paciente.dias > 0) {
+        if (paciente.desde && normalizedDias > 0) {
             const startDate = new Date(paciente.desde + 'T12:00:00');
             const endDate = new Date(startDate);
-            endDate.setDate(startDate.getDate() + (paciente.dias - 1));
+            endDate.setDate(startDate.getDate() + (normalizedDias - 1));
 
             const hastaStr = endDate.toISOString().split('T')[0];
             if (paciente.hasta !== hastaStr) {
                 setPaciente(prev => ({ ...prev, hasta: hastaStr }));
             }
+        } else if (paciente.hasta !== paciente.desde) {
+            setPaciente(prev => ({ ...prev, hasta: prev.desde }));
         }
-    }, [paciente.desde, paciente.dias]);
+    }, [paciente.desde, paciente.hasta, normalizedDias]);
 
     const handleCedulaSearch = async (cedula: string) => {
         setPaciente(prev => ({ ...prev, cedula }));
@@ -81,6 +87,8 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
             if (!confirmManual) return;
         }
 
+        const diasReposo = normalizedDias;
+
         setLoading(true);
 
         // v8.7: GUARDADO EN BASE DE DATOS (AUDITORÍA OFICIAL)
@@ -91,7 +99,7 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                 diagnostico: paciente.diagnostico,
                 fecha_desde: paciente.desde,
                 fecha_hasta: paciente.hasta,
-                dias_reposo: paciente.dias,
+                dias_reposo: diasReposo,
                 tipo_documento: paciente.tipoDocumento,
                 empresa: paciente.empresa,
                 con_firma_digital: useDigitalSignature,
@@ -117,7 +125,7 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
             },
             reposo: {
                 diagnostico: paciente.diagnostico,
-                dias: paciente.dias,
+                dias: diasReposo,
                 desde: paciente.desde,
                 hasta: paciente.hasta,
                 indicaciones: paciente.indicaciones,
@@ -275,8 +283,11 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                                     <input
                                         type="number"
                                         min="1"
-                                        value={paciente.dias}
-                                        onChange={e => setPaciente({ ...paciente, dias: parseInt(e.target.value) })}
+                                        value={Number.isFinite(paciente.dias) ? paciente.dias : ''}
+                                        onChange={e => {
+                                            const nextValue = Number.parseInt(e.target.value, 10);
+                                            setPaciente({ ...paciente, dias: Number.isFinite(nextValue) ? nextValue : 1 });
+                                        }}
                                         style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
                                     />
                                 </div>
@@ -366,7 +377,8 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                                 ? '✅ Firma Digital activada para emisión inmediata.'
                                 : '⚠️ Firma Manuscrita requerida para validez oficial.'}
                         </p>
-                    </form>
+                    
+                   </form>
                 </div>
             )}
 
@@ -385,45 +397,49 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                     ) : (
                         <div style={{ overflowX: 'auto' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
-                                <thead>
-                                    <tr style={{ background: userRole === 'fisiatria' ? '#fdf2f8' : '#f0f9ff', borderBottom: '2px solid var(--border-color)' }}>
-                                        <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Fecha de Emisión</th>
-                                        <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Paciente</th>
-                                        <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Días / Desde-Hasta</th>
-                                        <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Diagnóstico</th>
-                                        <th style={{ padding: '15px', textAlign: 'center', color: 'var(--text-primary)', fontWeight: 800 }}>Tipo</th>
-                                        <th style={{ padding: '15px', textAlign: 'center', color: 'var(--text-primary)', fontWeight: 800 }}>Firma Ext.</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {historial.map((reg) => (
-                                        <tr key={reg.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                            <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>{new Date(reg.created_at).toLocaleString('es-VE')}</td>
-                                            <td style={{ padding: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>{reg.nombre_paciente} <br /><span style={{ fontSize: '0.8rem', color: '#64748b' }}>V-{reg.cedula_paciente}</span></td>
-                                            <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>
-                                                {reg.tipo_documento === 'REPOSO' ? (
-                                                    <><strong style={{ color: userRole === 'fisiatria' ? '#e91e63' : 'var(--corporate-blue)' }}>{reg.dias_reposo} días</strong><br /><span style={{ fontSize: '0.85rem' }}>{new Date(reg.fecha_desde + 'T12:00:00').toLocaleDateString()} ▸ {new Date(reg.fecha_hasta + 'T12:00:00').toLocaleDateString()}</span></>
-                                                ) : (
-                                                    <span style={{ color: 'var(--medical-turquoise)', fontWeight: 700 }}>CONSTANCIA</span>
-                                                )}
-                                            </td>
-                                            <td style={{ padding: '15px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{reg.diagnostico}</td>
-                                            <td style={{ padding: '15px', textAlign: 'center' }}>
-                                                <span style={{ padding: '5px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800, background: reg.tipo_documento === 'REPOSO' ? '#eff6ff' : '#ecfdf5', color: reg.tipo_documento === 'REPOSO' ? '#1d4ed8' : '#047857' }}>
-                                                    {reg.tipo_documento}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '15px', textAlign: 'center' }}>
-                                                {reg.con_firma_digital ? '✅ DIG' : '🖋️ MANUS'}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
-    );
+                                 <thead>
+                                     <tr style={{ background: userRole === 'fisiatria' ? '#fdf2f8' : '#f0f9ff', borderBottom: '2px solid var(--border-color)' }}>
+                                         <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Fecha de Emisión</th>
+                                         <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Paciente</th>
+                                         <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Días / Desde-Hasta</th>
+                                         <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Diagnóstico</th>
+                                         <th style={{ padding: '15px', textAlign: 'center', color: 'var(--text-primary)', fontWeight: 800 }}>Tipo</th>
+                                         <th style={{ padding: '15px', textAlign: 'center', color: 'var(--text-primary)', fontWeight: 800 }}>Firma Ext.</th>
+                                     </tr>
+                                 </thead>
+                                 <tbody>
+                                     {historial.map((reg) => (
+                                         <tr key={reg.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                             <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>{new Date(reg.created_at).toLocaleString('es-VE')}</td>
+                                             <td style={{ padding: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>{reg.nombre_paciente} <br /><span style={{ fontSize: '0.8rem', color: '#64748b' }}>V-{reg.cedula_paciente}</span></td>
+                                             <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>
+                                                 {reg.tipo_documento === 'REPOSO' ? (
+                                                     <>
+                                                         <strong style={{ color: userRole === 'fisiatria' ? '#e91e63' : 'var(--corporate-blue)' }}>{reg.dias_reposo} días</strong>
+                                                         <br />
+                                                         <span style={{ fontSize: '0.85rem' }}>
+                                                             {(() => { const p = (reg.fecha_desde||'').split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:reg.fecha_desde; })()} ▸ {(() => { const p = (reg.fecha_hasta||'').split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:reg.fecha_hasta; })()}
+                                                         </span>
+                                                     </>
+                                                 ) : (
+                                                     <span style={{ color: 'var(--medical-turquoise)', fontWeight: 700 }}>CONSTANCIA</span>
+                                                 )}
+                                             </td>
+                                             <td style={{ padding: '15px', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{reg.diagnostico}</td>
+                                             <td style={{ padding: '15px', textAlign: 'center' }}>
+                                                 <span style={{ padding: '5px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800, background: reg.tipo_documento === 'REPOSO' ? '#eff6ff' : '#ecfdf5', color: reg.tipo_documento === 'REPOSO' ? '#1d4ed8' : '#047857' }}>
+                                                     {reg.tipo_documento}
+                                                 </span>
+                                             </td>
+                                             <td style={{ padding: '15px', textAlign: 'center' }}>{reg.con_firma_digital ? '✅ DIG' : '🖋️ MANUS'}</td>
+                                         </tr>
+                                     ))}
+                                 </tbody>
+                             </table>
+                         </div>
+                     )}
+                 </div>
+             )}
+         </div>
+     );
 }
