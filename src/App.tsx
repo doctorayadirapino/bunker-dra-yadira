@@ -1,4 +1,4 @@
-// SISTEMA DRA. YADIRA PINO - VERSIÓN MULTIMODAL (PRODUCCIÓN)
+// SISTEMA DRA. YADIRA PINO - VERSIÓN MULTIMODAL (PRODUCCIÓN - CLEAN ARCHITECTURE FINAL v12.2)
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import {
