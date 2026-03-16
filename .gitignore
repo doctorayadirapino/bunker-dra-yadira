@@ -35,3 +35,4 @@ excel_output.txt
 parse_excel.js
 parse_excel.cjs
 mcp_config.json
+.env*.local
