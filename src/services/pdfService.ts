@@ -190,7 +190,7 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
-        doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
+        doc.text('DESARROLLADOR : LIC CARLOS FUENTES 04129581040', 15, 275);
 
         doc.save(`Certificado_${data.paciente.cedula}_v9.4.pdf`);
     } catch (err) {
@@ -354,7 +354,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
 
         doc.setTextColor('#94a3b8');
         doc.setFontSize(6);
-        doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 10, 350);
+        doc.text('DESARROLLADOR : LIC CARLOS FUENTES 04129581040', 10, 350);
 
         doc.save(`Consulta_${data.paciente.cedula}_v10.0.pdf`);
     } catch (error) {
@@ -634,7 +634,7 @@ export const generarReporteVigilanciaPDF = async (data: SurveillanceData) => {
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
-        doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
+        doc.text('DESARROLLADOR : LIC CARLOS FUENTES 04129581040', 15, 275);
 
         doc.save(`Vigilancia_${data.companyName}.pdf`);
     } catch (error) {
@@ -688,7 +688,7 @@ export const generarListadoEmpresaPDF = async (companyName: string, consultas: a
 
         doc.setTextColor('#64748b');
         doc.setFontSize(7);
-        doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 205);
+        doc.text('DESARROLLADOR : LIC CARLOS FUENTES 04129581040', 15, 205);
 
         doc.save(`Listado_${companyName}.pdf`);
     } catch (err) {
@@ -874,7 +874,7 @@ export const generarReposoPDF = async (data: ReposoData) => {
 
     doc.setTextColor('#64748b');
     doc.setFontSize(7);
-    doc.text('DESARROLLADOR LIC CARLOS FUENTES 04129581040', 15, 275);
+    doc.text('DESARROLLADOR : LIC CARLOS FUENTES 04129581040', 15, 275);
 
     doc.save(`Reposo_${data.paciente.cedula}.pdf`);
 };

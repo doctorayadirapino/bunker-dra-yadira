@@ -174,6 +174,16 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
         if (activeTab === 'historial') {
             fetchHistorial();
         }
+
+        const channel = supabase.channel('reposos-sync')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'historial_reposos' }, () => {
+                if (activeTab === 'historial') fetchHistorial();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, [activeTab, selectedCompany]);
 
     return (
@@ -377,7 +387,7 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                                 ? '✅ Firma Digital activada para emisión inmediata.'
                                 : '⚠️ Firma Manuscrita requerida para validez oficial.'}
                         </p>
-                    
+
                    </form>
                 </div>
             )}
@@ -392,7 +402,7 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                         <div style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: '15px', border: '1px dashed var(--border-color)' }}>
                             <History size={48} color="#cbd5e1" style={{ margin: '0 auto 15px' }} />
                             <h4 style={{ color: 'var(--text-secondary)', margin: 0 }}>No hay reposos o constancias registrados.</h4>
-                            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '10px' }}>Si cree que esto es un error, contacte al desarrollador Carlos Fuentes para verificar la tabla 'historial_reposos'.</p>
+                            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '10px' }}>Si cree que esto es un error, contacte al DESARROLLADOR : LIC CARLOS FUENTES 04129581040 para verificar la tabla 'historial_reposos'.</p>
                         </div>
                     ) : (
                         <div style={{ overflowX: 'auto' }}>

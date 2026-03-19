@@ -20,6 +20,7 @@ import ReposoModulo from './components/ReposoModulo';
 import Login from './components/Login';
 import FisiatriaDashboard from './components/FisiatriaDashboard';
 import BIAnalytics from './components/BIAnalytics';
+
 import type { Session } from '@supabase/supabase-js';
 
 // Definición de Interfaces para TypeScript
@@ -51,6 +52,7 @@ export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
   const [session, setSession] = useState<Session | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [prefilledCedula, setPrefilledCedula] = useState<string | undefined>(undefined);
 
   // Estados de Datos Reales (Supabase Cloud)
   const [kpis, setKpis] = useState({ total_pacientes: 0, consultas_mes: 0, dias_reposo: 0, ausentismo: 0 });
@@ -294,8 +296,14 @@ export default function App() {
 
   const handleFormClose = () => {
     setShowForm(false);
+    setPrefilledCedula(undefined);
     // El realtime trigger recargará la data automáticamente, pero forzamos por si acaso
     fetchDashboardData();
+  };
+
+  const handleNewConsultation = (cedula: string) => {
+    setPrefilledCedula(cedula);
+    setShowForm(true);
   };
 
   const handleLogout = async () => {
@@ -437,13 +445,7 @@ export default function App() {
                     <CalendarDays size={20} />
                     Reposo Médico
                   </button>
-                  <button
-                    className={`nav-item ${activeView === 'bi_analytics' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('bi_analytics'); setIsSidebarOpen(false); }}
-                  >
-                    <Activity size={20} />
-                    BI & Analytics
-                  </button>
+
                 </>
               )}
 
@@ -478,7 +480,7 @@ export default function App() {
                     {userRole === 'fisiatria' ? 'Gestión de Historias Clínicas' : 'Centro de Mando Epidemiológico'}
                   </h2>
                   <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
-                    Conectado a Cloud (Oficial)
+                    DESARROLLADOR : LIC CARLOS FUENTES 04129581040
                   </p>
                 </div>
 
@@ -730,7 +732,7 @@ export default function App() {
                       </div>
                     )}
 
-                    {activeView === 'patients' && <PatientsList key="patients-view" selectedCompany={selectedCompany} />}
+                    {activeView === 'patients' && <PatientsList key="patients-view" selectedCompany={selectedCompany} onNewConsultation={handleNewConsultation} />}
                     {activeView === 'companies' && <CompaniesModule key="companies-view" onAudit={(companyName) => { setSelectedCompany(companyName); setActiveView('surveillance'); }} />}
                     {activeView === 'surveillance' && (
                       <SurveillanceModule
@@ -748,7 +750,7 @@ export default function App() {
           </main>
 
           {/* MODAL DE NUEVA EVALUACIÓN (SUPABASE) */}
-          {showForm && <NewEvaluationForm onClose={handleFormClose} />}
+          {showForm && <NewEvaluationForm onClose={handleFormClose} prefilledCedula={prefilledCedula} />}
         </div>
       )}
     </>

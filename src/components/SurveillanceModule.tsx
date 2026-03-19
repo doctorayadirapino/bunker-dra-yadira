@@ -20,6 +20,18 @@ export default function SurveillanceModule({
 
     useEffect(() => {
         calculateSurveillance();
+
+        // v12.3: SINCRONIZACIÓN SIMBIÓTICA EN TIEMPO REAL (CARLOS FUENTES)
+        const channel = supabase.channel('surveillance-sync')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
+                console.log('🔄 Sincronizando Vigilancia por cambio en BD...');
+                calculateSurveillance();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, [selectedEmpresa]);
 
     const calculateSurveillance = async () => {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Search, User, Briefcase, ChevronRight, Trash2 } from 'lucide-react';
+import { Search, User, Briefcase, ChevronRight, Trash2, PlusCircle, FilePlus } from 'lucide-react';
 
-export default function PatientsList({ selectedCompany = 'GENERAL' }: { selectedCompany?: string }) {
+export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsultation }: { selectedCompany?: string, onNewConsultation?: (cedula: string) => void }) {
     const [patients, setPatients] = useState<any[]>([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
@@ -147,23 +147,48 @@ export default function PatientsList({ selectedCompany = 'GENERAL' }: { selected
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <span style={{
-                                            padding: '4px 10px',
-                                            borderRadius: '8px',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 700,
-                                            background: lastConsultation?.aptitud_medica === 'APTO' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                                            color: lastConsultation?.aptitud_medica === 'APTO' ? 'var(--success)' : 'var(--warning)',
-                                            border: `1px solid ${lastConsultation?.aptitud_medica === 'APTO' ? 'var(--success)' : 'var(--warning)'}`
-                                        }}>
-                                            {lastConsultation?.aptitud_medica || 'SIN EVALUACIÓN'}
-                                        </span>
-                                        <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>Último Dictamen</p>
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <span style={{
+                                                padding: '4px 10px',
+                                                borderRadius: '8px',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 700,
+                                                background: lastConsultation?.aptitud_medica === 'APTO' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                                                color: lastConsultation?.aptitud_medica === 'APTO' ? 'var(--success)' : 'var(--warning)',
+                                                border: `1px solid ${lastConsultation?.aptitud_medica === 'APTO' ? 'var(--success)' : 'var(--warning)'}`
+                                            }}>
+                                                {lastConsultation?.aptitud_medica || 'SIN EVALUACIÓN'}
+                                            </span>
+                                            <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>Último Dictamen</p>
+                                        </div>
+                                        {onNewConsultation && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onNewConsultation(p.cedula);
+                                                }}
+                                                className="btn-new-consultation-mini"
+                                                title="Nueva Consulta"
+                                                style={{
+                                                    background: 'rgba(11, 218, 218, 0.1)',
+                                                    color: 'var(--medical-turquoise)',
+                                                    border: '1px solid var(--medical-turquoise)',
+                                                    borderRadius: '10px',
+                                                    padding: '8px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(11, 218, 218, 0.2)'}
+                                                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(11, 218, 218, 0.1)'}
+                                            >
+                                                <FilePlus size={18} />
+                                            </button>
+                                        )}
+                                        <ChevronRight size={20} color="var(--text-muted)" />
                                     </div>
-                                    <ChevronRight size={20} color="var(--text-muted)" />
-                                </div>
                             </div>
                         );
                     })}
@@ -227,10 +252,21 @@ export default function PatientsList({ selectedCompany = 'GENERAL' }: { selected
 
                         <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
                             <button
-                                onClick={() => setSelectedPatient(null)}
-                                style={{ flex: 1, padding: '15px', borderRadius: '12px', background: 'var(--corporate-blue)', color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer' }}
+                                onClick={() => {
+                                    if (onNewConsultation) {
+                                        onNewConsultation(selectedPatient.cedula);
+                                        setSelectedPatient(null);
+                                    }
+                                }}
+                                style={{ flex: 1, padding: '15px', borderRadius: '12px', background: 'var(--corporate-blue)', color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
                             >
-                                Cerrar Expediente
+                                <PlusCircle size={20} /> Nueva Consulta
+                            </button>
+                            <button
+                                onClick={() => setSelectedPatient(null)}
+                                style={{ padding: '15px 25px', borderRadius: '12px', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', fontWeight: 700, cursor: 'pointer' }}
+                            >
+                                Cerrar
                             </button>
                             <button
                                 onClick={() => {

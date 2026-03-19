@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Search, Printer, Calendar, Filter, Trash2, Edit } from 'lucide-react';
-import { generarCertificadoPDF } from '../services/pdfService';
+import { generarCertificadoPDF, generarReposoPDF } from '../services/pdfService';
 import NewEvaluationForm from './NewEvaluationForm';
 
 export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selectedCompany?: string }) {
@@ -13,6 +13,18 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
 
     useEffect(() => {
         fetchConsultas();
+
+        // v12.3: LISTADO REACTIVO (PROTOCOLO CARLOS FUENTES)
+        const channel = supabase.channel('consultas-sync')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
+                console.log('📋 Refrescando listado de consultas...');
+                fetchConsultas();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, [selectedCompany]);
 
     const fetchConsultas = async () => {
@@ -42,9 +54,13 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
     const handlePrint = (c: any) => {
         const conFirma = window.confirm("¿Desea incluir la FIRMA DIGITAL en el certificado?\n\n• [Aceptar]: Para enviar por correo electrónico.\n• [Cancelar]: Para imprimir y sellar físicamente.");
 
-        const ciudadPersonalizada = window.prompt("Ingrese la CUIDAD de emisión del certificado:", "Guarenas");
-        if (ciudadPersonalizada === null) return; // Si cancela, se aborta la impresión
+        const ciudadDefault = "GUARENAS";
+        const ciudadPersonalizada = window.prompt("Ingrese la CIUDAD de emisión:", ciudadDefault);
+        if (ciudadPersonalizada === null) return; 
 
+        const ciudadFinal = ciudadPersonalizada ? ciudadPersonalizada.toUpperCase() : ciudadDefault;
+
+        // 1. REPORTE DE APTITUD MÉDICA
         generarCertificadoPDF({
             paciente: {
                 nombre: c.pacientes.nombre_completo,
@@ -61,7 +77,7 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                 examen_fisico: c.examen_fisico,
                 causa_reposo: c.causa_reposo,
                 dias_reposo: c.dias_reposo,
-                ciudad: ciudadPersonalizada.toUpperCase(),
+                ciudad: ciudadFinal,
                 fecha: c.fecha_consulta
             },
             doctora: {
@@ -73,6 +89,37 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
             },
             conFirmaDigital: conFirma
         });
+
+        // 2. REPORTE DE REPOSO O ASISTENCIA (Si existe)
+        if (c.dias_reposo > 0 || c.categoria_reposo !== 'NINGUNO') {
+            const labelReposo = c.dias_reposo > 0 ? "REPOSO MÉDICO" : "CONSTANCIA DE ASISTENCIA";
+            if (window.confirm(`Esta consulta contiene un registro de ${labelReposo}.\n\n¿Desea imprimirlo ahora?`)) {
+                generarReposoPDF({
+                    paciente: {
+                        nombre: c.pacientes.nombre_completo,
+                        cedula: c.pacientes.cedula
+                    },
+                    reposo: { 
+                        tipo: c.dias_reposo > 0 ? 'REPOSO' : 'CONSTANCIA',
+                        condicion: 'Paciente',
+                        ameritaReposo: c.dias_reposo > 0,
+                        dias: c.dias_reposo || 0,
+                        desde: c.fecha_inicio_reposo,
+                        hasta: c.fecha_fin_reposo,
+                        diagnostico: c.causa_reposo || c.observaciones || "REPOSO MÉDICO LABORAL",
+                        ciudad: ciudadFinal
+                    },
+                    doctora: { 
+                        nombre: "YADIRA PINO", 
+                        ci: 6871964, 
+                        mpps: 41171, 
+                        cmm: 13012, 
+                        especialidad: "FISIATRA" 
+                    },
+                    conFirmaDigital: conFirma
+                });
+            }
+        }
     };
 
     const handleDelete = async (id: string, paciente: string) => {

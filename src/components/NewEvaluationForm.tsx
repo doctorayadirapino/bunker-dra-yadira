@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { X, Mail, Calendar } from 'lucide-react';
 import './NewEvaluationForm.css';
-import { generarCertificadoPDF } from '../services/pdfService';
+import { generarCertificadoPDF, generarReposoPDF } from '../services/pdfService';
 
 interface FormProps {
     onClose: () => void;
     editConsultaId?: string;
+    prefilledCedula?: string;
 }
 
-export default function NewEvaluationForm({ onClose, editConsultaId }: FormProps) {
+export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCedula }: FormProps) {
     const [loading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(!!editConsultaId);
     const [error, setError] = useState<string | null>(null);
@@ -190,8 +191,10 @@ export default function NewEvaluationForm({ onClose, editConsultaId }: FormProps
         if (editConsultaId) {
             setIsEditing(true);
             loadEditData();
+        } else if (prefilledCedula) {
+            handleCedulaChange(prefilledCedula);
         }
-    }, [editConsultaId]);
+    }, [editConsultaId, prefilledCedula]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -272,7 +275,11 @@ export default function NewEvaluationForm({ onClose, editConsultaId }: FormProps
 
             alert(isEditing ? "¡EVALUACIÓN ACTUALIZADA EXITOSAMENTE!" : "¡EVALUACIÓN REGISTRADA EXITOSAMENTE!");
 
-            const ciudadPersonalizada = window.prompt("Ingrese la ciudad de emisión del certificado:", "Guarenas");
+            const ciudadDefault = "GUARENAS";
+            const ciudadPersonalizada = window.prompt("Ingrese la ciudad de emisión de los reportes:", ciudadDefault);
+            const ciudadFinal = ciudadPersonalizada ? ciudadPersonalizada.toUpperCase() : ciudadDefault;
+
+            // REPORTE 1: CERTIFICADO DE APTITUD MÉDICA (Obligatorio)
             generarCertificadoPDF({
                 paciente: { nombre: paciente.nombre_completo, cedula: paciente.cedula },
                 empresa: { nombre: empresa.nombre, rif: empresa.rif },
@@ -283,12 +290,37 @@ export default function NewEvaluationForm({ onClose, editConsultaId }: FormProps
                     examen_fisico: consulta.examen_fisico,
                     causa_reposo: consulta.causa_reposo,
                     dias_reposo: consulta.dias_reposo,
-                    ciudad: ciudadPersonalizada ? ciudadPersonalizada.toUpperCase() : 'GUARENAS',
+                    ciudad: ciudadFinal,
                     fecha: consulta.fecha_consulta
                 },
                 doctora: { nombre: "YADIRA PINO", especialidad: "Fisiatra", ci: "6.871.964", mpps: "41.171", cmm: "13.012" },
                 conFirmaDigital: useDigitalSignature
             });
+
+            // REPORTE 2: CONSTANCIA DE REPOSO O ASISTENCIA (Solo si amerita reposo o según criterio)
+            if (consulta.dias_reposo > 0 || consulta.categoria_reposo !== 'NINGUNO') {
+                generarReposoPDF({
+                    paciente: { nombre: paciente.nombre_completo, cedula: paciente.cedula },
+                    reposo: { 
+                        tipo: consulta.dias_reposo > 0 ? 'REPOSO' : 'CONSTANCIA',
+                        condicion: 'Paciente',
+                        ameritaReposo: consulta.dias_reposo > 0,
+                        dias: consulta.dias_reposo,
+                        desde: consulta.fecha_inicio_reposo,
+                        hasta: consulta.fecha_fin_reposo,
+                        diagnostico: consulta.causa_reposo || consulta.observaciones || "REPOSO MÉDICO LABORAL",
+                        ciudad: ciudadFinal
+                    },
+                    doctora: { 
+                        nombre: "YADIRA PINO", 
+                        ci: 6871964, 
+                        mpps: 41171, 
+                        cmm: 13012, 
+                        especialidad: "FISIATRA" 
+                    },
+                    conFirmaDigital: useDigitalSignature
+                });
+            }
 
             onClose();
         } catch (err: any) {
@@ -415,11 +447,18 @@ export default function NewEvaluationForm({ onClose, editConsultaId }: FormProps
                             </select>
                             <select value={consulta.tipo_patologia} onChange={e => setConsulta({ ...consulta, tipo_patologia: e.target.value })}>
                                 <option value="Adulto sano">Adulto sano</option>
+                                <option value="Cardiovasculares">Cardiovascular</option>
+                                <option value="Dermatológicas">Dermatológicas</option>
+                                <option value="Gastrointestinales">Gastrointestinal</option>
                                 <option value="ORL">ORL</option>
                                 <option value="Oftalmológicas">Oftalmológicas</option>
                                 <option value="Osteomiarticulares">Osteomiarticulares</option>
                                 <option value="Neurológicas">Neurológicas</option>
-                                {/* ... mas patologías ... */}
+                                <option value="Traumatológicas">Traumatológicas</option>
+                                <option value="Accidentes Laborales">Accidentes Laborales</option>
+                                <option value="Accidentes In itinere">Accidentes In itinere</option>
+                                <option value="Obstétricas">Obstétricas</option>
+                                <option value="Respiratorias">Respiratoria</option>
                             </select>
                         </div>
                         <div className="form-grid">

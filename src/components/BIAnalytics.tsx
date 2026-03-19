@@ -27,6 +27,18 @@ export default function BIAnalytics({ selectedCompany }: BIAnalyticsProps) {
 
     useEffect(() => {
         fetchBI();
+
+        // v12.3: AUDITORÍA EN TIEMPO REAL (PROTOCOLO CARLOS FUENTES)
+        const channel = supabase.channel('bi-sync')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
+                console.log('📊 Actualizando Inteligencia de Negocios...');
+                fetchBI();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, [selectedCompany]);
 
     const fetchBI = async () => {
@@ -297,8 +309,9 @@ export default function BIAnalytics({ selectedCompany }: BIAnalyticsProps) {
              <div className="bi-report-footer">
                  <span>https://doctora-yadira-pino.vercel.app/</span>
                  <span className="bi-footer-separator">|</span>
-                 <span>Desarrollado por Lic. Carlos Fuentes &nbsp;·&nbsp; 0412-958.1040</span>
+                 <span>DESARROLLADOR : LIC CARLOS FUENTES 04129581040</span>
              </div>
+
 
         </div>
     );
