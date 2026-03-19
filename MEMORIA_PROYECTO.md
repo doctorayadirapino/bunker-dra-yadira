@@ -43,6 +43,35 @@
 
 ---
 
+## 🚀 HOJA DE RUTA ESTRATÉGICA (ROADMAP)
+Para asegurar que el **Bunker Dra. Yadira Pino** escale con el mayor estándar corporativo, se han definido los siguientes pilares de evolución técnica:
+
+### ⚡ 1. Optimización del Rendimiento (Code-Splitting)
+- **Objetivo**: Reducir el tiempo de carga inicial en un 60%.
+- **Acción**: Implementar `React.lazy()` y `Suspense` para cargar los módulos (Laboral, Fisiatría, Vigilancia) de forma diferida. Esto evitará descargar código innecesario al inicio.
+
+### 📱 2. Evolución a PWA (Progressive Web App)
+- **Objetivo**: Permitir la instalación del sistema en dispositivos móviles y tablets.
+- **Acción**: Configurar un `manifest.json` y `Service Workers`. Esto dotará a la Dra. de un acceso directo en su pantalla de inicio y una experiencia similar a una app nativa.
+
+### 🖼️ 3. Optimización de Assets Médicos
+- **Objetivo**: Mantener la nitidez documental reduciendo el peso del payload.
+- **Acción**: Migrar las firmas y sellos digitales a formato `.webp` de alta fidelidad o `SVG`. Esto garantiza certificados ligeros pero con calidad de impresión profesional.
+
+### 🗄️ 4. Unificación de Datos (Single Source of Truth)
+- **Objetivo**: Visión 360° del paciente.
+- **Acción**: Centralizar las tablas de pacientes (`pacientes` y `fisiatria_pacientes`) bajo una única estructura maestra. Esto permitirá cruzar historiales laborales y fisiátricos en un solo click.
+
+### 🧠 5. Inteligencia en Vademécum
+- **Objetivo**: Reducir el tiempo de prescripción médica.
+- **Acción**: Implementar **Fuzzy Search** y **Aprendizaje de Recomendación**. El sistema sugerirá medicamentos basados en diagnósticos previos de forma predictiva.
+
+### 🔒 6. Seguridad Granular (RLS - Row Level Security)
+- **Objetivo**: Control total sobre quién ve qué datos.
+- **Acción**: Configurar políticas RLS en Supabase para segmentar el acceso. Esto permitirá que futuros asistentes vean agendas pero solo la Dra. acceda a las historias clínicas profundas.
+
+---
+
 ## 📝 RESUMEN DE CIERRE DE SESIÓN
 - **¿Qué se hizo hoy?**: 
     1.  **Flujo de Recurrencia Laboral**: Implementación de la funcionalidad para "Nueva Consulta" desde el Directorio de Pacientes, permitiendo el pre-llenado inteligente de datos de trabajadores ya registrados (Guerra al código basura/redundancia).
