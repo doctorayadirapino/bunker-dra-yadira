@@ -17,11 +17,22 @@ export default function SurveillanceModule({
     const [analytics, setAnalytics] = useState<any>(null);
     const [downloading, setDownloading] = useState(false);
     const [rawConsultas, setRawConsultas] = useState<any[]>([]);
+    
+    // v12.4: Filtros Temporales (Carlos Fuentes)
+    const [selectedMonth, setSelectedMonth] = useState<string>(new Date().toLocaleString('es-VE', { month: 'long' }).toUpperCase());
+    const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
+
+    const meses = [
+        "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+        "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"
+    ];
+
+    const anos = ["2024", "2025", "2026", "2027"];
 
     useEffect(() => {
         calculateSurveillance();
 
-        // v12.3: SINCRONIZACIÓN SIMBIÓTICA EN TIEMPO REAL (CARLOS FUENTES)
+        // v12.4: SINCRONIZACIÓN SIMBIÓTICA CON FILTRO TEMPORAL (CARLOS FUENTES)
         const channel = supabase.channel('surveillance-sync')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
                 console.log('🔄 Sincronizando Vigilancia por cambio en BD...');
@@ -32,7 +43,7 @@ export default function SurveillanceModule({
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [selectedEmpresa]);
+    }, [selectedEmpresa, selectedMonth, selectedYear]);
 
     const calculateSurveillance = async () => {
         setLoading(true);
@@ -44,11 +55,26 @@ export default function SurveillanceModule({
                 setLoading(false);
                 return;
             }
-            setRawConsultas(data);
 
-            const filtered = selectedEmpresa === 'GENERAL'
-                ? data
-                : data.filter(c => c.empresas?.nombre === selectedEmpresa);
+            // --- FILTRADO TEMPORAL Y POR EMPRESA (Carlos Fuentes - Discriminación Ovejita) ---
+            const filtered = data.filter(c => {
+                const date = new Date(c.created_at);
+                const monthName = date.toLocaleString('es-VE', { month: 'long' }).toUpperCase();
+                const yearStr = date.getFullYear().toString();
+
+                const matchesTime = monthName === selectedMonth && yearStr === selectedYear;
+                const matchesEmpresa = selectedEmpresa === 'GENERAL' || c.empresas?.nombre === selectedEmpresa;
+
+                return matchesTime && matchesEmpresa;
+            });
+
+            setRawConsultas(filtered);
+
+            if (filtered.length === 0) {
+                setAnalytics(null);
+                setLoading(false);
+                return;
+            }
 
             // --- LÓGICA DE PROCESAMIENTO BI ---
             const patMap: Record<string, number> = {};
@@ -118,21 +144,19 @@ export default function SurveillanceModule({
     const handleDownloadReport = async () => {
         if (!analytics) return;
 
-        console.log('--- INICIANDO GENERACIÓN DE REPORTE VIGILANCIA (VERSIÓN LIMPIA) ---');
         const conFirma = window.confirm("¿Desea incluir la FIRMA DIGITAL en el Resumen Estadístico?\n\n• [Aceptar]: Para enviar por correo corporativo o WhatsApp.\n• [Cancelar]: Para imprimir y sellar físicamente.");
 
         setDownloading(true);
         try {
             await generarReporteVigilanciaPDF({
                 companyName: selectedEmpresa,
-                month: new Date().toLocaleDateString('es-VE', { month: 'long', year: 'numeric' }).toUpperCase(),
+                month: `${selectedMonth} ${selectedYear}`, // Periodo dinámico v12.4
                 stats: analytics,
                 conFirmaDigital: conFirma
             });
-            console.log('--- REPORTE GENERADO EXITOSAMENTE (SIN GRÁFICOS) ---');
         } catch (error) {
             console.error('Error in handleDownloadReport:', error);
-            alert('Error al generar el PDF. Revise la consola para más detalles.');
+            alert('Error al generar el PDF.');
         } finally {
             setDownloading(false);
         }
@@ -141,11 +165,7 @@ export default function SurveillanceModule({
     const handleDownloadList = async () => {
         setDownloading(true);
         try {
-            const listData = selectedEmpresa === 'GENERAL'
-                ? rawConsultas
-                : rawConsultas.filter(c => c.empresas?.nombre === selectedEmpresa);
-
-            await generarListadoEmpresaPDF(selectedEmpresa, listData);
+            await generarListadoEmpresaPDF(selectedEmpresa, rawConsultas);
         } catch (error) {
             console.error('Error:', error);
         } finally {
@@ -158,32 +178,48 @@ export default function SurveillanceModule({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                 <div>
                     <h2 style={{ color: 'var(--text-primary)', fontSize: '1.8rem', fontWeight: 700 }}>Vigilancia Epidemiológica</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>Análisis estadístico de salud ocupacional (LOPCYMAT)</p>
+                    <p style={{ color: 'var(--text-secondary)' }}>Análisis mensual: {selectedMonth} {selectedYear}</p>
                 </div>
 
-                <div style={{ display: 'flex', gap: '15px' }}>
-                    {/* Filtro Maestro ya existe en el Header de App.tsx, lo removemos de aquí para evitar duplicidad */}
+                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    {/* Selectores Temporales v12.4 (Carlos Fuentes) */}
+                    <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <select
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(e.target.value)}
+                            style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none', padding: '8px', fontWeight: 600, outline: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                        >
+                            {meses.map(m => <option key={m} value={m} style={{ background: '#111' }}>{m}</option>)}
+                        </select>
+                        <select
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(e.target.value)}
+                            style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none', padding: '8px', fontWeight: 600, outline: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                        >
+                            {anos.map(y => <option key={y} value={y} style={{ background: '#111' }}>{y}</option>)}
+                        </select>
+                    </div>
 
                     <button
                         onClick={handleDownloadReport}
-                        disabled={loading || downloading}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: downloading ? 'var(--text-secondary)' : 'var(--corporate-blue)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading) ? 0.7 : 1 }}
+                        disabled={loading || downloading || !analytics}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: (loading || downloading || !analytics) ? 'var(--text-secondary)' : 'var(--corporate-blue)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading || !analytics) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading || !analytics) ? 0.7 : 1 }}
                     >
                         {downloading ? "Procesando..." : (
                             selectedEmpresa === 'GENERAL'
-                                ? <><Download size={18} /> Reporte Consolidado (Global)</>
+                                ? <><Download size={18} /> Reporte Consolidado</>
                                 : <><Download size={18} /> Resumen: {selectedEmpresa}</>
                         )}
                     </button>
 
                     <button
                         onClick={handleDownloadList}
-                        disabled={loading || downloading}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: downloading ? 'var(--text-secondary)' : 'var(--medical-turquoise)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading) ? 0.7 : 1 }}
+                        disabled={loading || downloading || !analytics}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: (loading || downloading || !analytics) ? 'var(--text-secondary)' : 'var(--medical-turquoise)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading || !analytics) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading || !analytics) ? 0.7 : 1 }}
                     >
                         {downloading ? "Buscando..." : (
                             selectedEmpresa === 'GENERAL'
-                                ? <><FileText size={18} /> Listado Maestro de Consultas</>
+                                ? <><FileText size={18} /> Listado de Consultas</>
                                 : <><FileText size={18} /> Listado: {selectedEmpresa}</>
                         )}
                     </button>
@@ -192,6 +228,12 @@ export default function SurveillanceModule({
 
             {loading ? (
                 <div style={{ textAlign: 'center', padding: '100px', color: 'var(--corporate-blue)' }}>Procesando inteligencia epidemiológica...</div>
+            ) : !analytics ? (
+                <div style={{ textAlign: 'center', padding: '100px', background: 'var(--bg-secondary)', borderRadius: '24px', border: '1px dashed var(--border-color)' }}>
+                    <AlertCircle size={48} color="var(--text-secondary)" style={{ marginBottom: '20px' }} />
+                    <h3 style={{ color: 'var(--text-primary)' }}>No hay datos para {selectedMonth} {selectedYear}</h3>
+                    <p style={{ color: 'var(--text-secondary)' }}>Asegúrese de que existan consultas registradas en este periodo.</p>
+                </div>
             ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
                     {/* KPI CARDS */}
@@ -225,7 +267,7 @@ export default function SurveillanceModule({
                         </div>
                     </div>
 
-                    {/* GRÁFICAS INTEGRADAS EN VIGILANCIA (SUJETAS A CAPTURA) */}
+                    {/* GRÁFICAS */}
                     <div id="gender-pie" style={{ gridColumn: '1 / span 1', background: 'var(--bg-secondary)', padding: '25px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
                         <h3 style={{ color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <PieIcon size={20} color="var(--corporate-blue)" /> Distribución por Sexo
@@ -263,7 +305,7 @@ export default function SurveillanceModule({
                         </div>
                     </div>
 
-                    {/* TABLES */}
+                    {/* TABLA DE MORBILIDAD */}
                     <div style={{ gridColumn: '1 / -1', background: 'var(--bg-secondary)', borderRadius: '24px', padding: '30px', border: '1px solid var(--border-color)' }}>
                         <h3 style={{ color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <FileBarChart size={24} color="var(--corporate-blue)" /> Distribución de Morbilidad por Sistema

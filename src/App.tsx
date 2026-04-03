@@ -1,5 +1,4 @@
-// SISTEMA DRA. YADIRA PINO - VERSIÓN MULTIMODAL (PRODUCCIÓN - CLEAN ARCHITECTURE FINAL v12.2)
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { supabase } from './lib/supabase';
 import {
   Activity, Users, FileText, CalendarDays, AlertTriangle,
@@ -11,15 +10,17 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer,
   LineChart, Line
 } from 'recharts';
-import NewEvaluationForm from './components/NewEvaluationForm';
-import PatientsList from './components/PatientsList';
-import SurveillanceModule from './components/SurveillanceModule';
-import CompaniesModule from './components/CompaniesModule';
-import ConsultasModule from './components/ConsultasModule';
-import ReposoModulo from './components/ReposoModulo';
 import Login from './components/Login';
-import FisiatriaDashboard from './components/FisiatriaDashboard';
-import BIAnalytics from './components/BIAnalytics';
+
+// MÓDULOS LAZY LOADED (Optimización v12.4 Carlos Fuentes)
+const NewEvaluationForm = lazy(() => import('./components/NewEvaluationForm'));
+const PatientsList = lazy(() => import('./components/PatientsList'));
+const SurveillanceModule = lazy(() => import('./components/SurveillanceModule'));
+const CompaniesModule = lazy(() => import('./components/CompaniesModule'));
+const ConsultasModule = lazy(() => import('./components/ConsultasModule'));
+const ReposoModulo = lazy(() => import('./components/ReposoModulo'));
+const FisiatriaDashboard = lazy(() => import('./components/FisiatriaDashboard'));
+const BIAnalytics = lazy(() => import('./components/BIAnalytics'));
 
 import type { Session } from '@supabase/supabase-js';
 
@@ -71,7 +72,6 @@ export default function App() {
   const [selectedCompany, setSelectedCompany] = useState<string>('GENERAL');
 
   // Función Core: Extraer y Masticar Datos
-  // Función para procesar reportes por segmento (General o Empresa específica)
   const processAnalytics = (data: Consulta[], filterCompany: string) => {
     const filtered = filterCompany === 'GENERAL'
       ? data
@@ -109,7 +109,6 @@ export default function App() {
     });
     const uniquePatients = new Set();
 
-    // 🔒 HELPER: Parseo de fecha sin zona horaria (Anti-UTC Offset Bug)
     const parseFechaStr = (str: string) => {
       const partes = (str || '').split('T')[0].split('-');
       if (partes.length === 3) return { año: parseInt(partes[0]), mes: parseInt(partes[1]) - 1, dia: parseInt(partes[2]) };
@@ -120,12 +119,9 @@ export default function App() {
       diasReposoTotal += row.dias_reposo || 0;
       const parsed = parseFechaStr(row.fecha_consulta);
       if (parsed && parsed.mes === mesActual && parsed.año === añoActual) consultasMes++;
-
-      // Paciente Único (Simulando conteo por filtrado)
       uniquePatients.add(row.pacientes?.nombre_completo);
 
-      // Demografía (parseo sin desfase de zona horaria)
-      let age = 0;
+      let age = 30;
       if (row.pacientes?.fecha_nacimiento) {
         const nacParts = row.pacientes.fecha_nacimiento.split('T')[0].split('-');
         if (nacParts.length === 3) age = añoActual - parseInt(nacParts[0]);
@@ -150,7 +146,6 @@ export default function App() {
       patMap[row.tipo_patologia] = (patMap[row.tipo_patologia] || 0) + 1;
 
       const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-      // Usamos el parsed del inicio del loop si lo tenemos
       const parsedFecha = parseFechaStr(row.fecha_consulta);
       const mName = parsedFecha ? monthNames[parsedFecha.mes] : null;
       if (mName && monthTrends[mName]) {
@@ -161,15 +156,9 @@ export default function App() {
       }
     });
 
-    // Seteo de Estados de Gráficos
-    setGenderData([
-      { name: 'Masculino', value: mCount, color: '#3b82f6' },
-      { name: 'Femenino', value: fCount, color: '#0bdada' }
-    ]);
-
+    setGenderData([{ name: 'Masculino', value: mCount, color: '#3b82f6' }, { name: 'Femenino', value: fCount, color: '#0bdada' }]);
     const cData = Object.keys(consulMap).map(k => ({ name: k, val: consulMap[k] })).sort((a, b) => b.val - a.val).slice(0, 5);
     setConsultationData(cData.length ? cData : [{ name: 'Sin Datos', val: 0 }]);
-
     const colorsArr = ['#ef4444', '#f59e0b', '#3b82f6', '#22d3ee'];
     const pData = Object.keys(patMap).map(k => ({ name: k, v: patMap[k] })).sort((a, b) => b.v - a.v).slice(0, 4).map((item, idx) => ({ ...item, c: colorsArr[idx % 4] }));
     setTopPathologies(pData);
@@ -178,15 +167,10 @@ export default function App() {
     setAbsenteeismStats(Object.values(absentMap));
     setLatestConsultations(filtered.slice(0, 10));
 
-    const totalPac = filterCompany === 'GENERAL' ? uniquePatients.size : uniquePatients.size;
+    const totalPac = uniquePatients.size;
     const ausent = ((diasReposoTotal / ((totalPac || 1) * 20)) * 100).toFixed(1);
 
-    setKpis({
-      total_pacientes: totalPac,
-      consultas_mes: consultasMes,
-      dias_reposo: diasReposoTotal,
-      ausentismo: parseFloat(ausent)
-    });
+    setKpis({ total_pacientes: totalPac, consultas_mes: consultasMes, dias_reposo: diasReposoTotal, ausentismo: parseFloat(ausent) });
   };
 
   const fetchDashboardData = async () => {
@@ -204,12 +188,9 @@ export default function App() {
       if (error) throw error;
       const data = (rawData || []) as unknown as Consulta[];
       setAllConsultations(data);
-
       const comps = Array.from(new Set(data.map(c => c.empresas?.nombre).filter(Boolean)));
       setAvailableCompanies(comps as string[]);
-
       processAnalytics(data, selectedCompany);
-
     } catch (err) {
       console.error("Error cargando datos:", err);
     } finally {
@@ -223,33 +204,18 @@ export default function App() {
   const [resetLoading, setResetLoading] = useState(false);
 
   useEffect(() => {
-    // 1. Obtener sesión inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    // 2. Escuchar cambios de autenticación
+    supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
-      if (event === 'PASSWORD_RECOVERY') {
-        setShowResetPassword(true);
-      }
+      if (event === 'PASSWORD_RECOVERY') setShowResetPassword(true);
     });
-
-    // Detectar hash en URL por si el evento no dispara rápidamente
-    if (window.location.hash && window.location.hash.includes('type=recovery')) {
-      setShowResetPassword(true);
-    }
-
+    if (window.location.hash && window.location.hash.includes('type=recovery')) setShowResetPassword(true);
     return () => subscription.unsubscribe();
   }, []);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword.length < 6) {
-      setResetError('La contraseña debe tener al menos 6 caracteres.');
-      return;
-    }
+    if (newPassword.length < 6) { setResetError('La contraseña debe tener al menos 6 caracteres.'); return; }
     setResetLoading(true);
     setResetError(null);
     try {
@@ -257,11 +223,10 @@ export default function App() {
       if (error) throw error;
       setShowResetPassword(false);
       setNewPassword('');
-      alert('Contraseña actualizada de forma segura. Bienvenido al sistema.');
-      // Limpiamos la URL
+      alert('Contraseña actualizada. Bienvenido.');
       window.history.replaceState(null, '', window.location.pathname);
     } catch (error: any) {
-      setResetError(error.message || 'Error al actualizar la contraseña');
+      setResetError(error.message);
     } finally {
       setResetLoading(false);
     }
@@ -277,9 +242,7 @@ export default function App() {
       fetchUserRole(session.user.id);
       fetchDashboardData();
       const channel = supabase.channel('schema-db-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
-          fetchDashboardData();
-        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => { fetchDashboardData(); })
         .subscribe();
       return () => { supabase.removeChannel(channel); };
     } else {
@@ -287,472 +250,156 @@ export default function App() {
     }
   }, [session]);
 
-  // Efecto para re-procesar cuando cambie el filtro
   useEffect(() => {
-    if (allConsultations.length > 0) {
-      processAnalytics(allConsultations, selectedCompany);
-    }
+    if (allConsultations.length > 0) processAnalytics(allConsultations, selectedCompany);
   }, [selectedCompany]);
 
-  const handleFormClose = () => {
-    setShowForm(false);
-    setPrefilledCedula(undefined);
-    // El realtime trigger recargará la data automáticamente, pero forzamos por si acaso
-    fetchDashboardData();
-  };
+  const handleLogout = async () => { await supabase.auth.signOut(); };
 
-  const handleNewConsultation = (cedula: string) => {
-    setPrefilledCedula(cedula);
-    setShowForm(true);
-  };
+  if (!session) return <Login />;
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) console.error("Error al salir del sistema:", error);
-  };
+  const spinStyle = `
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader { width: 50px; height: 50px; border: 5px solid var(--corporate-blue); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+  `;
 
   return (
-    <>
-      {showResetPassword && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 99999 }}>
-          <div style={{ backgroundColor: 'var(--bg-secondary)', padding: 30, borderRadius: 15, border: '1px solid var(--border-color)', width: 400 }}>
-            <h2 style={{ color: 'white', marginBottom: 20 }}>Actualización de Seguridad</h2>
-            <form onSubmit={handleUpdatePassword}>
-              <label style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>Nueva Contraseña de Acceso:</label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                style={{ width: '100%', padding: 12, borderRadius: 8, marginBottom: 15, background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'white' }}
-              />
-              {resetError && <p style={{ color: 'var(--danger)', marginBottom: 15, fontSize: '0.9rem' }}>{resetError}</p>}
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button type="button" onClick={() => setShowResetPassword(false)} disabled={resetLoading} style={{ width: '100%', padding: 12, background: 'var(--bg-primary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: 8, cursor: 'pointer', fontWeight: 'bold' }}>
-                  Cancelar
-                </button>
-                <button type="submit" disabled={resetLoading} style={{ width: '100%', padding: 12, background: 'var(--corporate-blue)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 'bold' }}>
-                  {resetLoading ? 'Procesando...' : 'Cambiar Contraseña'}
-                </button>
-              </div>
-            </form>
+    <Suspense fallback={
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)', gap: '20px' }}>
+        <style>{spinStyle}</style>
+        <div className="loader"></div>
+        <span style={{ color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '1px' }}>INICIANDO NÚCLEO...</span>
+      </div>
+    }>
+      <div className="app-container" style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-primary)' }}>
+        <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        <div className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)} />
+
+        <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+          <div className="sidebar-header">
+            <h1 className="brand-title">
+              <Activity className="brand-icon" size={28} />
+              {userRole === 'fisiatria' ? 'CONSULTA FISIATRICA' : 'Salud Laboral'}
+            </h1>
           </div>
-        </div>
-      )}
-
-      {!session ? (
-        <Login />
-      ) : (
-        <div className="app-container">
-          {/* BOTÓN HAMBURGUESA MÓVIL (v12.2) */}
-          <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-
-          {/* OVERLAY PARA CERRAR SIDEBAR */}
-          <div className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)} />
-
-          {/* SIDEBAR */}
-          <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-            <div className="sidebar-header">
-              <h1 className="brand-title">
-                <Activity className="brand-icon" size={28} />
-                {userRole === 'fisiatria' ? 'CONSULTA FISIATRICA' : 'Salud Laboral'}
-              </h1>
-            </div>
-
-            <nav className="nav-links">
-
-              {userRole === 'laboral' && (
-                <>
-                  <button className="new-eval-btn-sidebar" onClick={() => { setShowForm(true); setIsSidebarOpen(false); }} style={{ marginBottom: '20px' }}>
-                    <PlusCircle size={20} />
-                    Nueva Evaluación
-                  </button>
-                  <button
-                    className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}
-                  >
-                    <Activity size={20} />
-                    Dashboard
-                  </button>
-                  <button
-                    className={`nav-item ${activeView === 'patients' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('patients'); setIsSidebarOpen(false); }}
-                  >
-                    <Users size={20} />
-                    Pacientes
-                  </button>
-                  <button
-                    className={`nav-item ${activeView === 'companies' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('companies'); setIsSidebarOpen(false); }}
-                  >
-                    <BriefcaseMedical size={20} />
-                    Empresas
-                  </button>
-                  <button
-                    className={`nav-item ${activeView === 'surveillance' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('surveillance'); setIsSidebarOpen(false); }}
-                  >
-                    <FileText size={20} />
-                    Vigilancia
-                  </button>
-                  <button
-                    className={`nav-item ${activeView === 'consultas' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('consultas'); setIsSidebarOpen(false); }}
-                  >
-                    <Printer size={20} />
-                    Consultas
-                  </button>
-                   <button
-                    className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('reposo'); setIsSidebarOpen(false); }}
-                  >
-                    <CalendarDays size={20} />
-                    Reposo Médico
-                  </button>
-                  <button
-                    className={`nav-item ${activeView === 'bi_analytics' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('bi_analytics'); setIsSidebarOpen(false); }}
-                  >
-                    <Activity size={20} />
-                    BI & Analytics
-                  </button>
-                </>
-              )}
-
-              {userRole === 'fisiatria' && (
-                <>
-                  <button
-                    className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}
-                  >
-                    <Activity size={20} />
-                    Consulta Fisiátrica
-                  </button>
-                  <button
-                    className={`nav-item ${activeView === 'vademecum' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('vademecum'); setIsSidebarOpen(false); }}
-                  >
-                    <BookOpen size={20} />
-                    Vademécum
-                  </button>
-                  <button
-                    className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`}
-                    onClick={() => { setActiveView('reposo'); setIsSidebarOpen(false); }}
-                  >
-                    <CalendarDays size={20} />
-                    Reposo Médico
-                  </button>
-
-                </>
-              )}
-
-              <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
-                <button
-                  className="nav-item"
-                  onClick={() => setShowResetPassword(true)}
-                  style={{ color: 'var(--text-primary)', width: '100%', marginBottom: '10px' }}
-                >
-                  <AlertTriangle size={20} />
-                  Cambiar Contraseña
+          <nav className="nav-links">
+            {userRole === 'laboral' && (
+              <>
+                <button className="new-eval-btn-sidebar" onClick={() => { setShowForm(true); setIsSidebarOpen(false); }} style={{ marginBottom: '20px' }}>
+                  <PlusCircle size={20} /> Nueva Evaluación
                 </button>
-                <button
-                  className="nav-item"
-                  onClick={handleLogout}
-                  style={{ color: 'var(--danger)', width: '100%', marginBottom: 0 }}
-                >
-                  <LogOut size={20} />
-                  Cerrar Sesión
-                </button>
-              </div>
-            </nav>
-          </aside>
-
-          {/* MAIN CONTENT */}
-          <main className="main-content">
-            {/* HEADER */}
-            <header className="top-bar">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                <div>
-                  <h2 className="page-title">
-                    {userRole === 'fisiatria' ? 'Gestión de Historias Clínicas' : 'Centro de Mando Epidemiológico'}
-                  </h2>
-                  <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
-                    DESARROLLADOR : LIC CARLOS FUENTES 04129581040
-                  </p>
-                </div>
-
-                {userRole === 'laboral' && (
-                  <div style={{ marginLeft: '20px', padding: '4px 12px', background: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <BriefcaseMedical size={18} color="var(--medical-turquoise)" />
-                    <select
-                      value={selectedCompany}
-                      onChange={(e) => setSelectedCompany(e.target.value)}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 600, outline: 'none', cursor: 'pointer', minWidth: '150px' }}
-                    >
-                      <option value="GENERAL" style={{ background: 'var(--bg-primary)' }}>📊 VISTA GENERAL</option>
-                      {availableCompanies.map(c => (
-                        <option key={c} value={c} style={{ background: 'var(--bg-primary)' }}>🏢 {c}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-              <div className="user-profile">
-                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                  <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Dra. Yadira Pino</span>
-                  <span style={{ color: 'var(--medical-turquoise)', fontSize: '0.7rem', fontWeight: 700 }}>FISIATRA</span>
-                </div>
-                <div className="user-avatar" style={{ background: 'linear-gradient(135deg, var(--doctora-pink), var(--corporate-blue))', color: 'white' }}>YP</div>
-              </div>
-            </header>
-
-            {loading ? (
-              <div style={{ color: 'var(--corporate-blue)', textAlign: 'center', marginTop: '100px', fontSize: '20px', fontWeight: 600 }}>
-                Cargando Datos y Calculando BI...
-              </div>
-            ) : (
-              <div className="view-transition-wrapper">
-                {userRole === 'fisiatria' ? (
-                  <>
-                    {(activeView === 'dashboard' || activeView === 'pacientes_fisiatria' || activeView === 'vademecum') && (
-                      <FisiatriaDashboard initialView={activeView === 'pacientes_fisiatria' ? 'pacientes' : activeView === 'vademecum' ? 'vademecum' : 'home'} />
-                    )}
-                    {activeView === 'reposo' && <ReposoModulo key="reposo-fisiatria" selectedCompany="GENERAL" />}
-                  </>
-                ) : (
-                  <>
-                    {activeView === 'dashboard' && (
-                      <div className="dashboard-view fade-in">
-                        {/* KPIs */}
-                        <section className="kpi-grid">
-                          <div className="kpi-card" style={{ borderLeft: '4px solid var(--corporate-blue)' }}>
-                            <div className="kpi-header">
-                              <span>{selectedCompany === 'GENERAL' ? 'Pacientes (Universo Total)' : `Personal (${selectedCompany})`}</span>
-                              <Users size={20} color="var(--corporate-blue)" />
-                            </div>
-                            <div className="kpi-value">{kpis.total_pacientes}</div>
-                          </div>
-
-                          <div className="kpi-card">
-                            <div className="kpi-header">
-                              <span>Consultas (Mes Actual)</span>
-                              <Stethoscope size={20} color="var(--medical-turquoise)" />
-                            </div>
-                            <div className="kpi-value">{kpis.consultas_mes}</div>
-                          </div>
-
-                          <div className="kpi-card">
-                            <div className="kpi-header">
-                              <span>Días Cómputo Reposo</span>
-                              <CalendarDays size={20} color="var(--warning)" />
-                            </div>
-                            <div className="kpi-value">{kpis.dias_reposo}</div>
-                          </div>
-
-                          <div className="kpi-card">
-                            <div className="kpi-header">
-                              <span>% Índice Ausentismo</span>
-                              <AlertTriangle size={20} color="var(--danger)" />
-                            </div>
-                            <div className="kpi-value">{kpis.ausentismo}%</div>
-                            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Ecuación referencial LOPCYMAT</span>
-                          </div>
-                        </section>
-
-                        {/* CHARTS */}
-                        <section className="charts-grid">
-                          {/* Chart 1: SEXO */}
-                          <div className="chart-card">
-                            <h3 className="chart-title">Distribución por Sexo</h3>
-                            <div style={{ width: '100%', height: 260 }}>
-                              <ResponsiveContainer width="100%" height={260}>
-                                <PieChart>
-                                  <Pie data={genderData} innerRadius={70} outerRadius={100} paddingAngle={5} dataKey="value" stroke="none">
-                                    {genderData.map((entry, index) => (
-                                      <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                  </Pie>
-                                  <RechartsTooltip
-                                    contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px', color: '#fff' }}
-                                    itemStyle={{ color: '#fff' }}
-                                  />
-                                  <Legend verticalAlign="bottom" height={36} />
-                                </PieChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </div>
-
-                          {/* Chart 2: TIPO CONSULTA */}
-                          <div className="chart-card">
-                            <h3 className="chart-title">Tipos de Consulta Clave (Top 5)</h3>
-                            <div style={{ width: '100%', height: 260 }}>
-                              <ResponsiveContainer width="100%" height={260}>
-                                <BarChart data={consultationData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                                  <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
-                                  <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} allowDecimals={false} />
-                                  <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
-                                  <Bar dataKey="val" fill="var(--medical-turquoise)" radius={[4, 4, 0, 0]} barSize={40} />
-                                </BarChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </div>
-
-                          {/* Chart 3: PATOLOGÍAS OVERVIEW */}
-                          <div className="chart-card">
-                            <h3 className="chart-title">Top 4 Patologías Detectadas</h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
-                              {topPathologies.length === 0 && <span style={{ color: 'var(--text-muted)' }}>No hay casos patológicos registrados</span>}
-                              {topPathologies.map((item, i) => {
-                                const maxV = topPathologies.length > 0 ? topPathologies[0].v : 1;
-                                const percent = (item.v / maxV) * 100;
-                                return (
-                                  <div key={i}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--text-secondary)' }}>
-                                      <span>{item.name}</span>
-                                      <span>{item.v} casos</span>
-                                    </div>
-                                    <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
-                                      <div style={{ width: `${percent}%`, height: '100%', backgroundColor: item.c }} />
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          </div>
-
-                          {/* Chart 4: REPOSOS TREND */}
-                          <div className="chart-card">
-                            <h3 className="chart-title">Clasificación de Eventos Mensuales</h3>
-                            <div style={{ width: '100%', height: 260 }}>
-                              <ResponsiveContainer width="100%" height={260}>
-                                <LineChart data={trendData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                                  <XAxis dataKey="month" stroke="var(--text-secondary)" />
-                                  <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                                  <RechartsTooltip
-                                    contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }}
-                                  />
-                                  <Legend />
-                                  <Line type="monotone" name="Enf. Común" dataKey="enf_comun" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                                  <Line type="monotone" name="Acc. Laboral" dataKey="acc_laboral" stroke="var(--danger)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                                </LineChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </div>
-
-                          {/* Chart 5: PATOLOGÍAS POR EDAD Y SEXO */}
-                          <div className="chart-card">
-                            <h3 className="chart-title">Distribución de Patologías por Edad y Sexo</h3>
-                            <div style={{ width: '100%', height: 260 }}>
-                              <ResponsiveContainer width="100%" height={260}>
-                                <BarChart data={demographicStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                                  <XAxis dataKey="group" stroke="var(--text-secondary)" />
-                                  <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                                  <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
-                                  <Legend />
-                                  <Bar dataKey="Masc" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Hombres" />
-                                  <Bar dataKey="Fem" fill="#22d3ee" radius={[4, 4, 0, 0]} name="Mujeres" />
-                                </BarChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </div>
-
-                          {/* Chart 6: AUSENTISMO POR EDAD Y SEXO */}
-                          <div className="chart-card">
-                            <h3 className="chart-title">Ausentismo (Días) por Edad y Sexo</h3>
-                            <div style={{ width: '100%', height: 260 }}>
-                              <ResponsiveContainer width="100%" height={260}>
-                                <BarChart data={absenteeismStats} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                                  <XAxis dataKey="group" stroke="var(--text-secondary)" />
-                                  <YAxis stroke="var(--text-secondary)" allowDecimals={false} />
-                                  <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: 'none', borderRadius: '8px' }} />
-                                  <Legend />
-                                  <Bar dataKey="Masc" fill="#2563eb" radius={[4, 4, 0, 0]} name="Total Días Hombres" />
-                                  <Bar dataKey="Fem" fill="#0ea5e9" radius={[4, 4, 0, 0]} name="Total Días Mujeres" />
-                                </BarChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </div>
-                        </section>
-
-                        {/* EPIDEMIOLOGICAL TABLE */}
-                        <section className="data-table-card">
-                          <h3 className="chart-title" style={{ marginBottom: 8 }}>
-                            {selectedCompany === 'GENERAL' ? 'Vigilancia Epidemiológica - Histórico General' : `Histórico de Consultas - ${selectedCompany}`}
-                          </h3>
-                          {latestConsultations.length === 0 ? (
-                            <p style={{ color: 'var(--text-secondary)' }}>No se han ingresado consultas médicas.</p>
-                          ) : (
-                            <table className="data-table">
-                              <thead>
-                                <tr>
-                                  <th>Fecha</th>
-                                  <th>Paciente</th>
-                                  <th>Empresa (RIF)</th>
-                                  <th>Tipo Consulta</th>
-                                  <th>Patología Detección</th>
-                                  <th>Reposo Registrado</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                  {latestConsultations.map(cons => (
-                                    <tr key={cons.id}>
-                                      <td data-label="Fecha">
-                                        {(() => {
-                                          if (!cons.fecha_consulta) return 'N/A';
-                                          const partes = cons.fecha_consulta.split('T')[0].split('-');
-                                          return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : cons.fecha_consulta;
-                                        })()}
-                                      </td>
-                                      <td data-label="Paciente">{cons.pacientes?.nombre_completo || 'Anónimo'}</td>
-                                      <td data-label="Empresa (RIF)">{cons.empresas?.nombre || 'Independiente'} ({cons.empresas?.rif})</td>
-                                      <td data-label="Tipo Consulta">{cons.tipo_consulta}</td>
-                                      <td data-label="Patología">{cons.tipo_patologia}</td>
-                                      <td data-label="Reposo">
-                                        {cons.categoria_reposo === 'NINGUNO' ? (
-                                          <span className="badge badge-info">SIN REPOSO</span>
-                                        ) : cons.categoria_reposo.includes('ACCIDENTE') ? (
-                                          <span className="badge badge-danger">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
-                                        ) : (
-                                          <span className="badge badge-warning">{cons.categoria_reposo} ({cons.dias_reposo}D)</span>
-                                        )}
-                                      </td>
-                                    </tr>
-                                  ))}
-                              </tbody>
-                            </table>
-                          )}
-                        </section>
-                      </div>
-                    )}
-
-                    {activeView === 'patients' && <PatientsList key="patients-view" selectedCompany={selectedCompany} onNewConsultation={handleNewConsultation} />}
-                    {activeView === 'companies' && <CompaniesModule key="companies-view" onAudit={(companyName) => { setSelectedCompany(companyName); setActiveView('surveillance'); }} />}
-                    {activeView === 'surveillance' && (
-                      <SurveillanceModule
-                        key="surveillance-view"
-                        selectedCompanyProp={selectedCompany}
-                      />
-                    )}
-                    {activeView === 'consultas' && <ConsultasModule key="consultas-view" selectedCompany={selectedCompany} />}
-                    {activeView === 'reposo' && <ReposoModulo key="reposo-view" selectedCompany={selectedCompany} userRole={userRole} />}
-                    {activeView === 'bi_analytics' && <BIAnalytics key="bi-view" selectedCompany={selectedCompany} />}
-                  </>
-                )}
-              </div>
+                <button className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}><Activity size={20} /> Dashboard</button>
+                <button className={`nav-item ${activeView === 'patients' ? 'active' : ''}`} onClick={() => { setActiveView('patients'); setIsSidebarOpen(false); }}><Users size={20} /> Pacientes</button>
+                <button className={`nav-item ${activeView === 'companies' ? 'active' : ''}`} onClick={() => { setActiveView('companies'); setIsSidebarOpen(false); }}><BriefcaseMedical size={20} /> Empresas</button>
+                <button className={`nav-item ${activeView === 'surveillance' ? 'active' : ''}`} onClick={() => { setActiveView('surveillance'); setIsSidebarOpen(false); }}><FileText size={20} /> Vigilancia</button>
+                <button className={`nav-item ${activeView === 'consultas' ? 'active' : ''}`} onClick={() => { setActiveView('consultas'); setIsSidebarOpen(false); }}><Printer size={20} /> Consultas</button>
+                <button className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`} onClick={() => { setActiveView('reposo'); setIsSidebarOpen(false); }}><CalendarDays size={20} /> Reposo</button>
+                <button className={`nav-item ${activeView === 'bi_analytics' ? 'active' : ''}`} onClick={() => { setActiveView('bi_analytics'); setIsSidebarOpen(false); }}><Activity size={20} /> BI & Analytics</button>
+              </>
             )}
-          </main>
+            {userRole === 'fisiatria' && (
+              <>
+                <button className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}><Activity size={20} /> Fisiatría</button>
+                <button className={`nav-item ${activeView === 'vademecum' ? 'active' : ''}`} onClick={() => { setActiveView('vademecum'); setIsSidebarOpen(false); }}><BookOpen size={20} /> Vademécum</button>
+                <button className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`} onClick={() => { setActiveView('reposo'); setIsSidebarOpen(false); }}><CalendarDays size={20} /> Reposo</button>
+              </>
+            )}
+            <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
+              <button className="nav-item" onClick={() => setShowResetPassword(true)} style={{ color: 'var(--text-primary)', width: '100%' }}><AlertTriangle size={20} /> Seguridad</button>
+              <button className="nav-item" onClick={handleLogout} style={{ color: 'var(--danger)', width: '100%' }}><LogOut size={20} /> Salir</button>
+            </div>
+          </nav>
+        </aside>
 
-          {/* MODAL DE NUEVA EVALUACIÓN (SUPABASE) */}
-          {showForm && <NewEvaluationForm onClose={handleFormClose} prefilledCedula={prefilledCedula} />}
-        </div>
-      )}
-    </>
+        <main className="main-content">
+          <header className="top-bar">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <div>
+                <h2 className="page-title">{userRole === 'fisiatria' ? 'Gestión Fisiátrica' : 'Mando Epidemiológico'}</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>LIC. CARLOS FUENTES | CORPORATIVO</p>
+              </div>
+              {userRole === 'laboral' && (
+                <div style={{ padding: '8px 12px', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <select value={selectedCompany} onChange={(e) => setSelectedCompany(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontWeight: 600 }}>
+                    <option value="GENERAL">📊 GLOBAL</option>
+                    {availableCompanies.map(c => <option key={c} value={c}>🏢 {c}</option>)}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div className="user-profile">
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Dra. Yadira Pino</div>
+                <div style={{ color: 'var(--medical-turquoise)', fontSize: '0.7rem', fontWeight: 800 }}>MÉDICO ESPECIALISTA</div>
+              </div>
+              <div className="user-avatar" style={{ background: 'linear-gradient(135deg, var(--doctora-pink), var(--corporate-blue))' }}>YP</div>
+            </div>
+          </header>
+
+          {loading ? (
+            <div style={{ color: 'var(--corporate-blue)', textAlign: 'center', marginTop: '100px', fontWeight: 600 }}>Calculando BI...</div>
+          ) : (
+            <div className="view-transition-wrapper">
+              {userRole === 'fisiatria' ? (
+                <>
+                  {(activeView === 'dashboard' || activeView === 'vademecum') && <FisiatriaDashboard initialView={activeView === 'vademecum' ? 'vademecum' : 'home'} />}
+                  {activeView === 'reposo' && <ReposoModulo selectedCompany="GENERAL" />}
+                </>
+              ) : (
+                <>
+                  {activeView === 'dashboard' && (
+                    <div className="dashboard-view fade-in">
+                      <section className="kpi-grid">
+                        <div className="kpi-card"><span>Población</span><div className="kpi-value">{kpis.total_pacientes}</div></div>
+                        <div className="kpi-card"><span>Consultas</span><div className="kpi-value">{kpis.consultas_mes}</div></div>
+                        <div className="kpi-card"><span>Días Médicos</span><div className="kpi-value">{kpis.dias_reposo}</div></div>
+                        <div className="kpi-card"><span>% Ausentismo</span><div className="kpi-value">{kpis.ausentismo}%</div></div>
+                      </section>
+                      <section className="charts-grid">
+                        <div className="chart-card"><h3 className="chart-title">Sexo</h3><div style={{ height: 200 }}><ResponsiveContainer><PieChart><Pie data={genderData} innerRadius={60} outerRadius={80} dataKey="value" stroke="none">{genderData.map((e, i) => <Cell key={i} fill={e.color} />)}</Pie><RechartsTooltip /><Legend /></PieChart></ResponsiveContainer></div></div>
+                        <div className="chart-card"><h3 className="chart-title">Consultas</h3><div style={{ height: 200 }}><ResponsiveContainer><BarChart data={consultationData}><XAxis dataKey="name" hide /><YAxis hide /><RechartsTooltip /><Bar dataKey="val" fill="var(--medical-turquoise)" radius={5} /></BarChart></ResponsiveContainer></div></div>
+                      </section>
+                      <section className="data-table-card">
+                        <table className="data-table">
+                          <thead><tr><th>Fecha</th><th>Paciente</th><th>Patología</th><th>Días</th></tr></thead>
+                          <tbody>{latestConsultations.map(c => (<tr key={c.id}><td>{c.fecha_consulta.split('T')[0]}</td><td>{c.pacientes?.nombre_completo}</td><td>{c.tipo_patologia}</td><td>{c.dias_reposo}</td></tr>))}</tbody>
+                        </table>
+                      </section>
+                    </div>
+                  )}
+                  {activeView === 'patients' && <PatientsList selectedCompany={selectedCompany} onNewConsultation={(c) => { setPrefilledCedula(c); setShowForm(true); }} />}
+                  {activeView === 'companies' && <CompaniesModule onAudit={(n) => { setSelectedCompany(n); setActiveView('surveillance'); }} />}
+                  {activeView === 'surveillance' && <SurveillanceModule selectedCompanyProp={selectedCompany} />}
+                  {activeView === 'consultas' && <ConsultasModule selectedCompany={selectedCompany} />}
+                  {activeView === 'reposo' && <ReposoModulo selectedCompany={selectedCompany} userRole={userRole} />}
+                  {activeView === 'bi_analytics' && <BIAnalytics selectedCompany={selectedCompany} />}
+                </>
+              )}
+            </div>
+          )}
+        </main>
+
+        {showForm && <NewEvaluationForm onClose={() => { setShowForm(false); fetchDashboardData(); }} prefilledCedula={prefilledCedula} />}
+
+        {showResetPassword && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000 }}>
+            <div style={{ background: 'var(--bg-secondary)', padding: 30, borderRadius: 15, width: 400 }}>
+              <h2 style={{ color: 'white', marginBottom: 20 }}>Cambiar Contraseña</h2>
+              <form onSubmit={handleUpdatePassword}>
+                <input type="password" required minLength={6} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} style={{ width: '100%', padding: 12, marginBottom: 15, borderRadius: 8, background: '#111', color: 'white', border: '1px solid #333' }} />
+                {resetError && <p style={{ color: 'var(--danger)' }}>{resetError}</p>}
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button type="button" onClick={() => setShowResetPassword(false)} style={{ flex: 1, padding: 12, borderRadius: 8, background: 'transparent', color: 'white', border: '1px solid #333' }}>Cerrar</button>
+                  <button type="submit" disabled={resetLoading} style={{ flex: 1, padding: 12, borderRadius: 8, background: 'var(--corporate-blue)', color: 'white', border: 'none' }}>{resetLoading ? '...' : 'Actualizar'}</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    </Suspense>
   );
 }
