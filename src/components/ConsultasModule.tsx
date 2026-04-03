@@ -10,11 +10,13 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
     const [searchTerm, setSearchTerm] = useState('');
     const [filterTipo, setFilterTipo] = useState('TODOS');
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
     useEffect(() => {
         fetchConsultas();
 
-        // v12.3: LISTADO REACTIVO (PROTOCOLO CARLOS FUENTES)
+        // v12.4: LISTADO REACTIVO (PROTOCOLO CARLOS FUENTES)
         const channel = supabase.channel('consultas-sync')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
                 console.log('📋 Refrescando listado de consultas...');
@@ -25,7 +27,7 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [selectedCompany]);
+    }, [selectedCompany, selectedMonth, selectedYear]);
 
     const fetchConsultas = async () => {
         setLoading(true);
@@ -150,10 +152,15 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
             c.pacientes.cedula.includes(searchTerm);
         const matchesTipo = filterTipo === 'TODOS' || c.tipo_consulta === filterTipo;
 
-        // SEGURIDAD CARLOS FUENTES: Doble validación de empresa
         const matchesCompany = selectedCompany === 'GENERAL' || c.empresas?.nombre === selectedCompany;
 
-        return matchesSearch && matchesTipo && matchesCompany;
+        // FILTRO TEMPORAL v12.4 (Sincronización Total con Vigilancia)
+        const targetDate = c.fecha_consulta ? new Date(c.fecha_consulta + 'T12:00:00') : null;
+        const matchesDate = targetDate 
+            ? (targetDate.getMonth() + 1 === selectedMonth && targetDate.getFullYear() === selectedYear)
+            : false;
+
+        return matchesSearch && matchesTipo && matchesCompany && matchesDate;
     });
 
     return (
@@ -175,6 +182,38 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                         style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                     />
                 </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-secondary)', padding: '0 15px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                    <Calendar size={18} color="var(--corporate-blue)" />
+                    <select
+                        value={selectedMonth}
+                        onChange={e => setSelectedMonth(parseInt(e.target.value))}
+                        style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', padding: '12px 0' }}
+                    >
+                        <option value={1}>Enero</option>
+                        <option value={2}>Febrero</option>
+                        <option value={3}>Marzo</option>
+                        <option value={4}>Abril</option>
+                        <option value={5}>Mayo</option>
+                        <option value={6}>Junio</option>
+                        <option value={7}>Julio</option>
+                        <option value={8}>Agosto</option>
+                        <option value={9}>Septiembre</option>
+                        <option value={10}>Octubre</option>
+                        <option value={11}>Noviembre</option>
+                        <option value={12}>Diciembre</option>
+                    </select>
+                    <div style={{ width: '1px', height: '20px', background: 'var(--border-color)' }} />
+                    <select
+                        value={selectedYear}
+                        onChange={e => setSelectedYear(parseInt(e.target.value))}
+                        style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', padding: '12px 0' }}
+                    >
+                        {[2023, 2024, 2025, 2026, 2027].map(y => (
+                            <option key={y} value={y}>{y}</option>
+                        ))}
+                    </select>
+                </div>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-secondary)', padding: '0 15px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                     <Filter size={18} color="var(--corporate-blue)" />
                     <select

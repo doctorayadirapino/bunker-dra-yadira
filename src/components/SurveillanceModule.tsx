@@ -58,9 +58,14 @@ export default function SurveillanceModule({
 
             // --- FILTRADO TEMPORAL Y POR EMPRESA (Carlos Fuentes - Discriminación Ovejita) ---
             const filtered = data.filter(c => {
-                const date = new Date(c.created_at);
-                const monthName = date.toLocaleString('es-VE', { month: 'long' }).toUpperCase();
-                const yearStr = date.getFullYear().toString();
+                // Priorizamos fecha_consulta (fecha médica) sobre created_at (fecha de registro)
+                const targetDate = c.fecha_consulta ? new Date(c.fecha_consulta + 'T12:00:00') : new Date(c.created_at);
+                const monthNames = [
+                    "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+                    "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"
+                ];
+                const monthName = monthNames[targetDate.getMonth()];
+                const yearStr = targetDate.getFullYear().toString();
 
                 const matchesTime = monthName === selectedMonth && yearStr === selectedYear;
                 const matchesEmpresa = selectedEmpresa === 'GENERAL' || c.empresas?.nombre === selectedEmpresa;
@@ -150,7 +155,7 @@ export default function SurveillanceModule({
         try {
             await generarReporteVigilanciaPDF({
                 companyName: selectedEmpresa,
-                month: `${selectedMonth} ${selectedYear}`, // Periodo dinámico v12.4
+                month: `${selectedMonth} ${selectedYear}`, // Periodo dinámico v12.5 (Sincronización Total)
                 stats: analytics,
                 conFirmaDigital: conFirma
             });

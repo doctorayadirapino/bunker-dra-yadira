@@ -2,13 +2,12 @@ import { useState, useEffect, Suspense, lazy } from 'react';
 import { supabase } from './lib/supabase';
 import {
   Activity, Users, FileText, CalendarDays, AlertTriangle,
-  PlusCircle, BriefcaseMedical, Stethoscope, Printer, LogOut, BookOpen,
+  PlusCircle, BriefcaseMedical, Printer, LogOut, BookOpen,
   Menu, X
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip as RechartsTooltip,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer,
-  LineChart, Line
+  BarChart, Bar, XAxis, YAxis, Legend, ResponsiveContainer
 } from 'recharts';
 import Login from './components/Login';
 
@@ -59,10 +58,6 @@ export default function App() {
   const [kpis, setKpis] = useState({ total_pacientes: 0, consultas_mes: 0, dias_reposo: 0, ausentismo: 0 });
   const [genderData, setGenderData] = useState<{ name: string, value: number, color: string }[]>([]);
   const [consultationData, setConsultationData] = useState<{ name: string, val: number }[]>([]);
-  const [topPathologies, setTopPathologies] = useState<{ name: string, v: number, c: string }[]>([]);
-  const [trendData, setTrendData] = useState<any[]>([]);
-  const [demographicStats, setDemographicStats] = useState<any[]>([]);
-  const [absenteeismStats, setAbsenteeismStats] = useState<any[]>([]);
   const [latestConsultations, setLatestConsultations] = useState<Consulta[]>([]);
   const [userRole, setUserRole] = useState<'laboral' | 'fisiatria' | null>(null);
 
@@ -159,12 +154,6 @@ export default function App() {
     setGenderData([{ name: 'Masculino', value: mCount, color: '#3b82f6' }, { name: 'Femenino', value: fCount, color: '#0bdada' }]);
     const cData = Object.keys(consulMap).map(k => ({ name: k, val: consulMap[k] })).sort((a, b) => b.val - a.val).slice(0, 5);
     setConsultationData(cData.length ? cData : [{ name: 'Sin Datos', val: 0 }]);
-    const colorsArr = ['#ef4444', '#f59e0b', '#3b82f6', '#22d3ee'];
-    const pData = Object.keys(patMap).map(k => ({ name: k, v: patMap[k] })).sort((a, b) => b.v - a.v).slice(0, 4).map((item, idx) => ({ ...item, c: colorsArr[idx % 4] }));
-    setTopPathologies(pData);
-    setTrendData(Object.values(monthTrends).slice(0, mesActual + 1));
-    setDemographicStats(Object.values(demoMap));
-    setAbsenteeismStats(Object.values(absentMap));
     setLatestConsultations(filtered.slice(0, 10));
 
     const totalPac = uniquePatients.size;
