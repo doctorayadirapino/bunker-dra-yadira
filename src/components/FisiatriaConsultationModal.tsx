@@ -19,10 +19,15 @@ interface RecipeItem {
     indicaciones: string;
 }
 
+interface VademecumItem {
+    nombre_medicamento: string;
+    indicaciones_sugeridas: string;
+}
+
 export default function FisiatriaConsultationModal({ patientId, patientName, patientCedula, patientEdad, patientTelefono, initialData, onClose, onSuccess }: Props) {
     const [loading, setLoading] = useState(false);
     const [useDigitalSignature, setUseDigitalSignature] = useState(false);
-    const [vademecumList, setVademecumList] = useState<string[]>([]);
+    const [vademecumList, setVademecumList] = useState<VademecumItem[]>([]);
 
     // Helper para obtener fecha local YYYY-MM-DD (Evita desfase UTC)
     const getLocalDate = () => {
@@ -79,9 +84,9 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
     const fetchVademecum = async () => {
         const { data } = await supabase
             .from('fisiatria_vademecum')
-            .select('nombre_medicamento');
+            .select('nombre_medicamento, indicaciones_sugeridas');
         if (data) {
-            setVademecumList(data.map(i => i.nombre_medicamento));
+            setVademecumList(data as VademecumItem[]);
         }
     };
 
@@ -97,7 +102,17 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
 
     const handleRecipeChange = (index: number, field: keyof RecipeItem, value: string) => {
         const newRecipes = [...recipes];
-        newRecipes[index][field] = value.toUpperCase();
+        const upperValue = value.toUpperCase();
+        newRecipes[index][field] = upperValue;
+
+        // AUTOCOMPLETADO PREDICTIVO
+        if (field === 'medicamento' && newRecipes[index].indicaciones === '') {
+            const match = vademecumList.find(v => v.nombre_medicamento === upperValue);
+            if (match && match.indicaciones_sugeridas) {
+                newRecipes[index].indicaciones = match.indicaciones_sugeridas;
+            }
+        }
+
         setRecipes(newRecipes);
     };
 
@@ -163,7 +178,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                 // 3. AUTO-LEARNING VADEMECUM
                 for (const r of validRecipes) {
                     const medUpper = r.medicamento.trim().toUpperCase();
-                    if (!vademecumList.includes(medUpper)) {
+                    if (!vademecumList.find(v => v.nombre_medicamento === medUpper)) {
                         await supabase
                             .from('fisiatria_vademecum')
                             .insert([{
@@ -415,7 +430,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                             ))}
                         </div>
                         <datalist id="vademecum-opts">
-                            {vademecumList.map(v => <option key={v} value={v} />)}
+                            {vademecumList.map(v => <option key={v.nombre_medicamento} value={v.nombre_medicamento} />)}
                         </datalist>
                     </div>
 

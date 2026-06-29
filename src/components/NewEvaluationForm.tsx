@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, Mail, Calendar } from 'lucide-react';
+import { X, Mail, Calendar, Printer } from 'lucide-react';
 import './NewEvaluationForm.css';
-import { generarCertificadoPDF, generarReposoPDF } from '../services/pdfService';
+import { generarCertificadoPDF, generarReposoPDF, generarExamenFisicoPDF, generarInformeINPSASELPDF } from '../services/pdfService';
 
 interface FormProps {
     onClose: () => void;
@@ -15,6 +15,11 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
     const [isEditing, setIsEditing] = useState(!!editConsultaId);
     const [error, setError] = useState<string | null>(null);
     const [useDigitalSignature, setUseDigitalSignature] = useState(false);
+    const [printOptions, setPrintOptions] = useState({
+        certificado: true,
+        examenFisico: false,
+        inpsasel: false
+    });
 
     // Form State
     const [paciente, setPaciente] = useState({ 
@@ -275,13 +280,20 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
 
             alert(isEditing ? "¡EVALUACIÓN ACTUALIZADA EXITOSAMENTE!" : "¡EVALUACIÓN REGISTRADA EXITOSAMENTE!");
 
-            const ciudadDefault = "GUARENAS";
-            const ciudadPersonalizada = window.prompt("Ingrese la ciudad de emisión de los reportes:", ciudadDefault);
-            const ciudadFinal = ciudadPersonalizada ? ciudadPersonalizada.toUpperCase() : ciudadDefault;
+            let ciudadFinal = "GUARENAS";
+            if (printOptions.certificado || printOptions.examenFisico || printOptions.inpsasel) {
+                const ciudadPersonalizada = window.prompt("Ingrese la ciudad de emisión de los reportes:", ciudadFinal);
+                if (ciudadPersonalizada) ciudadFinal = ciudadPersonalizada.toUpperCase();
+            }
 
-            // REPORTE 1: CERTIFICADO DE APTITUD MÉDICA (Obligatorio)
-            generarCertificadoPDF({
-                paciente: { nombre: paciente.nombre_completo, cedula: paciente.cedula },
+            const calcularEdad = (fechaNac: string) => {
+                if (!fechaNac) return '';
+                const diff = Date.now() - new Date(fechaNac).getTime();
+                return Math.abs(new Date(diff).getUTCFullYear() - 1970).toString();
+            };
+
+            const pdfData = {
+                paciente: { nombre: paciente.nombre_completo, cedula: paciente.cedula, edad: calcularEdad(paciente.fecha_nacimiento), sexo: paciente.sexo },
                 empresa: { nombre: empresa.nombre, rif: empresa.rif },
                 consulta: {
                     tipo: consulta.tipo_consulta,
@@ -290,14 +302,32 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                     examen_fisico: consulta.examen_fisico,
                     causa_reposo: consulta.causa_reposo,
                     dias_reposo: consulta.dias_reposo,
+                    riesgos_ocupacionales: consulta.riesgos_ocupacionales,
                     ciudad: ciudadFinal,
                     fecha: consulta.fecha_consulta
                 },
-                doctora: { nombre: "YADIRA PINO", especialidad: "Fisiatra", ci: "6.871.964", mpps: "41.171", cmm: "13.012" },
                 conFirmaDigital: useDigitalSignature
-            });
+            };
 
-            // REPORTE 2: CONSTANCIA DE REPOSO O ASISTENCIA (Solo si amerita reposo o según criterio)
+            // REPORTE 1: CERTIFICADO DE APTITUD MÉDICA (Opcional por Checkbox)
+            if (printOptions.certificado) {
+                generarCertificadoPDF({
+                    ...pdfData,
+                    doctora: { nombre: "YADIRA PINO", especialidad: "Fisiatra", ci: "6.871.964", mpps: "41.171", cmm: "13.012" }
+                });
+            }
+
+            // REPORTE 2: EXAMEN FÍSICO
+            if (printOptions.examenFisico) {
+                generarExamenFisicoPDF(pdfData);
+            }
+
+            // REPORTE 3: INPSASEL
+            if (printOptions.inpsasel) {
+                generarInformeINPSASELPDF(pdfData);
+            }
+
+            // REPORTE 4: CONSTANCIA DE REPOSO O ASISTENCIA (Solo si amerita reposo o según criterio)
             if (consulta.dias_reposo > 0 || consulta.categoria_reposo !== 'NINGUNO') {
                 generarReposoPDF({
                     paciente: { nombre: paciente.nombre_completo, cedula: paciente.cedula },
@@ -493,10 +523,25 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                                 <option value="NO APTO">NO APTO</option>
                                 <option value="EN EVALUACION">EN EVALUACIÓN</option>
                             </select>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px' }}>
-                                <input type="checkbox" checked={useDigitalSignature} onChange={e => setUseDigitalSignature(e.target.checked)} />
-                                <Mail size={16} /> Incluir Firma Digital
-                            </label>
+                            
+                            <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 'bold', color: 'var(--corporate-blue)', cursor: 'pointer' }}>
+                                    <input type="checkbox" checked={printOptions.certificado} onChange={e => setPrintOptions({...printOptions, certificado: e.target.checked})} />
+                                    <Printer size={16} /> Imprimir Certificado de Aptitud
+                                </label>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 'bold', color: 'var(--corporate-blue)', cursor: 'pointer' }}>
+                                    <input type="checkbox" checked={printOptions.examenFisico} onChange={e => setPrintOptions({...printOptions, examenFisico: e.target.checked})} />
+                                    <Printer size={16} /> Imprimir Examen Físico
+                                </label>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 'bold', color: 'var(--corporate-blue)', cursor: 'pointer' }}>
+                                    <input type="checkbox" checked={printOptions.inpsasel} onChange={e => setPrintOptions({...printOptions, inpsasel: e.target.checked})} />
+                                    <Printer size={16} /> Imprimir Informe INPSASEL
+                                </label>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '5px', borderTop: '1px dashed var(--medical-turquoise)', paddingTop: '10px', cursor: 'pointer' }}>
+                                    <input type="checkbox" checked={useDigitalSignature} onChange={e => setUseDigitalSignature(e.target.checked)} />
+                                    <Mail size={16} /> Incluir Firma Digital en los Reportes
+                                </label>
+                            </div>
                         </div>
                     </div>
 

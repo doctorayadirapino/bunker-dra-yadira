@@ -399,11 +399,19 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
 
         renderHeader();
 
+        // v16.2: Formateo literal de fecha atrasada
+        const formatFechaEstatica = (fechaISO: string) => {
+            if (!fechaISO) return 'N/A';
+            const partes = fechaISO.split('T')[0].split('-');
+            if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+            return fechaISO;
+        };
+
         doc.setTextColor('#1e293b');
         doc.setFontSize(11);
         doc.text(`Paciente: ${data.paciente.nombre}`, 15, 36);
         doc.text(`C.I.: V-${data.paciente.cedula}`, 15, 42); // Añadida Cédula de Identidad
-        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 160, 36);
+        doc.text(`Fecha: ${formatFechaEstatica(data.consulta.fecha)}`, 160, 36);
         doc.setFontSize(16);
         doc.setTextColor(textColor); // Título en negro (B&W compliance)
         doc.text('RÉCIPE', 105, 52, { align: 'center' }); // Solo RÉCIPE
@@ -456,7 +464,7 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         doc.setFontSize(11);
         doc.text(`Paciente: ${data.paciente.nombre}`, 15, 36);
         doc.text(`C.I.: V-${data.paciente.cedula}`, 15, 42);
-        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 160, 36);
+        doc.text(`Fecha: ${formatFechaEstatica(data.consulta.fecha)}`, 160, 36);
 
         doc.setFontSize(16);
         doc.setTextColor(textColor);
@@ -782,12 +790,23 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.text(data.paciente.cedula, 157, currentY);
 
     currentY += 15;
-    const fechaActual = new Date();
+    // v16.2: Sincronización de Fechas Atrasadas (Protocolo Carlos Fuentes)
+    const partesDesde = (data.reposo.desde || '').split('-');
+    let fechaAsistenciaStr = data.reposo.desde;
+    let diaExp = 'N/A', mesExp = 'N/A', anoExp = 'N/A';
+    if (partesDesde.length === 3) {
+        fechaAsistenciaStr = `${partesDesde[2]}/${partesDesde[1]}/${partesDesde[0]}`;
+        diaExp = partesDesde[2];
+        const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+        mesExp = meses[parseInt(partesDesde[1]) - 1];
+        anoExp = partesDesde[0];
+    }
+
     doc.setFont('helvetica', 'normal');
     doc.text('asistió a la consulta el día:', 15, currentY);
     doc.line(65, currentY + 1, 110, currentY + 1);
     doc.setFont('helvetica', 'bold');
-    doc.text(fechaActual.toLocaleDateString(), 68, currentY);
+    doc.text(fechaAsistenciaStr, 68, currentY);
 
     doc.setFont('helvetica', 'normal');
     doc.text('en condición de:', 115, currentY);
@@ -839,8 +858,7 @@ export const generarReposoPDF = async (data: ReposoData) => {
     doc.text('Constancia que se expide a petición de la parte interesada', 15, currentY);
 
     currentY += 10;
-    const mes = fechaActual.toLocaleString('es-VE', { month: 'long' });
-    doc.text(`en: ${data.reposo.ciudad}, el ${fechaActual.getDate()} de ${mes} de ${fechaActual.getFullYear()}.`, 15, currentY);
+    doc.text(`en: ${data.reposo.ciudad}, el ${diaExp} de ${mesExp} de ${anoExp}.`, 15, currentY);
 
     // v8.5: Blindaje Máximo Reposo [ESCALA CARTA 100%]
     let footerY = Math.max(currentY + 20, 235);
@@ -911,11 +929,19 @@ export const generarReferenciaFisiatriaPDF = async (data: FisiatriaConsultaData)
 
         renderHeader();
 
+        // v16.2: Formateo literal de fecha atrasada
+        const formatFechaEstatica = (fechaISO: string) => {
+            if (!fechaISO) return 'N/A';
+            const partes = fechaISO.split('T')[0].split('-');
+            if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+            return fechaISO;
+        };
+
         doc.setTextColor('#1e293b');
         doc.setFontSize(11);
         doc.text(`Paciente: ${data.paciente.nombre}`, 15, 41);
         doc.text(`C.I.: V-${data.paciente.cedula}`, 15, 47);
-        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 160, 41);
+        doc.text(`Fecha: ${formatFechaEstatica(data.consulta.fecha)}`, 160, 41);
 
         doc.setFontSize(16);
         doc.setTextColor(textColor);
@@ -1010,11 +1036,19 @@ export const generarRadiodiagnosticoFisiatriaPDF = async (data: FisiatriaConsult
 
         renderHeader();
 
+        // v16.2: Formateo literal de fecha atrasada
+        const formatFechaEstatica = (fechaISO: string) => {
+            if (!fechaISO) return 'N/A';
+            const partes = fechaISO.split('T')[0].split('-');
+            if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+            return fechaISO;
+        };
+
         doc.setTextColor('#1e293b');
         doc.setFontSize(11);
         doc.text(`Paciente: ${data.paciente.nombre}`, 15, 41);
         doc.text(`C.I.: V-${data.paciente.cedula}`, 15, 47);
-        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 160, 41);
+        doc.text(`Fecha: ${formatFechaEstatica(data.consulta.fecha)}`, 160, 41);
 
         doc.setFontSize(16);
         doc.setTextColor(textColor);
@@ -1061,5 +1095,156 @@ export const generarRadiodiagnosticoFisiatriaPDF = async (data: FisiatriaConsult
         doc.save(`Radiodiagnostico_${data.paciente.cedula}.pdf`);
     } catch (e) {
         console.error('Error Radiodiagnostico PDF:', e);
+    }
+};
+
+export const generarExamenFisicoPDF = async (data: any) => {
+    try {
+        const doc = new jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: [215.9, 279.4]
+        });
+
+        doc.setTextColor('#000000');
+        doc.setFont('times', 'bold');
+        doc.setFontSize(22);
+        doc.text(`Dra. YADIRA PINO R.`, 105, 15, { align: 'center' });
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Fisiatra / Medico Ocupacional', 105, 21, { align: 'center' });
+
+        doc.setFontSize(8);
+        doc.text('LOPCYMAT DIPLOMADO EN SALUD OCUPACIONAL DIPLOMADO DE ERGONOMIA', 105, 26, { align: 'center' });
+        doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 30, { align: 'center' });
+        doc.text(`RIF: V-6871964-6 | INPSASEL: MIR116871964`, 105, 34, { align: 'center' });
+
+        doc.setDrawColor('#000000');
+        doc.setLineWidth(0.5);
+        doc.line(15, 40, 195, 40);
+
+        doc.setFontSize(14);
+        doc.text('EXAMEN FÍSICO OCUPACIONAL', 105, 49, { align: 'center' });
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        
+        doc.text(`PACIENTE: ${data.paciente.nombre}`, 15, 60);
+        doc.text(`CÉDULA: ${data.paciente.cedula}`, 120, 60);
+        doc.text(`EMPRESA: ${data.empresa.nombre}`, 15, 66);
+        doc.text(`FECHA: ${data.consulta.fecha}`, 120, 66);
+
+        doc.line(15, 70, 195, 70);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('HALLAZGOS DEL EXAMEN FÍSICO:', 15, 80);
+        
+        doc.setFont('helvetica', 'normal');
+        const splitExamen = doc.splitTextToSize(data.consulta.examen_fisico || 'Sin hallazgos documentados.', 180);
+        doc.text(splitExamen, 15, 88);
+
+        let nextY = 88 + (splitExamen.length * 6) + 10;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('OBSERVACIONES ADICIONALES:', 15, nextY);
+        doc.setFont('helvetica', 'normal');
+        const splitObs = doc.splitTextToSize(data.consulta.observaciones || 'Ninguna.', 180);
+        doc.text(splitObs, 15, nextY + 8);
+        
+        nextY += 8 + (splitObs.length * 6) + 20;
+
+        if (data.conFirmaDigital) {
+            try {
+                const img = await loadImage('/firma_doctora.png');
+                doc.addImage(img, 'PNG', 80, nextY - 28, 50, 30);
+            } catch (e) {
+                console.error('Error firma:', e);
+            }
+        }
+
+        doc.setDrawColor('#000000');
+        doc.line(78, nextY, 138, nextY);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Dra. YADIRA PINO R.`, 108, nextY + 6, { align: 'center' });
+        doc.setFontSize(8);
+        doc.text('Fisiatra / Medico Ocupacional', 108, nextY + 11, { align: 'center' });
+
+        doc.save(`Examen_Fisico_${data.paciente.cedula}.pdf`);
+    } catch (err) {
+        console.error('Error Examen Físico PDF:', err);
+    }
+};
+
+export const generarInformeINPSASELPDF = async (data: any) => {
+    try {
+        const doc = new jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: [215.9, 279.4]
+        });
+
+        doc.setTextColor('#000000');
+        doc.setFont('times', 'bold');
+        doc.setFontSize(16);
+        doc.text(`INFORME MÉDICO OCUPACIONAL`, 105, 20, { align: 'center' });
+        doc.setFontSize(12);
+        doc.text(`NORMA INPSASEL`, 105, 26, { align: 'center' });
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(`1. DATOS DE LA EMPRESA`, 15, 40);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Nombre: ${data.empresa.nombre}`, 15, 46);
+        doc.text(`RIF: ${data.empresa.rif}`, 120, 46);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`2. DATOS DEL TRABAJADOR`, 15, 58);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Nombre y Apellidos: ${data.paciente.nombre}`, 15, 64);
+        doc.text(`Cédula: ${data.paciente.cedula}`, 120, 64);
+        doc.text(`Edad: ${data.paciente.edad || 'N/A'}`, 15, 70);
+        doc.text(`Sexo: ${data.paciente.sexo || 'N/A'}`, 120, 70);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`3. DATOS OCUPACIONALES Y RIESGOS`, 15, 82);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Riesgos Expuestos: ${data.consulta.riesgos_ocupacionales || 'No especificado'}`, 15, 88);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`4. EXAMEN FÍSICO`, 15, 100);
+        doc.setFont('helvetica', 'normal');
+        const exmSplit = doc.splitTextToSize(data.consulta.examen_fisico || 'Aparentemente Sano', 180);
+        doc.text(exmSplit, 15, 106);
+
+        let nY = 106 + (exmSplit.length * 6) + 6;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`5. CONCLUSIÓN DE APTITUD MÉDICA OCUPACIONAL`, 15, nY);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`El trabajador ha sido evaluado bajo la modalidad: ${data.consulta.tipo}`, 15, nY + 6);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`RESULTADO: ${data.consulta.aptitud}`, 15, nY + 14);
+
+        nY += 35;
+        if (data.conFirmaDigital) {
+            try {
+                const img = await loadImage('/firma_doctora.png');
+                doc.addImage(img, 'PNG', 80, nY - 28, 50, 30);
+            } catch (e) {}
+        }
+
+        doc.setDrawColor('#000000');
+        doc.line(78, nY, 138, nY);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Dra. YADIRA PINO R.`, 108, nY + 6, { align: 'center' });
+        doc.setFontSize(8);
+        doc.text('Fisiatra / Medico Ocupacional - INPSASEL: MIR116871964', 108, nY + 11, { align: 'center' });
+
+        doc.save(`INPSASEL_${data.paciente.cedula}.pdf`);
+    } catch (err) {
+        console.error('Error INPSASEL PDF:', err);
     }
 };

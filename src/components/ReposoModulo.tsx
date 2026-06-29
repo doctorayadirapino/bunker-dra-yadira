@@ -420,7 +420,12 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                                  <tbody>
                                      {historial.map((reg) => (
                                          <tr key={reg.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                             <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>{new Date(reg.created_at).toLocaleString('es-VE')}</td>
+                                             <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>
+                                                 {(() => {
+                                                     const p = (reg.fecha_desde || '').split('-');
+                                                     return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : (reg.fecha_desde || new Date(reg.created_at).toLocaleDateString('es-VE'));
+                                                 })()}
+                                             </td>
                                              <td style={{ padding: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>{reg.nombre_paciente} <br /><span style={{ fontSize: '0.8rem', color: '#64748b' }}>V-{reg.cedula_paciente}</span></td>
                                              <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>
                                                  {reg.tipo_documento === 'REPOSO' ? (
