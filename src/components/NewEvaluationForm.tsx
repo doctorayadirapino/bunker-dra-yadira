@@ -192,14 +192,40 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
         }
     };
 
+    const DRAFT_KEY = `draft_evaluacion_${prefilledCedula || 'nuevo'}`;
+
     useEffect(() => {
         if (editConsultaId) {
             setIsEditing(true);
             loadEditData();
-        } else if (prefilledCedula) {
-            handleCedulaChange(prefilledCedula);
+            localStorage.removeItem(DRAFT_KEY);
+        } else {
+            if (prefilledCedula) {
+                handleCedulaChange(prefilledCedula);
+            }
+            // MODO CREACIÓN: Intentar recuperar borrador
+            const savedDraft = localStorage.getItem(DRAFT_KEY);
+            if (savedDraft) {
+                try {
+                    const parsedDraft = JSON.parse(savedDraft);
+                    if (parsedDraft.paciente) setPaciente(parsedDraft.paciente);
+                    if (parsedDraft.empresa) setEmpresa(parsedDraft.empresa);
+                    if (parsedDraft.consulta) setConsulta(parsedDraft.consulta);
+                    if (parsedDraft.antecedentes) setAntecedentes(parsedDraft.antecedentes);
+                } catch (e) {
+                    console.error('Error al parsear borrador:', e);
+                }
+            }
         }
     }, [editConsultaId, prefilledCedula]);
+
+    // EFECTO AUTO-GUARDADO: Se dispara al cambiar datos, solo en modo creación
+    useEffect(() => {
+        if (!editConsultaId) {
+            const draftToSave = { paciente, empresa, consulta, antecedentes };
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(draftToSave));
+        }
+    }, [paciente, empresa, consulta, antecedentes, editConsultaId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -351,6 +377,9 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                     conFirmaDigital: useDigitalSignature
                 });
             }
+
+            // LIMPIAR BORRADOR TRAS ÉXITO
+            localStorage.removeItem(`draft_evaluacion_${prefilledCedula || 'nuevo'}`);
 
             onClose();
         } catch (err: any) {

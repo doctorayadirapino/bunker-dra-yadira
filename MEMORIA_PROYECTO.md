@@ -1,6 +1,6 @@
 # MEMORIA DEL PROYECTO - CONSULTORIO YADIRA PINO
 
-## 📅 Fecha: 2026-06-29 (Sesión: v16.2 - Sincronización Temporal Retroactiva)
+## 📅 Fecha: 2026-07-09 (Sesión: v16.3 - Zero-Loss State Persistence)
 ## 👤 Arquitecto: Antigravity (Protocolo Carlos Fuentes)
 
 ---
@@ -12,6 +12,15 @@
 - **Vercel Production Token:** `[REDACTED]`
 - **Supabase Management Token:** `[REDACTED]`
 - **GitHub Access Token:** `[REDACTED]`
+
+---
+
+### ✅ HITOS ALCANZADOS - VERSIÓN 16.3 (ZERO-LOSS STATE PERSISTENCE)
+
+1.  **AUTO-GUARDADO INTELIGENTE DE BORRADORES (DRAFT PERSISTENCE):**
+    *   **Resiliencia Quirúrgica:** Se implementó una caché local dinámica (`localStorage`) en los componentes `FisiatriaConsultationModal` y `NewEvaluationForm`.
+    *   **Zero-Click-Fatigue:** El sistema protege silenciosamente el progreso médico ("Enfermedad Actual", "Diagnóstico", etc.) en caso de expiración de sesión, recargas accidentales o tiempos de evaluación física prolongados.
+    *   **Higiene de Datos:** El borrador se auto-destruye únicamente cuando la base de datos confirma el guardado exitoso, garantizando un "Estado Zero" impecable para la siguiente evaluación.
 
 ---
 
@@ -97,7 +106,8 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estándar c
 
 ### 📝 RESUMEN DE CIERRE DE SESIÓN FINAL
 - **¿Qué se hizo hoy?**: 
-    1.  **Sincronización Temporal v16.2**: Corrección del algoritmo generador de PDF para estampar fechas atrasadas (seleccionadas por el usuario) en Récipes, Reposos e Informes Médicos, garantizando la retroactividad de los justificativos.
+    1.  **Persistencia Zero-Loss v16.3**: Se resolvió la pérdida de datos de formularios (reportado por Dra. Yadira) mediante auto-guardado en LocalStorage, permitiendo evaluaciones físicas prolongadas sin temor a expiración de sesión.
+    2.  **Sincronización Temporal v16.2**: Corrección del algoritmo generador de PDF para estampar fechas atrasadas (seleccionadas por el usuario) en Récipes, Reposos e Informes Médicos, garantizando la retroactividad de los justificativos.
     2.  **Motor PDF v16.0**: Incorporación del `Examen Físico` y `Norma INPSASEL` al generador de PDF, eliminando redundancias en la doble entrada de datos.
     3.  **Despliegues a Producción**: Envío exitoso de las versiones a Vercel con validación de código estricta (`v16.0` y `v16.1`).
     4.  **Vademécum Predictivo v16.1**: Inyección de lógica IA en el récipe médico de Fisiatría para autocompletar indicaciones basadas en el historial.

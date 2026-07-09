@@ -57,6 +57,8 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
         { medicamento: '', indicaciones: '' }
     ]);
 
+    const DRAFT_KEY = `draft_fisiatria_${patientId}`;
+
     useEffect(() => {
         fetchVademecum();
         if (initialData) {
@@ -78,8 +80,34 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
             if (initialData.fisiatria_recipes && initialData.fisiatria_recipes.length > 0) {
                 setRecipes(initialData.fisiatria_recipes);
             }
+            
+            // Si editamos, limpiamos borrador previo por seguridad
+            localStorage.removeItem(DRAFT_KEY);
+        } else {
+            // MODO CREACIÓN: Intentar recuperar borrador
+            const savedDraft = localStorage.getItem(DRAFT_KEY);
+            if (savedDraft) {
+                try {
+                    const parsedDraft = JSON.parse(savedDraft);
+                    if (parsedDraft.formData) setFormData(parsedDraft.formData);
+                    if (parsedDraft.recipes && parsedDraft.recipes.length > 0) setRecipes(parsedDraft.recipes);
+                } catch (e) {
+                    console.error('Error al parsear borrador:', e);
+                }
+            }
         }
-    }, [initialData]);
+    }, [initialData, patientId]);
+
+    // EFECTO AUTO-GUARDADO: Se dispara al cambiar datos, solo en modo creación
+    useEffect(() => {
+        if (!initialData) {
+            const draftToSave = {
+                formData,
+                recipes
+            };
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(draftToSave));
+        }
+    }, [formData, recipes, initialData, patientId]);
 
     const fetchVademecum = async () => {
         const { data } = await supabase
@@ -233,6 +261,9 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                     generarReferenciaFisiatriaPDF(payload);
                 }
             }
+
+            // LIMPIAR BORRADOR TRAS ÉXITO
+            localStorage.removeItem(`draft_fisiatria_${patientId}`);
 
             onSuccess();
             onClose();
