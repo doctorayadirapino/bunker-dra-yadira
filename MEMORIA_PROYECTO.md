@@ -15,12 +15,21 @@
 
 ---
 
+### ✅ HITOS ALCANZADOS - VERSIÓN 17.0 (CLOUD DRAFTS Y PORTABILIDAD TOTAL)
+
+1.  **SISTEMA DE BORRADORES EN LA NUBE (CROSS-DEVICE PERSISTENCE):**
+    *   **Portabilidad Absoluta:** Se migró el sistema de caché local (`localStorage`) a una arquitectura en la nube con Supabase (`borradores_clinicos`).
+    *   **Anti-Race Condition:** Se implementaron "Barreras de Estado" (`isDraftLoaded`) en React para garantizar que los datos se recuperen y no sean sobrescritos por montajes asíncronos o recargas de pestaña.
+    *   **Debounce Inteligente:** El auto-guardado en Supabase incluye un retraso (debounce) de 1.5s post-escritura, evitando la sobrecarga de consultas a la base de datos (Rate Limiting Protection).
+    *   **Limpieza Quirúrgica:** Al registrarse formalmente la evaluación, el borrador se autodestruye en la nube, manteniendo el Estado Zero.
+
+---
+
 ### ✅ HITOS ALCANZADOS - VERSIÓN 16.3 (ZERO-LOSS STATE PERSISTENCE)
 
-1.  **AUTO-GUARDADO INTELIGENTE DE BORRADORES (DRAFT PERSISTENCE):**
+1.  **AUTO-GUARDADO INTELIGENTE DE BORRADORES (LOCAL DRAFT):**
     *   **Resiliencia Quirúrgica:** Se implementó una caché local dinámica (`localStorage`) en los componentes `FisiatriaConsultationModal` y `NewEvaluationForm`.
-    *   **Zero-Click-Fatigue:** El sistema protege silenciosamente el progreso médico ("Enfermedad Actual", "Diagnóstico", etc.) en caso de expiración de sesión, recargas accidentales o tiempos de evaluación física prolongados.
-    *   **Higiene de Datos:** El borrador se auto-destruye únicamente cuando la base de datos confirma el guardado exitoso, garantizando un "Estado Zero" impecable para la siguiente evaluación.
+    *   **Zero-Click-Fatigue:** El sistema protege silenciosamente el progreso médico en caso de expiración de sesión local.
 
 ---
 
@@ -106,11 +115,11 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estándar c
 
 ### 📝 RESUMEN DE CIERRE DE SESIÓN FINAL
 - **¿Qué se hizo hoy?**: 
-    1.  **Persistencia Zero-Loss v16.3**: Se implementó una arquitectura de auto-guardado en caché (LocalStorage) para los formularios `FisiatriaConsultationModal` y `NewEvaluationForm`. Esto previene la pérdida de datos clínicos durante evaluaciones prolongadas, solucionando el problema reportado por la Dra. Yadira Pino.
-    2.  **Validación CI/CD**: Se ejecutó el build local sin errores y se integró satisfactoriamente con GitHub y Vercel, manteniendo la integridad con Supabase.
-- **¿Qué quedó pendiente?**: Nada crítico. El requerimiento de prevención de pérdida de datos está 100% operativo en producción.
-- **Estado de Auditoría**: El sistema mantiene su **Estado Zero**. Arquitectura reactiva y simbiótica sin romper el esquema de datos maestro.
+    1.  **Cloud Drafts v17.0 (Portabilidad Cruzada)**: Se migró el almacenamiento local de borradores (`localStorage`) hacia Supabase, implementando debounce (1.5s) y state barriers (`isDraftLoaded`) para prevenir sobrescrituras y race conditions al recargar la página. Ahora la Dra. Yadira puede comenzar una evaluación en un dispositivo y culminarla en otro sin pérdida de datos.
+    2.  **Migración de Base de Datos**: Se ejecutó exitosamente el DDL SQL en producción para crear la tabla `borradores_clinicos` con políticas RLS y acceso anónimo seguro.
+- **¿Qué quedó pendiente?**: Nada crítico. La migración a la nube fue un éxito rotundo.
+- **Estado de Auditoría**: El sistema mantiene su **Estado Zero**. Portabilidad 100% garantizada. Nivel de protección: Carlos Fuentes.
 
 ---
-**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - SANEADO - SEGURIDAD NIVEL CARLOS FUENTES.**
+**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - CLOUD ENABLED - SEGURIDAD NIVEL CARLOS FUENTES.**
 📦 **BÚNKER SELLADO, AUDITADO Y EN REPOSO ABSOLUTO.**

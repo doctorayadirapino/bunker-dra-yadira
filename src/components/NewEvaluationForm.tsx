@@ -192,40 +192,81 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
         }
     };
 
-    const DRAFT_KEY = `draft_evaluacion_${prefilledCedula || 'nuevo'}`;
+    const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
     useEffect(() => {
-        if (editConsultaId) {
-            setIsEditing(true);
-            loadEditData();
-            localStorage.removeItem(DRAFT_KEY);
-        } else {
-            if (prefilledCedula) {
-                handleCedulaChange(prefilledCedula);
-            }
-            // MODO CREACIÓN: Intentar recuperar borrador
-            const savedDraft = localStorage.getItem(DRAFT_KEY);
-            if (savedDraft) {
-                try {
-                    const parsedDraft = JSON.parse(savedDraft);
-                    if (parsedDraft.paciente) setPaciente(parsedDraft.paciente);
-                    if (parsedDraft.empresa) setEmpresa(parsedDraft.empresa);
-                    if (parsedDraft.consulta) setConsulta(parsedDraft.consulta);
-                    if (parsedDraft.antecedentes) setAntecedentes(parsedDraft.antecedentes);
-                } catch (e) {
-                    console.error('Error al parsear borrador:', e);
+        const fetchDraft = async () => {
+            if (editConsultaId) {
+                setIsEditing(true);
+                await loadEditData();
+                await supabase.from('borradores_clinicos')
+                    .delete()
+                    .eq('paciente_identificador', prefilledCedula || 'nuevo')
+                    .eq('tipo_formulario', 'ocupacional');
+                setIsDraftLoaded(true);
+            } else {
+                if (prefilledCedula) {
+                    await handleCedulaChange(prefilledCedula);
                 }
+                
+                try {
+                    const { data: draftData } = await supabase
+                        .from('borradores_clinicos')
+                        .select('datos_borrador')
+                        .eq('paciente_identificador', prefilledCedula || 'nuevo')
+                        .eq('tipo_formulario', 'ocupacional')
+                        .single();
+
+                    if (draftData && draftData.datos_borrador) {
+                        const parsedDraft = draftData.datos_borrador;
+                        if (parsedDraft.paciente) setPaciente(parsedDraft.paciente);
+                        if (parsedDraft.empresa) setEmpresa(parsedDraft.empresa);
+                        if (parsedDraft.consulta) setConsulta(parsedDraft.consulta);
+                        if (parsedDraft.antecedentes) setAntecedentes(parsedDraft.antecedentes);
+                    }
+                } catch (e) {
+                    console.error('Borrador en la nube no encontrado o error:', e);
+                }
+                setIsDraftLoaded(true);
             }
-        }
+        };
+        fetchDraft();
     }, [editConsultaId, prefilledCedula]);
 
-    // EFECTO AUTO-GUARDADO: Se dispara al cambiar datos, solo en modo creación
+    // EFECTO AUTO-GUARDADO DEBOUNCED EN LA NUBE
     useEffect(() => {
-        if (!editConsultaId) {
+        if (!editConsultaId && isDraftLoaded) {
             const draftToSave = { paciente, empresa, consulta, antecedentes };
-            localStorage.setItem(DRAFT_KEY, JSON.stringify(draftToSave));
+            
+            const timer = setTimeout(async () => {
+                try {
+                    const payload = {
+                        paciente_identificador: prefilledCedula || 'nuevo',
+                        tipo_formulario: 'ocupacional',
+                        datos_borrador: draftToSave,
+                        updated_at: new Date().toISOString()
+                    };
+                    
+                    const { data: existing } = await supabase
+                        .from('borradores_clinicos')
+                        .select('id')
+                        .eq('paciente_identificador', payload.paciente_identificador)
+                        .eq('tipo_formulario', payload.tipo_formulario)
+                        .single();
+                        
+                    if (existing) {
+                        await supabase.from('borradores_clinicos').update(payload).eq('id', existing.id);
+                    } else {
+                        await supabase.from('borradores_clinicos').insert([payload]);
+                    }
+                } catch (e) {
+                    console.error('Error guardando borrador en la nube:', e);
+                }
+            }, 1500);
+
+            return () => clearTimeout(timer);
         }
-    }, [paciente, empresa, consulta, antecedentes, editConsultaId]);
+    }, [paciente, empresa, consulta, antecedentes, editConsultaId, isDraftLoaded, prefilledCedula]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -378,8 +419,11 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                 });
             }
 
-            // LIMPIAR BORRADOR TRAS ÉXITO
-            localStorage.removeItem(`draft_evaluacion_${prefilledCedula || 'nuevo'}`);
+            // LIMPIAR BORRADOR EN LA NUBE TRAS ÉXITO
+            await supabase.from('borradores_clinicos')
+                .delete()
+                .eq('paciente_identificador', prefilledCedula || 'nuevo')
+                .eq('tipo_formulario', 'ocupacional');
 
             onClose();
         } catch (err: any) {

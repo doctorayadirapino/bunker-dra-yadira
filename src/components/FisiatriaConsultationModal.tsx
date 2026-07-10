@@ -57,57 +57,97 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
         { medicamento: '', indicaciones: '' }
     ]);
 
-    const DRAFT_KEY = `draft_fisiatria_${patientId}`;
+    const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
     useEffect(() => {
-        fetchVademecum();
-        if (initialData) {
-            setFormData({
-                referido_por: initialData.referido_por || '',
-                motivo_consulta: initialData.motivo_consulta || '',
-                examen_fisico: initialData.examen_fisico || '',
-                diagnostico: initialData.diagnostico || '',
-                plan_sugerencia: initialData.plan_sugerencia || '',
-                referencia: initialData.referencia || '',
-                reposo_constancia: initialData.reposo_constancia || '',
-                referencia_medico: initialData.referencia_medico || '',
-                referencia_especialidad: initialData.referencia_especialidad || '',
-                referencia_motivo: initialData.referencia_motivo || '',
-                radiodiagnostico_detalle: initialData.radiodiagnostico_detalle || '',
-                fecha_consulta: initialData.fecha_consulta ? initialData.fecha_consulta : getLocalDate()
-            });
+        const fetchInit = async () => {
+            await fetchVademecum();
+            if (initialData) {
+                setFormData({
+                    referido_por: initialData.referido_por || '',
+                    motivo_consulta: initialData.motivo_consulta || '',
+                    examen_fisico: initialData.examen_fisico || '',
+                    diagnostico: initialData.diagnostico || '',
+                    plan_sugerencia: initialData.plan_sugerencia || '',
+                    referencia: initialData.referencia || '',
+                    reposo_constancia: initialData.reposo_constancia || '',
+                    referencia_medico: initialData.referencia_medico || '',
+                    referencia_especialidad: initialData.referencia_especialidad || '',
+                    referencia_motivo: initialData.referencia_motivo || '',
+                    radiodiagnostico_detalle: initialData.radiodiagnostico_detalle || '',
+                    fecha_consulta: initialData.fecha_consulta ? initialData.fecha_consulta : getLocalDate()
+                });
 
-            if (initialData.fisiatria_recipes && initialData.fisiatria_recipes.length > 0) {
-                setRecipes(initialData.fisiatria_recipes);
-            }
-            
-            // Si editamos, limpiamos borrador previo por seguridad
-            localStorage.removeItem(DRAFT_KEY);
-        } else {
-            // MODO CREACIÓN: Intentar recuperar borrador
-            const savedDraft = localStorage.getItem(DRAFT_KEY);
-            if (savedDraft) {
-                try {
-                    const parsedDraft = JSON.parse(savedDraft);
-                    if (parsedDraft.formData) setFormData(parsedDraft.formData);
-                    if (parsedDraft.recipes && parsedDraft.recipes.length > 0) setRecipes(parsedDraft.recipes);
-                } catch (e) {
-                    console.error('Error al parsear borrador:', e);
+                if (initialData.fisiatria_recipes && initialData.fisiatria_recipes.length > 0) {
+                    setRecipes(initialData.fisiatria_recipes);
                 }
+                
+                await supabase.from('borradores_clinicos')
+                    .delete()
+                    .eq('paciente_identificador', patientId)
+                    .eq('tipo_formulario', 'fisiatria');
+                    
+                setIsDraftLoaded(true);
+            } else {
+                try {
+                    const { data: draftData } = await supabase
+                        .from('borradores_clinicos')
+                        .select('datos_borrador')
+                        .eq('paciente_identificador', patientId)
+                        .eq('tipo_formulario', 'fisiatria')
+                        .single();
+                        
+                    if (draftData && draftData.datos_borrador) {
+                        const parsedDraft = draftData.datos_borrador;
+                        if (parsedDraft.formData) setFormData(parsedDraft.formData);
+                        if (parsedDraft.recipes && parsedDraft.recipes.length > 0) setRecipes(parsedDraft.recipes);
+                    }
+                } catch (e) {
+                    console.error('Borrador en la nube no encontrado o error:', e);
+                }
+                setIsDraftLoaded(true);
             }
-        }
+        };
+        fetchInit();
     }, [initialData, patientId]);
 
-    // EFECTO AUTO-GUARDADO: Se dispara al cambiar datos, solo en modo creación
+    // EFECTO AUTO-GUARDADO DEBOUNCED EN LA NUBE
     useEffect(() => {
-        if (!initialData) {
+        if (!initialData && isDraftLoaded) {
             const draftToSave = {
                 formData,
                 recipes
             };
-            localStorage.setItem(DRAFT_KEY, JSON.stringify(draftToSave));
+            
+            const timer = setTimeout(async () => {
+                try {
+                    const payload = {
+                        paciente_identificador: patientId,
+                        tipo_formulario: 'fisiatria',
+                        datos_borrador: draftToSave,
+                        updated_at: new Date().toISOString()
+                    };
+                    
+                    const { data: existing } = await supabase
+                        .from('borradores_clinicos')
+                        .select('id')
+                        .eq('paciente_identificador', payload.paciente_identificador)
+                        .eq('tipo_formulario', payload.tipo_formulario)
+                        .single();
+                        
+                    if (existing) {
+                        await supabase.from('borradores_clinicos').update(payload).eq('id', existing.id);
+                    } else {
+                        await supabase.from('borradores_clinicos').insert([payload]);
+                    }
+                } catch (e) {
+                    console.error('Error guardando borrador en la nube:', e);
+                }
+            }, 1500);
+
+            return () => clearTimeout(timer);
         }
-    }, [formData, recipes, initialData, patientId]);
+    }, [formData, recipes, initialData, patientId, isDraftLoaded]);
 
     const fetchVademecum = async () => {
         const { data } = await supabase
@@ -262,8 +302,11 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
                 }
             }
 
-            // LIMPIAR BORRADOR TRAS ÉXITO
-            localStorage.removeItem(`draft_fisiatria_${patientId}`);
+            // LIMPIAR BORRADOR TRAS ÉXITO EN LA NUBE
+            await supabase.from('borradores_clinicos')
+                .delete()
+                .eq('paciente_identificador', patientId)
+                .eq('tipo_formulario', 'fisiatria');
 
             onSuccess();
             onClose();
