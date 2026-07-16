@@ -299,6 +299,11 @@ export default function App() {
             <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
               <button className="nav-item" onClick={() => setShowResetPassword(true)} style={{ color: 'var(--text-primary)', width: '100%' }}><AlertTriangle size={20} /> Seguridad</button>
               <button className="nav-item" onClick={handleLogout} style={{ color: 'var(--danger)', width: '100%' }}><LogOut size={20} /> Salir</button>
+              <div style={{ textAlign: 'center', marginTop: '15px', paddingBottom: '5px' }}>
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500, opacity: 0.7 }}>
+                  Desarrollado por <b>MSc. Carlos Fuentes</b>
+                </span>
+              </div>
             </div>
           </nav>
         </aside>
@@ -306,10 +311,6 @@ export default function App() {
         <main className="main-content">
           <header className="top-bar">
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <div>
-                <h2 className="page-title">{userRole === 'fisiatria' ? 'Gestión Fisiátrica' : 'Mando Epidemiológico'}</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>LIC. CARLOS FUENTES | CORPORATIVO</p>
-              </div>
               {userRole === 'laboral' && (
                 <div style={{ padding: '8px 12px', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                   <select value={selectedCompany} onChange={(e) => setSelectedCompany(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontWeight: 600 }}>
