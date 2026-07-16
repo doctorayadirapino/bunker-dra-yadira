@@ -12,7 +12,7 @@ export default defineConfig({
       manifest: {
         name: 'Consultorio Yadira Pino',
         short_name: 'Consultorio YP',
-        description: 'Sistema Integral de Gestión Clínica e Inteligencia Epidemiológica',
+        description: 'Sistema Integral de Gestión Clínica e Inteligencia Epidemiológica | Desarrollado por MSc. Carlos Fuentes',
         theme_color: '#0d9488',
         background_color: '#ffffff',
         display: 'standalone',
