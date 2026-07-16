@@ -60,11 +60,7 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
 
     return (
         <div className="fisiatria-container fade-in" style={{ padding: '20px' }}>
-            {/* Cabecera Interna */}
-            <div style={{ marginBottom: '40px', borderLeft: '8px solid #e91e63', paddingLeft: '25px' }}>
-                <h2 style={{ color: '#e91e63', fontSize: '2.2rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-1px' }}>CONSULTA FISIATRICA</h2>
-                <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Gestión Inteligente de Rehabilitación y Medicina Física</p>
-            </div>
+            {/* Cabecera interna movida a la barra superior */}
             {/* v6.4: Unified sidebar navigation replaces internal pills */}
             <div style={{ display: 'none' }}>
                 <button onClick={() => setView('home')} className={`nav-pill ${view === 'home' ? 'active' : ''}`}>

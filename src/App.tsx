@@ -311,6 +311,12 @@ export default function App() {
         <main className="main-content">
           <header className="top-bar">
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              {userRole === 'fisiatria' && (
+                <div style={{ borderLeft: '6px solid #e91e63', paddingLeft: '15px' }}>
+                  <h2 style={{ color: '#e91e63', fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px', margin: 0, lineHeight: 1 }}>CONSULTA FISIATRICA</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.8rem', margin: 0, marginTop: '5px' }}>Gestión Inteligente de Rehabilitación y Medicina Física</p>
+                </div>
+              )}
               {userRole === 'laboral' && (
                 <div style={{ padding: '8px 12px', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                   <select value={selectedCompany} onChange={(e) => setSelectedCompany(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontWeight: 600 }}>
