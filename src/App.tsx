@@ -299,9 +299,9 @@ export default function App() {
             <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
               <button className="nav-item" onClick={() => setShowResetPassword(true)} style={{ color: 'var(--text-primary)', width: '100%' }}><AlertTriangle size={20} /> Seguridad</button>
               <button className="nav-item" onClick={handleLogout} style={{ color: 'var(--danger)', width: '100%' }}><LogOut size={20} /> Salir</button>
-              <div style={{ textAlign: 'center', marginTop: '15px', paddingBottom: '5px' }}>
-                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500, opacity: 0.7 }}>
-                  Desarrollado por <b>MSc. Carlos Fuentes</b>
+              <div style={{ textAlign: 'center', marginTop: '15px', paddingBottom: '15px' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                  Desarrollado por <b style={{ color: 'var(--text-primary)' }}>MSc. Carlos Fuentes</b>
                 </span>
               </div>
             </div>
