@@ -1,3 +1,4 @@
+/* © 2026 MSc. Carlos Fuentes. Todos los derechos reservados. Uso Propietario. */
 import { useState, useEffect, Suspense, lazy } from 'react';
 import { supabase } from './lib/supabase';
 import {

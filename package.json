@@ -3,6 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "author": "MSc. Carlos Fuentes",
+  "copyright": "© 2026 Carlos Fuentes",
+  "license": "Proprietary",
   "type": "module",
   "scripts": {
     "dev": "vite",

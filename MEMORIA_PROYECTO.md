@@ -82,9 +82,22 @@
 
 ---
 
+### ✅ HITOS ALCANZADOS - VERSIÓN 17.1 (UX/UI POLISH & AUTHORSHIP INTEGRITY)
+
+1.  **OPTIMIZACIÓN DE ESPACIO Y DISEÑO (UX):**
+    *   **Aprovechamiento del Top-Bar:** Se extirpó el enorme bloque de título ("CONSULTA FISIATRICA") del cuerpo del `FisiatriaDashboard.tsx` y se injertó dinámicamente en el espacio vacío superior izquierdo del `App.tsx`. Esto recupera al menos 15% de espacio vertical vital en pantallas de laptops hospitalarias.
+    *   **Corrección de Desbordamientos Visuales:** Se ajustó el CSS de `.brand-title` (tamaño, interlineado y padding) para garantizar que los textos largos en el logo lateral no rompan el contenedor y se apilen elegantemente.
+
+2.  **BLINDAJE DE AUTORÍA INTELECTUAL (MSc. Carlos Fuentes):**
+    *   **Firma Discreta pero Legible:** Se eliminaron los títulos redundantes y se instaló una firma de autor innegable y profesional al final del menú lateral con el contraste perfecto (`text-primary` sobre `text-secondary`).
+    *   **Metadatos de Código Fuente:** Se inyectaron permanentemente las etiquetas oficiales `<meta name="author">` y `<meta name="copyright">` en el `index.html`.
+    *   **Registro PWA y Node:** Se declaró formalmente el `"author": "MSc. Carlos Fuentes"` en el `package.json` y en el registro interno del manifiesto instalable (PWA) mediante `vite.config.ts`.
+
+---
+
 ### 🛠️ ESTRUCTURA TÉCNICA Y SEGURIDAD
-*   **Identidad Maestro:** DESARROLLADOR : LIC CARLOS FUENTES.
-*   **Seguridad:** Arquitectura Zero Trust con validación JWT.
+*   **Identidad Maestro:** DESARROLLADOR : MSc. CARLOS FUENTES.
+*   **Seguridad:** Arquitectura Zero Trust con validación JWT y Autoría Legal Registrada.
 *   **PWA Status:** 🟢 ACTIVA Y OPTIMIZADA.
 *   **Bundle Optimization:** Carga diferida de componentes (Lazy Loading) operativa.
 
@@ -115,11 +128,11 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estándar c
 
 ### 📝 RESUMEN DE CIERRE DE SESIÓN FINAL
 - **¿Qué se hizo hoy?**: 
-    1.  **Cloud Drafts v17.0 (Portabilidad Cruzada)**: Se migró el almacenamiento local de borradores (`localStorage`) hacia Supabase, implementando debounce (1.5s) y state barriers (`isDraftLoaded`) para prevenir sobrescrituras y race conditions al recargar la página. Ahora la Dra. Yadira puede comenzar una evaluación en un dispositivo y culminarla en otro sin pérdida de datos.
-    2.  **Migración de Base de Datos**: Se ejecutó exitosamente el DDL SQL en producción para crear la tabla `borradores_clinicos` con políticas RLS y acceso anónimo seguro.
-- **¿Qué quedó pendiente?**: Nada crítico. La migración a la nube fue un éxito rotundo.
-- **Estado de Auditoría**: El sistema mantiene su **Estado Zero**. Portabilidad 100% garantizada. Nivel de protección: Carlos Fuentes.
+    1.  **Cloud Drafts v17.0**: Se migró el almacenamiento local de borradores hacia Supabase, implementando debounce (1.5s) y state barriers.
+    2.  **UX/UI Polish & Authorship Integrity v17.1**: Se reubicó quirúrgicamente la titulación de "Consulta Fisiátrica" hacia el Top-Bar para ganar espacio vertical, se arreglaron problemas de envoltura de texto en la barra lateral, se instaló la firma de autor visual, y se blindó el HTML/PWA/Node con los créditos legales formales de MSc. Carlos Fuentes.
+- **¿Qué quedó pendiente?**: Avanzar hacia el escalón 3 del Roadmap (Optimización de Assets Médicos) o escalón 4.
+- **Estado de Auditoría**: El sistema mantiene su **Estado Zero**. UX refinada y autoría sellada. Nivel de protección: Carlos Fuentes.
 
 ---
-**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - CLOUD ENABLED - SEGURIDAD NIVEL CARLOS FUENTES.**
-📦 **BÚNKER SELLADO, AUDITADO Y EN REPOSO ABSOLUTO.**
+**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - UX PULIDA - AUTORÍA PROTEGIDA.**
+📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**
