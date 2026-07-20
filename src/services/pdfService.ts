@@ -1134,17 +1134,18 @@ export const generarExamenFisicoPDF = async (data: any) => {
         doc.text(`CÉDULA: ${data.paciente.cedula}`, 120, 60);
         doc.text(`EMPRESA: ${data.empresa.nombre}`, 15, 66);
         doc.text(`FECHA: ${data.consulta.fecha}`, 120, 66);
+        doc.text(`CARGO: ${data.paciente.cargo || 'No especificado'}`, 15, 72);
 
-        doc.line(15, 70, 195, 70);
+        doc.line(15, 76, 195, 76);
 
         doc.setFont('helvetica', 'bold');
-        doc.text('HALLAZGOS DEL EXAMEN FÍSICO:', 15, 80);
+        doc.text('HALLAZGOS DEL EXAMEN FÍSICO:', 15, 86);
         
         doc.setFont('helvetica', 'normal');
         const splitExamen = doc.splitTextToSize(data.consulta.examen_fisico || 'Sin hallazgos documentados.', 180);
-        doc.text(splitExamen, 15, 88);
+        doc.text(splitExamen, 15, 94);
 
-        let nextY = 88 + (splitExamen.length * 6) + 10;
+        let nextY = 94 + (splitExamen.length * 6) + 10;
 
         doc.setFont('helvetica', 'bold');
         doc.text('OBSERVACIONES ADICIONALES:', 15, nextY);
@@ -1205,6 +1206,7 @@ export const generarInformeINPSASELPDF = async (data: any) => {
         doc.text(`Cédula: ${data.paciente.cedula}`, 120, 64);
         doc.text(`Edad: ${data.paciente.edad || 'N/A'}`, 15, 70);
         doc.text(`Sexo: ${data.paciente.sexo || 'N/A'}`, 120, 70);
+        doc.text(`Cargo Actual: ${data.paciente.cargo || 'No especificado'}`, 15, 76);
 
         doc.setFont('helvetica', 'bold');
         doc.text(`3. DATOS OCUPACIONALES Y RIESGOS`, 15, 82);

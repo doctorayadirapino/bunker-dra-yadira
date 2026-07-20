@@ -21,7 +21,6 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
         inpsasel: false
     });
 
-    // Form State
     const [paciente, setPaciente] = useState({ 
         nombre_completo: '', 
         cedula: '', 
@@ -29,7 +28,8 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
         alergias: '', 
         patologias_previas: '', 
         fecha_nacimiento: '', 
-        telefono: '' 
+        telefono: '',
+        cargo: ''
     });
     const [empresa, setEmpresa] = useState({ nombre: '', rif: '' });
     const [lastAptitud, setLastAptitud] = useState<string | null>(null);
@@ -75,7 +75,8 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                     alergias: pacData.alergias || '',
                     patologias_previas: pacData.patologias_previas || '',
                     fecha_nacimiento: pacData.fecha_nacimiento || '',
-                    telefono: pacData.telefono || ''
+                    telefono: pacData.telefono || '',
+                    cargo: '' // No se carga de la BD para evitar problemas de esquema antiguo
                 });
 
                 if (pacData.empresas) {
@@ -360,7 +361,7 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
             };
 
             const pdfData = {
-                paciente: { nombre: paciente.nombre_completo, cedula: paciente.cedula, edad: calcularEdad(paciente.fecha_nacimiento), sexo: paciente.sexo },
+                paciente: { nombre: paciente.nombre_completo, cedula: paciente.cedula, edad: calcularEdad(paciente.fecha_nacimiento), sexo: paciente.sexo, cargo: paciente.cargo },
                 empresa: { nombre: empresa.nombre, rif: empresa.rif },
                 consulta: {
                     tipo: consulta.tipo_consulta,
@@ -497,9 +498,10 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                             </div>
                         </div>
                         <div className="form-grid">
-                            <input placeholder="Alergias Conocidas" value={paciente.alergias} onChange={e => setPaciente({ ...paciente, alergias: e.target.value })} />
-                            <input placeholder="Patologías Previas" value={paciente.patologias_previas} onChange={e => setPaciente({ ...paciente, patologias_previas: e.target.value })} />
-                            <input placeholder="Número de Teléfono" value={paciente.telefono} onChange={e => setPaciente({ ...paciente, telefono: e.target.value })} />
+                            <input type="text" placeholder="Cargo del Trabajador (INPSASEL)" required value={paciente.cargo} onChange={e => setPaciente({ ...paciente, cargo: e.target.value.toUpperCase() })} />
+                            <input type="text" placeholder="Alergias (Opcional)" value={paciente.alergias} onChange={e => setPaciente({ ...paciente, alergias: e.target.value })} />
+                            <input type="text" placeholder="Patologías Previas" value={paciente.patologias_previas} onChange={e => setPaciente({ ...paciente, patologias_previas: e.target.value })} />
+                            <input type="text" placeholder="Número de Teléfono" value={paciente.telefono} onChange={e => setPaciente({ ...paciente, telefono: e.target.value })} />
                         </div>
                     </div>
 

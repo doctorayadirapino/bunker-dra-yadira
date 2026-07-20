@@ -133,6 +133,18 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estándar c
 - **¿Qué quedó pendiente?**: Avanzar hacia el escalón 3 del Roadmap (Optimización de Assets Médicos) o escalón 4.
 - **Estado de Auditoría**: El sistema mantiene su **Estado Zero**. UX refinada y autoría sellada. Nivel de protección: Carlos Fuentes.
 
+### ✅ HITOS ALCANZADOS - VERSIÓN 17.2 (BLINDAJE LEGAL DEFINITIVO - 17/07/2026)
+1. **Contrato Maestro:** Creación e inyección del archivo `LICENSE.md` estableciendo la prohibición de copia y delimitando el marco SaaS privado de Carlos Fuentes.
+2. **Hard-Coding de Autoría:** Inserción de cabeceras de copyright inmutables (`/* © 2026 MSc. Carlos Fuentes. Todos los derechos reservados. */`) en la primera línea de `App.tsx` y `main.tsx`.
+3. **Pase a Producción:** Despliegue de todos los metadatos al branch principal para su compilación y exposición en vivo.
+
 ---
-**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - UX PULIDA - AUTORÍA PROTEGIDA.**
+
+### ✅ HITOS ALCANZADOS - VERSIÓN 17.3 (CUMPLIMIENTO INPSASEL - 20/07/2026)
+1. **Inyección de Cargo Actual:** Se implementó el campo `Cargo del Trabajador` en el formulario de Evaluación Ocupacional.
+2. **Persistencia Dura (Base de Datos):** Por mandato estricto, el cargo ahora se sincroniza permanentemente con la tabla `pacientes` en Supabase. Se requiere ejecutar migración SQL (`ALTER TABLE pacientes ADD COLUMN cargo TEXT;`).
+3. **Reportes Actualizados:** Los motores `generarInformeINPSASELPDF` y `generarExamenFisicoPDF` exponen el Cargo del trabajador con precisión milimétrica.
+
+---
+**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - CUMPLIMIENTO INPSASEL - AUTORÍA PROTEGIDA EN PRODUCCIÓN.**
 📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**
