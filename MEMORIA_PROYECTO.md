@@ -126,13 +126,6 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estándar c
 
 ---
 
-### 📝 RESUMEN DE CIERRE DE SESIÓN FINAL
-- **¿Qué se hizo hoy?**: 
-    1.  **Cloud Drafts v17.0**: Se migró el almacenamiento local de borradores hacia Supabase, implementando debounce (1.5s) y state barriers.
-    2.  **UX/UI Polish & Authorship Integrity v17.1**: Se reubicó quirúrgicamente la titulación de "Consulta Fisiátrica" hacia el Top-Bar para ganar espacio vertical, se arreglaron problemas de envoltura de texto en la barra lateral, se instaló la firma de autor visual, y se blindó el HTML/PWA/Node con los créditos legales formales de MSc. Carlos Fuentes.
-- **¿Qué quedó pendiente?**: Avanzar hacia el escalón 3 del Roadmap (Optimización de Assets Médicos) o escalón 4.
-- **Estado de Auditoría**: El sistema mantiene su **Estado Zero**. UX refinada y autoría sellada. Nivel de protección: Carlos Fuentes.
-
 ### ✅ HITOS ALCANZADOS - VERSIÓN 17.2 (BLINDAJE LEGAL DEFINITIVO - 17/07/2026)
 1. **Contrato Maestro:** Creación e inyección del archivo `LICENSE.md` estableciendo la prohibición de copia y delimitando el marco SaaS privado de Carlos Fuentes.
 2. **Hard-Coding de Autoría:** Inserción de cabeceras de copyright inmutables (`/* © 2026 MSc. Carlos Fuentes. Todos los derechos reservados. */`) en la primera línea de `App.tsx` y `main.tsx`.
@@ -140,11 +133,19 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estándar c
 
 ---
 
-### ✅ HITOS ALCANZADOS - VERSIÓN 17.3 (CUMPLIMIENTO INPSASEL - 20/07/2026)
-1. **Inyección de Cargo Actual:** Se implementó el campo `Cargo del Trabajador` en el formulario de Evaluación Ocupacional.
-2. **Persistencia Dura (Base de Datos):** Por mandato estricto, el cargo ahora se sincroniza permanentemente con la tabla `pacientes` en Supabase. Se requiere ejecutar migración SQL (`ALTER TABLE pacientes ADD COLUMN cargo TEXT;`).
+### ✅ HITOS ALCANZADOS - VERSIÓN 17.3 (CUMPLIMIENTO INPSASEL Y RECUPERACIÓN CI/CD - 20/07/2026)
+1. **Inyección de Cargo Actual:** Se implementó el campo `Cargo del Trabajador` en el formulario de Evaluación Ocupacional, simplificado visualmente por Rigor de Wirth.
+2. **Persistencia Dura (Base de Datos):** El cargo ahora se sincroniza permanentemente con la tabla `pacientes` en Supabase (Migración SQL ejecutada exitosamente).
 3. **Reportes Actualizados:** Los motores `generarInformeINPSASELPDF` y `generarExamenFisicoPDF` exponen el Cargo del trabajador con precisión milimétrica.
+4. **Recuperación CI/CD (Zero Trust):** Se detectó y resolvió un bloqueo histórico en Vercel. Se instruyó la reconexión de GitHub y se inyectó un *commit* de fuerza bruta para reactivar la tubería de despliegues. Producción 100% en línea.
 
 ---
-**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - CUMPLIMIENTO INPSASEL - AUTORÍA PROTEGIDA EN PRODUCCIÓN.**
+
+### 📝 RESUMEN DE CIERRE DE SESIÓN FINAL (20/07/2026)
+- **¿Qué se hizo hoy?**: Se implementó y desplegó a producción el requerimiento INPSASEL de la doctora. Se destrabó el cuello de botella en Vercel recuperando el flujo automático de CI/CD.
+- **¿Qué quedó pendiente?**: Iniciar con el Plan de Modernización Visual (Glassmorphism / UI Premium).
+- **Estado de Auditoría**: Tubería en la nube reparada. Código y base de datos simbióticos.
+- **Garantía de Portabilidad**: Si el repositorio se mueve a otra máquina, los despliegues automáticos requerirán reconectar la cuenta de Vercel/GitHub como se documentó hoy.
+
+**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - CUMPLIMIENTO INPSASEL ALINEADO - CI/CD RECONECTADO.**
 📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**
