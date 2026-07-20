@@ -499,7 +499,7 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                             </div>
                         </div>
                         <div className="form-grid">
-                            <input type="text" placeholder="Cargo del Trabajador (INPSASEL)" required value={paciente.cargo} onChange={e => setPaciente({ ...paciente, cargo: e.target.value.toUpperCase() })} />
+                            <input type="text" placeholder="Cargo del Trabajador" required value={paciente.cargo} onChange={e => setPaciente({ ...paciente, cargo: e.target.value.toUpperCase() })} />
                             <input type="text" placeholder="Alergias (Opcional)" value={paciente.alergias} onChange={e => setPaciente({ ...paciente, alergias: e.target.value })} />
                             <input type="text" placeholder="Patologías Previas" value={paciente.patologias_previas} onChange={e => setPaciente({ ...paciente, patologias_previas: e.target.value })} />
                             <input type="text" placeholder="Número de Teléfono" value={paciente.telefono} onChange={e => setPaciente({ ...paciente, telefono: e.target.value })} />
