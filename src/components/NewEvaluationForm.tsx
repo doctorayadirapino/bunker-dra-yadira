@@ -144,7 +144,8 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                 alergias: c.pacientes.alergias || '',
                 patologias_previas: c.pacientes.patologias_previas || '',
                 fecha_nacimiento: c.pacientes.fecha_nacimiento || '',
-                telefono: c.pacientes.telefono || ''
+                telefono: c.pacientes.telefono || '',
+                cargo: c.pacientes.cargo || ''
             });
 
             setEmpresa({
