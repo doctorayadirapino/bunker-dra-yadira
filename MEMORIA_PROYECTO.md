@@ -149,3 +149,9 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estándar c
 
 **ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - CUMPLIMIENTO INPSASEL ALINEADO - CI/CD RECONECTADO.**
 📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**
+
+---
+### 📅 [21/07/2026] - Requerimiento Dra. Pino: Black & White Compliance en Aptitud
+- **¿Qué se hizo?:** Se modificó la generación del Certificado PDF Oficial en `src/services/pdfService.ts` para fijar el color del texto de la "Conclusión de Aptitud" a negro puro (`#000000`), eliminando los colores dinámicos (verde/naranja). Se garantiza el formato corporativo B&W.
+- **¿Qué quedó pendiente?:** Pruebas en ambiente de producción por parte de la usuaria final.
+- **Para el próximo agente:** El bloque de aptitud en `pdfService.ts` debe mantenerse en monocromático. No revertir a colores a menos que exista un contra-requerimiento explícito.

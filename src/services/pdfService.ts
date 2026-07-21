@@ -138,7 +138,7 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
         doc.setFont('helvetica', 'bold');
         doc.text('CONCLUSIÓN DE APTITUD:', 20, 109);
         doc.setFontSize(16);
-        doc.setTextColor(data.consulta.aptitud === 'APTO' ? '#10b981' : '#f59e0b');
+        doc.setTextColor('#000000');
         doc.text(data.consulta.aptitud, 108, 117, { align: 'center' });
 
         let nextY = 155;
