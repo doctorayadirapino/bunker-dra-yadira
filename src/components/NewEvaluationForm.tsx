@@ -278,13 +278,17 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
         try {
             // 1. Empresa
             let empId = null;
-            let { data: empData } = await supabase.from('empresas').select('id').eq('rif', empresa.rif).single();
+            let { data: empData } = await supabase.from('empresas').select('id, nombre').eq('rif', empresa.rif).single();
             if (!empData) {
                 const { data: newEmp, error: errEmp } = await supabase.from('empresas').insert([{ nombre: empresa.nombre, rif: empresa.rif }]).select().single();
                 if (errEmp) throw errEmp;
                 empId = newEmp.id;
             } else {
                 empId = empData.id;
+                if (empData.nombre !== empresa.nombre) {
+                    const { error: updErr } = await supabase.from('empresas').update({ nombre: empresa.nombre }).eq('id', empId);
+                    if (updErr) console.error("Error actualizando nombre de empresa:", updErr);
+                }
             }
 
             // 2. Paciente
@@ -487,17 +491,47 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                         )}
 
                         <div className="form-grid">
-                            <input required placeholder="Cédula de Identidad" value={paciente.cedula} onChange={e => handleCedulaChange(e.target.value)} />
-                            <input required placeholder="Nombre Completo" value={paciente.nombre_completo} onChange={e => setPaciente({ ...paciente, nombre_completo: e.target.value })} />
-                            <select value={paciente.sexo} onChange={e => setPaciente({ ...paciente, sexo: e.target.value })}>
+                            <input 
+                                required 
+                                placeholder="Cédula de Identidad" 
+                                value={paciente.cedula} 
+                                onChange={e => handleCedulaChange(e.target.value)}
+                                disabled={isEditing || returningPatient}
+                                style={{ opacity: (isEditing || returningPatient) ? 0.7 : 1 }}
+                            />
+                            <input 
+                                required 
+                                placeholder="Nombre Completo" 
+                                value={paciente.nombre_completo} 
+                                onChange={e => setPaciente({ ...paciente, nombre_completo: e.target.value })} 
+                                disabled={isEditing || returningPatient}
+                                style={{ opacity: (isEditing || returningPatient) ? 0.7 : 1 }}
+                            />
+                            <select 
+                                value={paciente.sexo} 
+                                onChange={e => setPaciente({ ...paciente, sexo: e.target.value })}
+                                disabled={isEditing || returningPatient}
+                                style={{ opacity: (isEditing || returningPatient) ? 0.7 : 1 }}
+                            >
                                 <option value="Femenino">Femenino</option>
                                 <option value="Masculino">Masculino</option>
                             </select>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <small style={{ color: 'var(--text-secondary)', marginBottom: '4px' }}>Fecha Nacimiento</small>
-                                <input type="date" value={paciente.fecha_nacimiento} onChange={e => setPaciente({ ...paciente, fecha_nacimiento: e.target.value })} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+                                <input 
+                                    type="date" 
+                                    value={paciente.fecha_nacimiento} 
+                                    onChange={e => setPaciente({ ...paciente, fecha_nacimiento: e.target.value })} 
+                                    disabled={isEditing || returningPatient}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', opacity: (isEditing || returningPatient) ? 0.7 : 1 }} 
+                                />
                             </div>
                         </div>
+                        {(isEditing || returningPatient) && (
+                            <small style={{ color: 'var(--warning)', display: 'block', marginTop: '5px' }}>
+                                ⚠️ Los datos personales están bloqueados por seguridad. Para corregirlos, utilice la opción "Editar Datos" en el Directorio de Pacientes.
+                            </small>
+                        )}
                         <div className="form-grid">
                             <input type="text" placeholder="Cargo del Trabajador" required value={paciente.cargo} onChange={e => setPaciente({ ...paciente, cargo: e.target.value.toUpperCase() })} />
                             <input type="text" placeholder="Alergias (Opcional)" value={paciente.alergias} onChange={e => setPaciente({ ...paciente, alergias: e.target.value })} />

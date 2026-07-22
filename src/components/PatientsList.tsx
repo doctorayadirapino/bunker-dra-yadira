@@ -1,16 +1,24 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Search, User, Briefcase, ChevronRight, Trash2, PlusCircle, FilePlus } from 'lucide-react';
+import { Search, User, Briefcase, ChevronRight, Trash2, PlusCircle, FilePlus, Edit, X, Building2 } from 'lucide-react';
 
 export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsultation }: { selectedCompany?: string, onNewConsultation?: (cedula: string) => void }) {
     const [patients, setPatients] = useState<any[]>([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
     const [selectedPatient, setSelectedPatient] = useState<any | null>(null);
+    const [editingPatient, setEditingPatient] = useState<any>(null);
+    const [empresasLista, setEmpresasLista] = useState<any[]>([]);
 
     useEffect(() => {
         fetchPatients();
+        fetchEmpresas();
     }, [selectedCompany]);
+
+    const fetchEmpresas = async () => {
+        const { data } = await supabase.from('empresas').select('id, nombre').order('nombre');
+        if (data) setEmpresasLista(data);
+    };
 
     const fetchPatients = async () => {
         setLoading(true);
@@ -55,6 +63,35 @@ export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsult
                 alert("Error al eliminar el expediente: " + err.message);
                 setLoading(false);
             }
+        }
+    };
+
+    const handleSavePatient = async () => {
+        try {
+            setLoading(true);
+            const { error } = await supabase
+                .from('pacientes')
+                .update({
+                    nombre_completo: editingPatient.nombre_completo.toUpperCase(),
+                    cedula: editingPatient.cedula,
+                    fecha_nacimiento: editingPatient.fecha_nacimiento || null,
+                    sexo: editingPatient.sexo,
+                    empresa_id: editingPatient.empresa_id
+                })
+                .eq('id', editingPatient.id);
+
+            if (error) throw error;
+            
+            alert("Datos del paciente actualizados exitosamente.");
+            setEditingPatient(null);
+            if (selectedPatient && selectedPatient.id === editingPatient.id) {
+                setSelectedPatient(null); // Refrescar modal si estaba abierto
+            }
+            fetchPatients();
+        } catch (err: any) {
+            console.error(err);
+            alert("Error al actualizar el paciente: " + err.message);
+            setLoading(false);
         }
     };
 
@@ -250,7 +287,7 @@ export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsult
                             )}
                         </div>
 
-                        <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
+                        <div style={{ display: 'flex', gap: '15px', marginTop: '30px', flexWrap: 'wrap' }}>
                             <button
                                 onClick={() => {
                                     if (onNewConsultation) {
@@ -263,10 +300,10 @@ export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsult
                                 <PlusCircle size={20} /> Nueva Consulta
                             </button>
                             <button
-                                onClick={() => setSelectedPatient(null)}
-                                style={{ padding: '15px 25px', borderRadius: '12px', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', fontWeight: 700, cursor: 'pointer' }}
+                                onClick={() => setEditingPatient({...selectedPatient})}
+                                style={{ padding: '15px', borderRadius: '12px', background: 'var(--bg-tertiary)', color: 'var(--medical-turquoise)', border: '1px solid var(--border-color)', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                             >
-                                Cerrar
+                                <Edit size={20} /> Editar Datos
                             </button>
                             <button
                                 onClick={() => {
@@ -276,6 +313,91 @@ export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsult
                                 title="Eliminar definitivamente"
                             >
                                 <Trash2 size={20} /> Eliminar
+                            </button>
+                            <button
+                                onClick={() => setSelectedPatient(null)}
+                                style={{ width: '100%', padding: '15px', borderRadius: '12px', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', fontWeight: 700, cursor: 'pointer' }}
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {editingPatient && (
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 4000, backdropFilter: 'blur(5px)' }}>
+                    <div style={{ background: 'var(--bg-primary)', padding: '30px', borderRadius: '24px', width: '90%', maxWidth: '500px', boxShadow: 'var(--shadow-lg)', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ margin: 0, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <Edit size={20} color="var(--medical-turquoise)" />
+                                Editar Datos del Paciente
+                            </h3>
+                            <button onClick={() => setEditingPatient(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Cédula</label>
+                                <input
+                                    type="text"
+                                    value={editingPatient.cedula}
+                                    onChange={e => setEditingPatient({...editingPatient, cedula: e.target.value.replace(/\D/g, '')})}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Nombre Completo</label>
+                                <input
+                                    type="text"
+                                    value={editingPatient.nombre_completo}
+                                    onChange={e => setEditingPatient({...editingPatient, nombre_completo: e.target.value})}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '15px' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Sexo</label>
+                                    <select
+                                        value={editingPatient.sexo}
+                                        onChange={e => setEditingPatient({...editingPatient, sexo: e.target.value})}
+                                        style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
+                                    >
+                                        <option value="M">Masculino</option>
+                                        <option value="F">Femenino</option>
+                                    </select>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Fecha Nacimiento</label>
+                                    <input
+                                        type="date"
+                                        value={editingPatient.fecha_nacimiento || ''}
+                                        onChange={e => setEditingPatient({...editingPatient, fecha_nacimiento: e.target.value})}
+                                        style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none', colorScheme: 'dark' }}
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Empresa Actual</label>
+                                <select
+                                    value={editingPatient.empresa_id || ''}
+                                    onChange={e => setEditingPatient({...editingPatient, empresa_id: e.target.value || null})}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
+                                >
+                                    <option value="">Particular / Sin Empresa</option>
+                                    {empresasLista.map(e => (
+                                        <option key={e.id} value={e.id}>{e.nombre}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            
+                            <button
+                                onClick={handleSavePatient}
+                                style={{ width: '100%', padding: '15px', background: 'var(--corporate-blue)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', marginTop: '10px' }}
+                            >
+                                {loading ? 'Guardando...' : 'Guardar Cambios'}
                             </button>
                         </div>
                     </div>

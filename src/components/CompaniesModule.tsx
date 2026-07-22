@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { BriefcaseMedical, Search, Building2, Users, MapPin, Phone, Trash2 } from 'lucide-react';
+import { BriefcaseMedical, Search, Building2, Users, MapPin, Phone, Trash2, Edit, X } from 'lucide-react';
 
 export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: string) => void }) {
     const [companies, setCompanies] = useState<any[]>([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
+    const [editingCompany, setEditingCompany] = useState<any>(null);
 
     useEffect(() => {
         fetchCompanies();
@@ -56,6 +57,26 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
         c.nombre.toLowerCase().includes(search.toLowerCase()) ||
         c.rif.toLowerCase().includes(search.toLowerCase())
     );
+
+    const handleSaveCompany = async () => {
+        try {
+            setLoading(true);
+            const { error } = await supabase
+                .from('empresas')
+                .update({ nombre: editingCompany.nombre, rif: editingCompany.rif, sede: editingCompany.sede || '', telefono: editingCompany.telefono || '' })
+                .eq('id', editingCompany.id);
+
+            if (error) throw error;
+            
+            alert("Empresa actualizada exitosamente.");
+            setEditingCompany(null);
+            fetchCompanies();
+        } catch (err: any) {
+            console.error(err);
+            alert("Error al actualizar la empresa: " + err.message);
+            setLoading(false);
+        }
+    };
 
     return (
         <div style={{ padding: '20px', animation: 'fadeIn 0.5s ease' }}>
@@ -121,13 +142,22 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
                             </div>
 
                             <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <button
-                                    onClick={() => handleDeleteCompany(emp.id, emp.nombre)}
-                                    style={{ background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '5px', borderRadius: '8px', transition: 'all 0.2s' }}
-                                    title="Eliminar empresa"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
+                                <div style={{ display: 'flex', gap: '5px' }}>
+                                    <button
+                                        onClick={() => setEditingCompany(emp)}
+                                        style={{ background: 'transparent', border: 'none', color: 'var(--medical-turquoise)', cursor: 'pointer', padding: '5px', borderRadius: '8px', transition: 'all 0.2s' }}
+                                        title="Editar empresa"
+                                    >
+                                        <Edit size={18} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteCompany(emp.id, emp.nombre)}
+                                        style={{ background: 'transparent', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '5px', borderRadius: '8px', transition: 'all 0.2s' }}
+                                        title="Eliminar empresa"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
                                 <button onClick={() => onAudit && onAudit(emp.nombre)} style={{ background: 'transparent', border: 'none', color: 'var(--corporate-blue)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                     Ver Auditoría <ChevronRight size={16} />
                                 </button>
@@ -141,6 +171,70 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
                             <p>No se encontraron empresas en el sistema.</p>
                         </div>
                     )}
+                </div>
+            )}
+
+            {editingCompany && (
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(5px)' }}>
+                    <div style={{ background: 'var(--bg-primary)', padding: '30px', borderRadius: '24px', width: '90%', maxWidth: '500px', boxShadow: 'var(--shadow-lg)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ margin: 0, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <Edit size={20} color="var(--medical-turquoise)" />
+                                Editar Empresa
+                            </h3>
+                            <button onClick={() => setEditingCompany(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Nombre de Empresa</label>
+                                <input
+                                    type="text"
+                                    value={editingCompany.nombre}
+                                    onChange={e => setEditingCompany({...editingCompany, nombre: e.target.value.toUpperCase()})}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>RIF (Ej: J-12345678-9)</label>
+                                <input
+                                    type="text"
+                                    value={editingCompany.rif}
+                                    onChange={e => setEditingCompany({...editingCompany, rif: e.target.value.toUpperCase()})}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '15px' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Sede (Opcional)</label>
+                                    <input
+                                        type="text"
+                                        value={editingCompany.sede || ''}
+                                        onChange={e => setEditingCompany({...editingCompany, sede: e.target.value.toUpperCase()})}
+                                        style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
+                                    />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Teléfono (Opcional)</label>
+                                    <input
+                                        type="text"
+                                        value={editingCompany.telefono || ''}
+                                        onChange={e => setEditingCompany({...editingCompany, telefono: e.target.value})}
+                                        style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <button
+                                onClick={handleSaveCompany}
+                                style={{ width: '100%', padding: '15px', background: 'var(--corporate-blue)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', marginTop: '10px' }}
+                            >
+                                {loading ? 'Guardando...' : 'Guardar Cambios'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

@@ -155,3 +155,18 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estándar c
 - **¿Qué se hizo?:** Se modificó la generación del Certificado PDF Oficial en `src/services/pdfService.ts` para fijar el color del texto de la "Conclusión de Aptitud" a negro puro (`#000000`), eliminando los colores dinámicos (verde/naranja). Se garantiza el formato corporativo B&W.
 - **¿Qué quedó pendiente?:** Pruebas en ambiente de producción por parte de la usuaria final.
 - **Para el próximo agente:** El bloque de aptitud en `pdfService.ts` debe mantenerse en monocromático. No revertir a colores a menos que exista un contra-requerimiento explícito.
+
+---
+### 📅 [22/07/2026] - Requerimiento Dra. Pino: Fix de Actualización de Nombre de Empresa
+- **¿Qué se hizo?:** Se modificó la rutina de guardado en `src/components/NewEvaluationForm.tsx` (líneas ~288). Anteriormente, si una empresa existía por su RIF, el sistema capturaba su ID pero ignoraba si el usuario había corregido el nombre. Se añadió un bloque lógico que detecta si el nombre difiere del registro en base de datos y ejecuta un `update` para mantener la integridad de los datos sin crear duplicados.
+- **¿Qué quedó pendiente?:** Pruebas operativas por parte de la doctora.
+- **Para el próximo agente:** La lógica de actualización en `NewEvaluationForm.tsx` ahora contempla correcciones de nombre de empresas existentes. No retirar el `update` condicional.
+
+---
+### 📅 [22/07/2026] - Requerimiento Dra. Pino: Control CRUD Total (Pacientes y Empresas)
+- **¿Qué se hizo?:** 
+  1. Se implementó edición directa (CRUD) de **Empresas** en `CompaniesModule.tsx`.
+  2. Se implementó edición directa (CRUD) de **Pacientes** en `PatientsList.tsx` (modificando Cédula, Nombre, Sexo, F.Nac y Empresa asignada).
+  3. Se aplicó un **bloqueo de seguridad** (Zero Trust) en `NewEvaluationForm.tsx`: si es una edición de consulta o el paciente ya existe, los campos de identidad (Cédula, Nombre, etc.) se bloquean para lectura-solo, forzando al usuario a realizar correcciones administrativas desde el Directorio de Pacientes. Esto elimina la corrupción o duplicidad de datos al emitir reposos.
+- **¿Qué quedó pendiente?:** Pruebas en producción.
+- **Para el próximo agente:** Recordar que la edición de datos personales ahora es exclusiva del Directorio de Pacientes (`PatientsList.tsx`) y está bloqueada en la Evaluación Médica.
