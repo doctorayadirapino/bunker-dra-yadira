@@ -344,7 +344,8 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
             };
 
             if (isEditing && editConsultaId) {
-                const { error: errUpd } = await supabase.from('consultas').update(consultaPayload).eq('id', editConsultaId);
+                // v17.4: Ensure we detect silent update failures on consultas
+                const { error: errUpd } = await supabase.from('consultas').update(consultaPayload).eq('id', editConsultaId).select().single();
                 if (errUpd) throw errUpd;
             } else {
                 const { error: errCons } = await supabase.from('consultas').insert([consultaPayload]);
