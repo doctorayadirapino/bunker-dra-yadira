@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Search, User, Briefcase, ChevronRight, Trash2, PlusCircle, FilePlus, Edit, X, Building2 } from 'lucide-react';
+import { Search, User, Briefcase, ChevronRight, Trash2, PlusCircle, FilePlus, Edit, X } from 'lucide-react';
 
 export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsultation }: { selectedCompany?: string, onNewConsultation?: (cedula: string) => void }) {
     const [patients, setPatients] = useState<any[]>([]);
