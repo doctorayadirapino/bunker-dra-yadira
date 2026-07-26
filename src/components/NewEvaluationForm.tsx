@@ -55,6 +55,7 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
         { empresa: '', cargo: '', tiempo_servicio: '', riesgos_expuestos: '' },
         { empresa: '', cargo: '', tiempo_servicio: '', riesgos_expuestos: '' }
     ]);
+    const [companiesList, setCompaniesList] = useState<{nombre: string, rif: string}[]>([]);
 
     // Lógica de búsqueda de paciente recurrente
     const handleCedulaChange = async (cedula: string) => {
@@ -233,6 +234,13 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
             }
         };
         fetchDraft();
+
+        // Cargar lista de empresas para el datalist
+        const fetchCompaniesList = async () => {
+            const { data } = await supabase.from('empresas').select('nombre, rif').order('nombre', { ascending: true });
+            if (data) setCompaniesList(data);
+        };
+        fetchCompaniesList();
     }, [editConsultaId, prefilledCedula]);
 
     // EFECTO AUTO-GUARDADO DEBOUNCED EN LA NUBE
@@ -544,8 +552,30 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                     <div className="form-section">
                         <h3>2. Datos Laborales Actuales</h3>
                         <div className="form-grid">
-                            <input required placeholder="Nombre de la Empresa" value={empresa.nombre} onChange={e => setEmpresa({ ...empresa, nombre: e.target.value })} autoComplete="off" />
-                            <input required placeholder="RIF de la Empresa" value={empresa.rif} onChange={e => setEmpresa({ ...empresa, rif: e.target.value })} autoComplete="off" />
+                            <div>
+                                <input 
+                                    required 
+                                    list="empresas-list"
+                                    placeholder="Nombre de la Empresa" 
+                                    value={empresa.nombre} 
+                                    onChange={e => {
+                                        const val = e.target.value.toUpperCase();
+                                        const found = companiesList.find(c => c.nombre === val);
+                                        if (found) {
+                                            setEmpresa({ nombre: val, rif: found.rif });
+                                        } else {
+                                            setEmpresa({ ...empresa, nombre: val });
+                                        }
+                                    }} 
+                                    autoComplete="off" 
+                                />
+                                <datalist id="empresas-list">
+                                    {companiesList.map((c, i) => (
+                                        <option key={i} value={c.nombre} />
+                                    ))}
+                                </datalist>
+                            </div>
+                            <input required placeholder="RIF de la Empresa" value={empresa.rif} onChange={e => setEmpresa({ ...empresa, rif: e.target.value.toUpperCase() })} autoComplete="off" />
                             <input placeholder="Riesgos a los que está expuesto (Actual)" value={consulta.riesgos_ocupacionales} onChange={e => setConsulta({ ...consulta, riesgos_ocupacionales: e.target.value })} />
                         </div>
                     </div>
