@@ -9,43 +9,49 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
     const [editingCompany, setEditingCompany] = useState<any>(null);
 
     useEffect(() => {
-        // SCRIPT DE DEDUPLICACIÓN SEGURA (Bypass RLS) - VERSIÓN MEJORADA (Por Nombre y RIF)
+        // SCRIPT DE DEDUPLICACIÓN SEGURA (Bypass RLS) - HEURÍSTICA DE DOBLE PASADA
         const runDeduplication = async () => {
-            const { data: allEmpresas } = await supabase.from('empresas').select('id, nombre, rif').order('created_at', { ascending: true });
-            if (allEmpresas) {
+            let didMerge = false;
+
+            const executeMerge = async (groupBy: 'name' | 'rif') => {
+                const { data: allEmpresas } = await supabase.from('empresas').select('id, nombre, rif').order('created_at', { ascending: true });
+                if (!allEmpresas) return;
+
                 const grouped: { [key: string]: string[] } = {};
                 for (const emp of allEmpresas) {
-                    // Normalizar RIF (Quitar guiones, puntos y espacios)
-                    const normRif = emp.rif ? emp.rif.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : '';
-                    const normName = emp.nombre.trim().toUpperCase();
-                    
-                    // La llave de agrupación será el RIF normalizado (si existe) o el nombre como plan B
-                    const groupKey = normRif.length > 4 ? `RIF_${normRif}` : `NAME_${normName}`;
-                    
+                    let groupKey = '';
+                    if (groupBy === 'name') {
+                        groupKey = emp.nombre.trim().toUpperCase().replace(/\s+/g, ' ');
+                    } else if (groupBy === 'rif') {
+                        const normRif = emp.rif ? emp.rif.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : '';
+                        groupKey = normRif.length > 4 ? normRif : Math.random().toString(); // Si no hay RIF, aislarlo
+                    }
+
                     if (!grouped[groupKey]) grouped[groupKey] = [];
                     grouped[groupKey].push(emp.id);
                 }
-                
-                let didMerge = false;
+
                 for (const [key, ids] of Object.entries(grouped)) {
                     if (ids.length > 1) {
-                        const masterId = ids[0]; // Conserva el registro más antiguo
+                        const masterId = ids[0];
                         const duplicates = ids.slice(1);
-                        
                         for (const dupId of duplicates) {
-                            // 1. MUDANZA DE DATOS (NUNCA BORRAR): Transfiere pacientes al Master ID
                             await supabase.from('pacientes').update({ empresa_id: masterId }).eq('empresa_id', dupId);
-                            // 2. MUDANZA DE DATOS: Transfiere consultas al Master ID
                             await supabase.from('consultas').update({ empresa_id: masterId }).eq('empresa_id', dupId);
-                            // 3. PURGA SEGURA: Ya huérfano y sin datos atados, se borra el clon
                             await supabase.from('empresas').delete().eq('id', dupId);
                         }
-                        console.log(`✅ Fusión de datos completada para la llave: ${key}`);
+                        console.log(`✅ Fusión de datos completada [Criterio: ${groupBy}]: ${key}`);
                         didMerge = true;
                     }
                 }
-                if (didMerge) fetchCompanies();
-            }
+            };
+
+            // 1. Unir los que tienen el mismo nombre (aunque su RIF difiera o tenga un error tipográfico)
+            await executeMerge('name');
+            // 2. Unir los que tienen distinto nombre, pero comparten el mismo RIF exacto (ej. con o sin C.A)
+            await executeMerge('rif');
+
+            if (didMerge) fetchCompanies();
         };
         runDeduplication();
         
