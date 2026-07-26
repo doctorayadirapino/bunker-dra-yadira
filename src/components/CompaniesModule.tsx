@@ -119,7 +119,11 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
             fetchCompanies();
         } catch (err: any) {
             console.error(err);
-            alert("Error al actualizar la empresa: " + err.message);
+            if (err.message?.includes('duplicate key') || err.message?.includes('empresas_rif_key')) {
+                alert(`🛑 BLOQUEO DE SEGURIDAD (RIF DUPLICADO)\n\nNo puedes guardar porque el RIF ${editingCompany.rif} YA LE PERTENECE a otra empresa en el sistema.\n\nSOLUCIÓN PARA FUSIONARLAS:\n1. Cierra esta ventana.\n2. Vuelve a editar esta tarjeta, pero NO toques el RIF.\n3. Cambia SOLO EL NOMBRE para que sea EXACTAMENTE IDÉNTICO al de la empresa original (respetando espacios y puntos).\n4. Guarda los cambios. Al recargar la página, el sistema las detectará como clones y las unificará mágicamente, arreglando el RIF solo.`);
+            } else {
+                alert("Error al actualizar la empresa: " + err.message);
+            }
             setLoading(false);
         }
     };
