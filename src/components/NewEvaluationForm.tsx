@@ -624,6 +624,7 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                                 <option value="Gastrointestinales">Gastrointestinal</option>
                                 <option value="ORL">ORL</option>
                                 <option value="Oftalmológicas">Oftalmológicas</option>
+                                <option value="Endocrinas">Endocrinas</option>
                                 <option value="Osteomiarticulares">Osteomiarticulares</option>
                                 <option value="Neurológicas">Neurológicas</option>
                                 <option value="Traumatológicas">Traumatológicas</option>
