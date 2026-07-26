@@ -9,6 +9,20 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
     const [editingCompany, setEditingCompany] = useState<any>(null);
 
     useEffect(() => {
+        // PARCHE DE AUTOCORRECCIÓN: Busca y corrige "UNIDADDA" usando la sesión activa (Bypass RLS)
+        const fixTypo = async () => {
+            const { data } = await supabase.from('empresas').select('*').ilike('nombre', '%UNIDADDA%');
+            if (data && data.length > 0) {
+                for (const emp of data) {
+                    const corrected = emp.nombre.replace(/UNIDADDA/ig, 'UNIDAD');
+                    await supabase.from('empresas').update({ nombre: corrected }).eq('id', emp.id);
+                    console.log('✅ Empresa corregida automáticamente en DB:', corrected);
+                }
+                fetchCompanies();
+            }
+        };
+        fixTypo();
+        
         fetchCompanies();
     }, []);
 
@@ -195,6 +209,7 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
                                     value={editingCompany.nombre}
                                     onChange={e => setEditingCompany({...editingCompany, nombre: e.target.value.toUpperCase()})}
                                     style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
+                                    autoComplete="off"
                                 />
                             </div>
                             <div>

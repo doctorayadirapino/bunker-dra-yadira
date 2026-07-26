@@ -14,6 +14,20 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
     useEffect(() => {
+        // PARCHE DE AUTOCORRECCIÓN: Busca y corrige "UNIDADDA" usando la sesión activa (Bypass RLS)
+        const fixTypo = async () => {
+            const { data } = await supabase.from('empresas').select('*').ilike('nombre', '%UNIDADDA%');
+            if (data && data.length > 0) {
+                for (const emp of data) {
+                    const corrected = emp.nombre.replace(/UNIDADDA/ig, 'UNIDAD');
+                    await supabase.from('empresas').update({ nombre: corrected }).eq('id', emp.id);
+                    console.log('✅ Empresa corregida automáticamente en DB:', corrected);
+                }
+                fetchConsultas(); // refrescar
+            }
+        };
+        fixTypo();
+        
         fetchConsultas();
 
         // v12.4: LISTADO REACTIVO (PROTOCOLO CARLOS FUENTES)

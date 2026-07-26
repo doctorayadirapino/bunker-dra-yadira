@@ -190,3 +190,9 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estándar c
 
 **ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - AUDITORÍA SUPERADA - CI/CD SINCRONIZADO.**
 📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**
+
+---
+### 📅 [26/07/2026] - Requerimiento Dra. Pino: Fix de "Fantasma" Tipográfico en Autocompletado
+- **¿Qué se hizo?:** Se diagnosticó y corrigió un error visual recurrente reportado por la Dra. Pino ("unidadda"). Tras una auditoría forense en la base de datos (Supabase), se determinó que la base de datos está limpia y sin registros corruptos. El error era un "fantasma tipográfico" guardado localmente en la caché de autocompletado del navegador (Chrome/Edge) producto de un error de tipeo inicial. Se implementó el atributo `autoComplete="off"` en los campos de empresas en `NewEvaluationForm.tsx` y `CompaniesModule.tsx`, bloqueando al navegador de sobrescribir el texto correcto.
+- **¿Qué quedó pendiente?:** Pruebas operativas. Opcionalmente, la doctora puede borrar la sugerencia manualmente de su navegador (con Shift + Supr cuando aparezca), pero el sistema ya ignora dichas sugerencias.
+- **Para el próximo agente:** No remover los atributos `autoComplete="off"` de los inputs de empresas o pacientes, para evitar contaminación por caché del navegador del usuario final.

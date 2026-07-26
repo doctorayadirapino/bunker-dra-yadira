@@ -544,8 +544,8 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                     <div className="form-section">
                         <h3>2. Datos Laborales Actuales</h3>
                         <div className="form-grid">
-                            <input required placeholder="Nombre de la Empresa" value={empresa.nombre} onChange={e => setEmpresa({ ...empresa, nombre: e.target.value })} />
-                            <input required placeholder="RIF de la Empresa" value={empresa.rif} onChange={e => setEmpresa({ ...empresa, rif: e.target.value })} />
+                            <input required placeholder="Nombre de la Empresa" value={empresa.nombre} onChange={e => setEmpresa({ ...empresa, nombre: e.target.value })} autoComplete="off" />
+                            <input required placeholder="RIF de la Empresa" value={empresa.rif} onChange={e => setEmpresa({ ...empresa, rif: e.target.value })} autoComplete="off" />
                             <input placeholder="Riesgos a los que está expuesto (Actual)" value={consulta.riesgos_ocupacionales} onChange={e => setConsulta({ ...consulta, riesgos_ocupacionales: e.target.value })} />
                         </div>
                     </div>
