@@ -9,19 +9,25 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
     const [editingCompany, setEditingCompany] = useState<any>(null);
 
     useEffect(() => {
-        // SCRIPT DE DEDUPLICACIÓN SEGURA (Bypass RLS - No borra pacientes)
+        // SCRIPT DE DEDUPLICACIÓN SEGURA (Bypass RLS) - VERSIÓN MEJORADA (Por Nombre y RIF)
         const runDeduplication = async () => {
-            const { data: allEmpresas } = await supabase.from('empresas').select('id, nombre').order('created_at', { ascending: true });
+            const { data: allEmpresas } = await supabase.from('empresas').select('id, nombre, rif').order('created_at', { ascending: true });
             if (allEmpresas) {
                 const grouped: { [key: string]: string[] } = {};
                 for (const emp of allEmpresas) {
+                    // Normalizar RIF (Quitar guiones, puntos y espacios)
+                    const normRif = emp.rif ? emp.rif.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : '';
                     const normName = emp.nombre.trim().toUpperCase();
-                    if (!grouped[normName]) grouped[normName] = [];
-                    grouped[normName].push(emp.id);
+                    
+                    // La llave de agrupación será el RIF normalizado (si existe) o el nombre como plan B
+                    const groupKey = normRif.length > 4 ? `RIF_${normRif}` : `NAME_${normName}`;
+                    
+                    if (!grouped[groupKey]) grouped[groupKey] = [];
+                    grouped[groupKey].push(emp.id);
                 }
                 
                 let didMerge = false;
-                for (const [name, ids] of Object.entries(grouped)) {
+                for (const [key, ids] of Object.entries(grouped)) {
                     if (ids.length > 1) {
                         const masterId = ids[0]; // Conserva el registro más antiguo
                         const duplicates = ids.slice(1);
@@ -34,7 +40,7 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
                             // 3. PURGA SEGURA: Ya huérfano y sin datos atados, se borra el clon
                             await supabase.from('empresas').delete().eq('id', dupId);
                         }
-                        console.log(`✅ Fusión de datos completada para la empresa: ${name}`);
+                        console.log(`✅ Fusión de datos completada para la llave: ${key}`);
                         didMerge = true;
                     }
                 }
