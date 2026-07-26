@@ -9,19 +9,39 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
     const [editingCompany, setEditingCompany] = useState<any>(null);
 
     useEffect(() => {
-        // PARCHE DE AUTOCORRECCIÓN: Busca y corrige "UNIDADDA" usando la sesión activa (Bypass RLS)
-        const fixTypo = async () => {
-            const { data } = await supabase.from('empresas').select('*').ilike('nombre', '%UNIDADDA%');
-            if (data && data.length > 0) {
-                for (const emp of data) {
-                    const corrected = emp.nombre.replace(/UNIDADDA/ig, 'UNIDAD');
-                    await supabase.from('empresas').update({ nombre: corrected }).eq('id', emp.id);
-                    console.log('✅ Empresa corregida automáticamente en DB:', corrected);
+        // SCRIPT DE DEDUPLICACIÓN SEGURA (Bypass RLS - No borra pacientes)
+        const runDeduplication = async () => {
+            const { data: allEmpresas } = await supabase.from('empresas').select('id, nombre').order('created_at', { ascending: true });
+            if (allEmpresas) {
+                const grouped: { [key: string]: string[] } = {};
+                for (const emp of allEmpresas) {
+                    const normName = emp.nombre.trim().toUpperCase();
+                    if (!grouped[normName]) grouped[normName] = [];
+                    grouped[normName].push(emp.id);
                 }
-                fetchCompanies();
+                
+                let didMerge = false;
+                for (const [name, ids] of Object.entries(grouped)) {
+                    if (ids.length > 1) {
+                        const masterId = ids[0]; // Conserva el registro más antiguo
+                        const duplicates = ids.slice(1);
+                        
+                        for (const dupId of duplicates) {
+                            // 1. MUDANZA DE DATOS (NUNCA BORRAR): Transfiere pacientes al Master ID
+                            await supabase.from('pacientes').update({ empresa_id: masterId }).eq('empresa_id', dupId);
+                            // 2. MUDANZA DE DATOS: Transfiere consultas al Master ID
+                            await supabase.from('consultas').update({ empresa_id: masterId }).eq('empresa_id', dupId);
+                            // 3. PURGA SEGURA: Ya huérfano y sin datos atados, se borra el clon
+                            await supabase.from('empresas').delete().eq('id', dupId);
+                        }
+                        console.log(`✅ Fusión de datos completada para la empresa: ${name}`);
+                        didMerge = true;
+                    }
+                }
+                if (didMerge) fetchCompanies();
             }
         };
-        fixTypo();
+        runDeduplication();
         
         fetchCompanies();
     }, []);

@@ -286,16 +286,17 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
         try {
             // 1. Empresa
             let empId = null;
-            let { data: empData } = await supabase.from('empresas').select('id, nombre').eq('rif', empresa.rif).single();
+            // PREVENCIÓN DE CLONES: Se busca por nombre (ilike) para evitar duplicidad si el RIF difiere
+            let { data: empData } = await supabase.from('empresas').select('id, nombre, rif').ilike('nombre', empresa.nombre.trim()).single();
             if (!empData) {
-                const { data: newEmp, error: errEmp } = await supabase.from('empresas').insert([{ nombre: empresa.nombre, rif: empresa.rif }]).select().single();
+                const { data: newEmp, error: errEmp } = await supabase.from('empresas').insert([{ nombre: empresa.nombre.trim().toUpperCase(), rif: empresa.rif }]).select().single();
                 if (errEmp) throw errEmp;
                 empId = newEmp.id;
             } else {
                 empId = empData.id;
-                if (empData.nombre !== empresa.nombre) {
-                    const { error: updErr } = await supabase.from('empresas').update({ nombre: empresa.nombre }).eq('id', empId);
-                    if (updErr) console.error("Error actualizando nombre de empresa:", updErr);
+                if (empData.rif !== empresa.rif || empData.nombre !== empresa.nombre.trim().toUpperCase()) {
+                    const { error: updErr } = await supabase.from('empresas').update({ nombre: empresa.nombre.trim().toUpperCase(), rif: empresa.rif }).eq('id', empId);
+                    if (updErr) console.error("Error actualizando empresa:", updErr);
                 }
             }
 
