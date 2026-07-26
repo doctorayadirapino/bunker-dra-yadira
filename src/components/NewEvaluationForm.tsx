@@ -538,9 +538,11 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                             </div>
                         </div>
                         {(isEditing || returningPatient) && (
-                            <small style={{ color: 'var(--warning)', display: 'block', marginTop: '5px' }}>
-                                ⚠️ Los datos personales están bloqueados por seguridad. Para corregirlos, utilice la opción "Editar Datos" en el Directorio de Pacientes.
-                            </small>
+                            <div style={{ padding: '10px', background: 'rgba(11, 218, 218, 0.1)', borderLeft: '4px solid var(--medical-turquoise)', borderRadius: '4px', marginTop: '10px' }}>
+                                <small style={{ color: 'var(--text-secondary)', display: 'block' }}>
+                                    ℹ️ <strong>Datos personales protegidos.</strong> Este paciente ya existe en la base de datos. Si requiere corregir su cédula, nombre, sexo o fecha de nacimiento, por favor hágalo desde la opción "Editar Datos" en el Directorio de Pacientes. Los datos de la evaluación (como el Examen Físico) están listos para ser llenados.
+                                </small>
+                            </div>
                         )}
                         <div className="form-grid">
                             <input type="text" placeholder="Cargo del Trabajador" required value={paciente.cargo} onChange={e => setPaciente({ ...paciente, cargo: e.target.value.toUpperCase() })} />
