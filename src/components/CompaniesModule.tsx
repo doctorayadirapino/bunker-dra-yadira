@@ -97,7 +97,7 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
             setLoading(true);
             const { error } = await supabase
                 .from('empresas')
-                .update({ nombre: editingCompany.nombre, rif: editingCompany.rif, sede: editingCompany.sede || '', telefono: editingCompany.telefono || '' })
+                .update({ nombre: editingCompany.nombre, rif: editingCompany.rif })
                 .eq('id', editingCompany.id);
 
             if (error) throw error;
