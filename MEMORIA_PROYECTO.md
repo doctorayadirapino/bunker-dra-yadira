@@ -211,3 +211,12 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar c
   2. No remover los atributos `autoComplete="off"` de los inputs de empresas o pacientes, para evitar contaminaciÃ³n por cachÃ© del navegador local del usuario.
   3. Toda nueva columna que se asuma en los payloads del frontend debe estar estrictamente creada en la tabla de Supabase para evitar errores de cache scheme.
 
+
+### Corrección Arquitectónica: Normalización de 	ipo_patologia`n
+**Fecha:** 26/07/2026
+**Problema:** Desajuste entre el frontend (NewEvaluationForm.tsx) y el constraint de la base de datos consultas_tipo_patologia_check, lo que provocaba un error al guardar patologías con diferencias de sintaxis (plural vs singular).
+**Solución (Zero Trust):** Se utilizó el token de servicio de Supabase Management API para extraer la definición exacta del constraint y se alinearon las opciones en el frontend para ser un espejo matemático de la base de datos. Se agregaron las opciones faltantes (Genitourinarias, Infectocontagiosas, Dislipidemia, Accidente Común).
+
+### ?? [27/07/2026] - Fix Crítico: Prevención de Constraint consultas_tipo_patologia_check
+- **Problema:** Los pacientes recurrentes cargaban borradores (drafts) o consultas antiguas con valores en singular u obsoletos (ej. 'Endocrinas' o 'Cardiovascular') en el campo tipo_patologia. Aunque el Frontend no mostraba estas opciones, el valor obsoleto quedaba oculto en el estado de React y causaba un error de Constraint al intentar registrar la evaluación.
+- **Solución (Zero Trust):** Se implementó una capa de saneamiento (Sanitization) durante la carga de borradores y edición en NewEvaluationForm.tsx. Todo valor obsoleto se auto-corrige a su versión válida pluralizada (ej. 'Endocrinológica' -> 'Endocrinológicas'). Si el valor no existe en la base de datos, se asigna 'Adulto sano' por defecto, garantizando 0 fallos de inserción.

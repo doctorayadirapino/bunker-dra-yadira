@@ -156,7 +156,13 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
 
             setConsulta({
                 tipo_consulta: c.tipo_consulta,
-                tipo_patologia: c.tipo_patologia,
+                tipo_patologia: [
+                    "Adulto sano", "Cardiovasculares", "Dermatológicas", "Gastrointestinales", 
+                    "ORL", "Oftalmológicas", "Endocrinológicas", "Osteomiarticulares", 
+                    "Neurológicas", "Traumatológicas", "Accidente Laboral", "Accidente In Itinere", 
+                    "Accidente Común", "Obstétricas", "Respiratorias", "Genitourinarias", 
+                    "Infectocontagiosas", "Dislipidemia"
+                ].includes(c.tipo_patologia) ? c.tipo_patologia : "Adulto sano",
                 categoria_reposo: c.categoria_reposo || 'NINGUNO',
                 dias_reposo: c.dias_reposo || 0,
                 observaciones: c.observaciones || '',
@@ -224,8 +230,39 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                         const parsedDraft = draftData.datos_borrador;
                         if (parsedDraft.paciente) setPaciente(parsedDraft.paciente);
                         if (parsedDraft.empresa) setEmpresa(parsedDraft.empresa);
-                        if (parsedDraft.consulta) setConsulta(parsedDraft.consulta);
                         if (parsedDraft.antecedentes) setAntecedentes(parsedDraft.antecedentes);
+                        if (parsedDraft.consulta) {
+                            const validPatologias = [
+                                "Adulto sano", "Cardiovasculares", "Dermatológicas", "Gastrointestinales", 
+                                "ORL", "Oftalmológicas", "Endocrinológicas", "Osteomiarticulares", 
+                                "Neurológicas", "Traumatológicas", "Accidente Laboral", "Accidente In Itinere", 
+                                "Accidente Común", "Obstétricas", "Respiratorias", "Genitourinarias", 
+                                "Infectocontagiosas", "Dislipidemia"
+                            ];
+                            
+                            let tipoPat = parsedDraft.consulta.tipo_patologia;
+                            if (tipoPat) {
+                                // Auto-corregir singular a plural o variaciones antiguas
+                                if (tipoPat === "Cardiovascular") tipoPat = "Cardiovasculares";
+                                if (tipoPat === "Dermatológica") tipoPat = "Dermatológicas";
+                                if (tipoPat === "Gastrointestinal") tipoPat = "Gastrointestinales";
+                                if (tipoPat === "Oftalmológica") tipoPat = "Oftalmológicas";
+                                if (tipoPat === "Endocrinológica" || tipoPat === "Endocrinas") tipoPat = "Endocrinológicas";
+                                if (tipoPat === "Osteomiarticular") tipoPat = "Osteomiarticulares";
+                                if (tipoPat === "Neurológica") tipoPat = "Neurológicas";
+                                if (tipoPat === "Traumatológica") tipoPat = "Traumatológicas";
+                                if (tipoPat === "Obstétrica") tipoPat = "Obstétricas";
+                                if (tipoPat === "Respiratoria") tipoPat = "Respiratorias";
+                                if (tipoPat === "Genitourinaria") tipoPat = "Genitourinarias";
+                                if (tipoPat === "Infectocontagiosa") tipoPat = "Infectocontagiosas";
+                                
+                                if (!validPatologias.includes(tipoPat)) {
+                                    tipoPat = "Adulto sano";
+                                }
+                                parsedDraft.consulta.tipo_patologia = tipoPat;
+                            }
+                            setConsulta(parsedDraft.consulta);
+                        }
                     }
                 } catch (e) {
                     console.error('Borrador en la nube no encontrado o error:', e);
@@ -621,19 +658,23 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                             </select>
                             <select value={consulta.tipo_patologia} onChange={e => setConsulta({ ...consulta, tipo_patologia: e.target.value })}>
                                 <option value="Adulto sano">Adulto sano</option>
-                                <option value="Cardiovasculares">Cardiovascular</option>
+                                <option value="Cardiovasculares">Cardiovasculares</option>
                                 <option value="Dermatológicas">Dermatológicas</option>
-                                <option value="Gastrointestinales">Gastrointestinal</option>
+                                <option value="Gastrointestinales">Gastrointestinales</option>
                                 <option value="ORL">ORL</option>
                                 <option value="Oftalmológicas">Oftalmológicas</option>
-                                <option value="Endocrinas">Endocrinas</option>
+                                <option value="Endocrinológicas">Endocrinológicas</option>
                                 <option value="Osteomiarticulares">Osteomiarticulares</option>
                                 <option value="Neurológicas">Neurológicas</option>
                                 <option value="Traumatológicas">Traumatológicas</option>
-                                <option value="Accidentes Laborales">Accidentes Laborales</option>
-                                <option value="Accidentes In itinere">Accidentes In itinere</option>
+                                <option value="Accidente Laboral">Accidente Laboral</option>
+                                <option value="Accidente In Itinere">Accidente In Itinere</option>
+                                <option value="Accidente Común">Accidente Común</option>
                                 <option value="Obstétricas">Obstétricas</option>
-                                <option value="Respiratorias">Respiratoria</option>
+                                <option value="Respiratorias">Respiratorias</option>
+                                <option value="Genitourinarias">Genitourinarias</option>
+                                <option value="Infectocontagiosas">Infectocontagiosas</option>
+                                <option value="Dislipidemia">Dislipidemia</option>
                             </select>
                         </div>
                         <div className="form-grid">
