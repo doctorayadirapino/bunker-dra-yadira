@@ -273,3 +273,12 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
   2. **Inmutabilidad de Roles en Base de Datos (`perfiles_usuarios` RLS):** Se reemplazó la política permisiva `FOR ALL` en `public.perfiles_usuarios` por `"Lectura estricta del propio perfil"` (`FOR SELECT TO authenticated USING (auth.uid() = id)`), impidiendo que cualquier sesión autenticada pueda escalar privilegios, modificar roles o leer perfiles ajenos desde el cliente.
   3. **Auto-Logout por Inactividad (`src/App.tsx`):** Se implementó un temporizador de seguridad que cierra automáticamente la sesión tras **45 minutos** sin actividad de teclado, mouse o pantalla táctil.
 - **Estado del Sistema:** `tsc -b` 0 errores. Desplegado a producción en Vercel (`main`).
+
+
+---
+### 📅 [17/11/2026] - Modo Fantasma (Anti-Indexación Total / Stealth OSINT)
+- **¿Qué se hizo hoy?:**
+  1. **Cabecera `X-Robots-Tag` en Servidor (`vercel.json`):** Se inyectó `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate` y `Referrer-Policy: no-referrer` en todas las rutas del servidor.
+  2. **Bloqueo Universal de Rastreadores (`public/robots.txt`):** Se creó la política `Disallow: /` bloqueando todos los buscadores tradicionales (Google, Bing, Yahoo, DuckDuckGo), rastreadores de IA (`GPTBot`, `ClaudeBot`, `PerplexityBot`, `CCBot`) y archivos históricos (`ia_archiver` / Wayback Machine).
+  3. **Metaetiquetas Anti-Indexación y Anonimización de Cabecera HTML (`index.html`):** Se reemplazó el `<title>` público por `"Plataforma Privada"` y se añadieron directivas `<meta name="robots">`, `<meta name="googlebot">` y `<meta name="bingbot">` con `noindex, nofollow, noarchive, nosnippet` para impedir que el nombre de la doctora sea indexado en motores de búsqueda públicos.
+- **Estado del Sistema:** `tsc -b` 0 errores. Desplegado a producción en Vercel (`main`).
