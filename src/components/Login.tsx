@@ -126,7 +126,6 @@ export default function Login() {
                                 <img src="/pwa-512x512.png" alt="Logo Consultorio Dra. Yadira Pino" className="login-brand-logo" />
                             </div>
                             <h2 className="login-title">DRA. YADIRA PINO</h2>
-                            <p className="login-subtitle">Ingrese sus credenciales autorizadas</p>
                         </div>
 
                         <form onSubmit={handleLogin} className="login-form">
