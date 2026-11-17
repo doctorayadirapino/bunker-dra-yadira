@@ -251,3 +251,16 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
   6. **Limpieza de `.env`:** Se eliminó la línea duplicada con token de prueba en `.env`, dejando únicamente la llave de producción activa.
   7. **Garantía Zero-Loss:** 0 registros eliminados o alterados destructivamente en la base de datos.
 - **Estado del Sistema:** `tsc -b` con 0 errores. Desplegado a producción en Vercel vía GitHub (`main`).
+
+
+---
+### 📅 [17/11/2026] - Rediseño Login Estilo "Aurora HealthTech" y Blindaje Forense Anti-Backdoors
+- **¿Qué se hizo hoy?:**
+  1. **Auditoría Forense de Seguridad (Eliminación de Puertas Traseras):**
+     - Se detectó y eliminó en `src/components/Login.tsx` el bypass que permitía ingresar escribiendo cualquier correo con `@` (`if (normalizedUsername.includes('@'))`). Ahora existe una **Lista Blanca estricta** que solo admite exclusivamente los dos identificadores oficiales (`yadira_laboral` y `yadira_fisiatra`).
+     - Se implementó **Protección Anti-Fuerza Bruta** en el Login (bloqueo temporal automático tras 5 intentos fallidos).
+     - En **Supabase RLS**, se detectó que la tabla `borradores_clinicos` tenía una política permisiva para el rol `{anon}` (`Permitir acceso anonimo a borradores`). Se revocó de inmediato y se reemplazó por `"Acceso restringido a personal autenticado"` (`TO authenticated`), cerrando el 100% de las 11 tablas del esquema `public` exclusivamente a usuarios autenticados con JWT válido.
+     - En `src/App.tsx`, se blindó `fetchUserRole`: si una sesión no posee un rol explícito válido (`laboral` o `fisiatria`) en `perfiles_usuarios`, el sistema ejecuta `supabase.auth.signOut()` automáticamente y nunca renderiza el panel por defecto.
+  2. **Nuevo Login "Aurora HealthTech" (`Login.tsx` y `Login.css`):**
+     - Inspirado en la arquitectura visual del proyecto **Aurora**, adaptado a temática médica para la **Dra. Yadira Pino (Médico Fisiatra y Ocupacional)** con fondo cinemático de auroras esmeralda/cian, retícula biomédica, onda ECG vectorial en tiempo real, barra superior minimalista y tarjeta Glassmorphism.
+- **Estado del Sistema:** `tsc -b` 0 errores. Desplegado a producción en Vercel (`main`).

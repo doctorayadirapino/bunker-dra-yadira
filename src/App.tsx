@@ -223,8 +223,14 @@ export default function App() {
   };
 
   const fetchUserRole = async (userId: string) => {
-    const { data } = await supabase.from('perfiles_usuarios').select('rol').eq('id', userId).single();
-    if (data) setUserRole(data.rol);
+    const { data, error } = await supabase.from('perfiles_usuarios').select('rol').eq('id', userId).single();
+    if (data && (data.rol === 'laboral' || data.rol === 'fisiatria')) {
+      setUserRole(data.rol);
+    } else {
+      console.error("Zero-Trust Alert: Rol inválido o no autorizado", error);
+      await supabase.auth.signOut();
+      setUserRole(null);
+    }
   };
 
   useEffect(() => {
@@ -340,7 +346,9 @@ export default function App() {
             <div style={{ color: 'var(--corporate-blue)', textAlign: 'center', marginTop: '100px', fontWeight: 600 }}>Calculando BI...</div>
           ) : (
             <div className="view-transition-wrapper">
-              {userRole === 'fisiatria' ? (
+              {!userRole ? (
+                <div style={{ color: 'var(--corporate-blue)', textAlign: 'center', marginTop: '100px', fontWeight: 600 }}>Verificando credenciales Zero-Trust...</div>
+              ) : userRole === 'fisiatria' ? (
                 <>
                   {(activeView === 'dashboard' || activeView === 'vademecum') && <FisiatriaDashboard initialView={activeView === 'vademecum' ? 'vademecum' : 'home'} />}
                   {activeView === 'reposo' && <ReposoModulo selectedCompany="GENERAL" />}
