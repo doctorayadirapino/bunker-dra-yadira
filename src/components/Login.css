@@ -17,8 +17,8 @@
     background: #020617;
     font-family: 'Plus Jakarta Sans', 'Outfit', 'Inter', sans-serif;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: center;
 }
 
 /* LIENZO DE FONDO MÉDICO ESTILO AURORA */
@@ -212,7 +212,6 @@
 .aurora-main-layout {
     position: relative;
     z-index: 10;
-    flex: 1;
     display: grid;
     grid-template-columns: 1.15fr 0.85fr;
     align-items: center;
@@ -220,7 +219,7 @@
     max-width: 1340px;
     width: 100%;
     margin: 0 auto;
-    padding: 20px 56px 48px;
+    padding: 36px 56px;
 }
 
 /* COLUMNA HERO IZQUIERDA */

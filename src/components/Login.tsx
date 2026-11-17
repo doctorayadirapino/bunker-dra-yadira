@@ -1,7 +1,7 @@
 /* © 2026 MSc. Carlos Fuentes. Todos los derechos reservados. Uso Propietario. */
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Activity, Lock, User, ChevronRight, Shield, Eye, EyeOff, Stethoscope, HeartPulse } from 'lucide-react';
+import { Activity, Lock, User, ChevronRight, Shield, Eye, EyeOff, HeartPulse } from 'lucide-react';
 import './Login.css';
 
 export default function Login() {
@@ -105,25 +105,6 @@ export default function Login() {
                 <div className="aurora-vignette-horizontal" />
             </div>
 
-            {/* BARRA SUPERIOR MINIMALISTA ESTILO AURORA */}
-            <nav className="aurora-navbar fade-in">
-                <div className="aurora-nav-left">
-                    <div className="aurora-brand-mark">
-                        <Stethoscope size={24} color="#0bdada" />
-                    </div>
-                    <div className="aurora-nav-links">
-                        <span>Fisiatría</span>
-                        <span>Salud Ocupacional</span>
-                        <span>Vigilancia Epidemiológica</span>
-                        <span>Historias Clínicas</span>
-                    </div>
-                </div>
-                <div className="aurora-status-pill">
-                    <span className="aurora-status-dot" />
-                    Búnker Clínico Activo
-                </div>
-            </nav>
-
             {/* CONTENIDO CENTRAL DIVIDIDO (HERO + LOGIN CARD) */}
             <div className="aurora-main-layout">
                 {/* COLUMNA IZQUIERDA: IDENTIDAD MÉDICA ESTILO AURORA */}
@@ -141,17 +122,6 @@ export default function Login() {
                     <p className="aurora-hero-description">
                         Gestión clínica inteligente de rehabilitación física, evaluaciones ocupacionales y vigilancia epidemiológica bajo arquitectura de máxima seguridad.
                     </p>
-
-                    <div className="aurora-hero-pills">
-                        <div className="aurora-pill-dark">
-                            <Shield size={15} color="#10b981" />
-                            <span>Arquitectura Zero-Trust</span>
-                        </div>
-                        <div className="aurora-pill-glass">
-                            <Activity size={15} color="#0bdada" />
-                            <span>Sincronización Cloud</span>
-                        </div>
-                    </div>
                 </div>
 
                 {/* COLUMNA DERECHA: TARJETA DE ACCESO GLASSMORPHISM */}
