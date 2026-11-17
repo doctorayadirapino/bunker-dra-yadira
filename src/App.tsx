@@ -240,7 +240,25 @@ export default function App() {
       const channel = supabase.channel('schema-db-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => { fetchDashboardData(); })
         .subscribe();
-      return () => { supabase.removeChannel(channel); };
+
+      // AUTO-LOGOUT POR INACTIVIDAD (45 MINUTOS - PROTOCOLO ZERO TRUST CARLOS FUENTES)
+      let inactivityTimer: ReturnType<typeof setTimeout>;
+      const resetInactivityTimer = () => {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(async () => {
+          await supabase.auth.signOut();
+        }, 45 * 60 * 1000);
+      };
+
+      const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+      activityEvents.forEach(evt => window.addEventListener(evt, resetInactivityTimer, { passive: true }));
+      resetInactivityTimer();
+
+      return () => {
+        supabase.removeChannel(channel);
+        clearTimeout(inactivityTimer);
+        activityEvents.forEach(evt => window.removeEventListener(evt, resetInactivityTimer));
+      };
     } else {
       setUserRole(null);
     }

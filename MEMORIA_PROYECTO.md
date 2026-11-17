@@ -264,3 +264,12 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
   2. **Nuevo Login "Aurora HealthTech" (`Login.tsx` y `Login.css`):**
      - Inspirado en la arquitectura visual del proyecto **Aurora**, adaptado a temática médica para la **Dra. Yadira Pino (Médico Fisiatra y Ocupacional)** con fondo cinemático de auroras esmeralda/cian, retícula biomédica, onda ECG vectorial en tiempo real, barra superior minimalista y tarjeta Glassmorphism.
 - **Estado del Sistema:** `tsc -b` 0 errores. Desplegado a producción en Vercel (`main`).
+
+
+---
+### 📅 [17/11/2026] - Blindaje Militar OWASP, RLS `perfiles_usuarios` y Auto-Logout por Inactividad
+- **¿Qué se hizo hoy?:**
+  1. **Cabeceras de Seguridad Militar (`vercel.json`):** Se inyectaron cabeceras HTTP de grado corporativo (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` bloqueando cámara/micrófono/geolocalización y `Strict-Transport-Security` HSTS de 2 años).
+  2. **Inmutabilidad de Roles en Base de Datos (`perfiles_usuarios` RLS):** Se reemplazó la política permisiva `FOR ALL` en `public.perfiles_usuarios` por `"Lectura estricta del propio perfil"` (`FOR SELECT TO authenticated USING (auth.uid() = id)`), impidiendo que cualquier sesión autenticada pueda escalar privilegios, modificar roles o leer perfiles ajenos desde el cliente.
+  3. **Auto-Logout por Inactividad (`src/App.tsx`):** Se implementó un temporizador de seguridad que cierra automáticamente la sesión tras **45 minutos** sin actividad de teclado, mouse o pantalla táctil.
+- **Estado del Sistema:** `tsc -b` 0 errores. Desplegado a producción en Vercel (`main`).
