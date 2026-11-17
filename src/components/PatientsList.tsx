@@ -69,13 +69,15 @@ export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsult
     const handleSavePatient = async () => {
         try {
             setLoading(true);
+            const sexoNormalizado = editingPatient.sexo === 'M' ? 'Masculino' : (editingPatient.sexo === 'F' ? 'Femenino' : (editingPatient.sexo || 'Femenino'));
             const { error } = await supabase
                 .from('pacientes')
                 .update({
-                    nombre_completo: editingPatient.nombre_completo.toUpperCase(),
+                    nombre_completo: editingPatient.nombre_completo.trim().toUpperCase(),
                     cedula: editingPatient.cedula,
                     fecha_nacimiento: editingPatient.fecha_nacimiento || null,
-                    sexo: editingPatient.sexo,
+                    sexo: sexoNormalizado,
+                    cargo: editingPatient.cargo ? editingPatient.cargo.trim().toUpperCase() : null,
                     empresa_id: editingPatient.empresa_id
                 })
                 .eq('id', editingPatient.id);
@@ -361,12 +363,12 @@ export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsult
                                 <div style={{ flex: 1 }}>
                                     <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Sexo</label>
                                     <select
-                                        value={editingPatient.sexo}
+                                        value={editingPatient.sexo === 'M' ? 'Masculino' : (editingPatient.sexo === 'F' ? 'Femenino' : editingPatient.sexo)}
                                         onChange={e => setEditingPatient({...editingPatient, sexo: e.target.value})}
                                         style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
                                     >
-                                        <option value="M">Masculino</option>
-                                        <option value="F">Femenino</option>
+                                        <option value="Masculino">Masculino</option>
+                                        <option value="Femenino">Femenino</option>
                                     </select>
                                 </div>
                                 <div style={{ flex: 1 }}>
@@ -378,6 +380,16 @@ export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsult
                                         style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none', colorScheme: 'dark' }}
                                     />
                                 </div>
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Cargo del Trabajador</label>
+                                <input
+                                    type="text"
+                                    value={editingPatient.cargo || ''}
+                                    onChange={e => setEditingPatient({...editingPatient, cargo: e.target.value.toUpperCase()})}
+                                    placeholder="Ej. OPERADOR JUNIOR"
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', outline: 'none' }}
+                                />
                             </div>
                             <div>
                                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600 }}>Empresa Actual</label>
