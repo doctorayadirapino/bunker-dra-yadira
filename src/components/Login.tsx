@@ -1,7 +1,7 @@
 /* © 2026 MSc. Carlos Fuentes. Todos los derechos reservados. Uso Propietario. */
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Activity, Lock, User, ChevronRight, Shield, Eye, EyeOff, HeartPulse } from 'lucide-react';
+import { Lock, User, ChevronRight, Shield, Eye, EyeOff, HeartPulse } from 'lucide-react';
 import './Login.css';
 
 export default function Login() {
@@ -129,7 +129,7 @@ export default function Login() {
                     <div className="login-card">
                         <div className="login-header">
                             <div className="login-logo-container">
-                                <Activity size={34} className="pulse-icon" />
+                                <img src="/pwa-512x512.png" alt="Logo Consultorio Dra. Yadira Pino" className="login-brand-logo" />
                             </div>
                             <h2 className="login-title">Acceso Clínico</h2>
                             <p className="login-subtitle">Ingrese sus credenciales autorizadas</p>
