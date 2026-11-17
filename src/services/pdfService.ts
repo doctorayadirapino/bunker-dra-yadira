@@ -1106,6 +1106,12 @@ export const generarExamenFisicoPDF = async (data: any) => {
             format: [215.9, 279.4]
         });
 
+        const formatFechaES = (fechaISO: string) => {
+            if (!fechaISO) return 'N/A';
+            const partes = String(fechaISO).split('T')[0].split('-');
+            return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : fechaISO;
+        };
+
         doc.setTextColor('#000000');
         doc.setFont('times', 'bold');
         doc.setFontSize(22);
@@ -1133,7 +1139,7 @@ export const generarExamenFisicoPDF = async (data: any) => {
         doc.text(`PACIENTE: ${data.paciente.nombre}`, 15, 60);
         doc.text(`CÉDULA: ${data.paciente.cedula}`, 120, 60);
         doc.text(`EMPRESA: ${data.empresa.nombre}`, 15, 66);
-        doc.text(`FECHA: ${data.consulta.fecha}`, 120, 66);
+        doc.text(`FECHA: ${formatFechaES(data.consulta.fecha)}`, 120, 66);
         doc.text(`CARGO: ${data.paciente.cargo || 'No especificado'}`, 15, 72);
 
         doc.line(15, 76, 195, 76);
@@ -1153,7 +1159,11 @@ export const generarExamenFisicoPDF = async (data: any) => {
         const splitObs = doc.splitTextToSize(data.consulta.observaciones || 'Ninguna.', 180);
         doc.text(splitObs, 15, nextY + 8);
         
-        nextY += 8 + (splitObs.length * 6) + 20;
+        nextY += 8 + (splitObs.length * 6) + 25;
+        if (nextY > 255) {
+            doc.addPage();
+            nextY = 45;
+        }
 
         if (data.conFirmaDigital) {
             try {
@@ -1185,6 +1195,12 @@ export const generarInformeINPSASELPDF = async (data: any) => {
             format: [215.9, 279.4]
         });
 
+        const formatFechaES = (fechaISO: string) => {
+            if (!fechaISO) return 'N/A';
+            const partes = String(fechaISO).split('T')[0].split('-');
+            return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : fechaISO;
+        };
+
         doc.setTextColor('#000000');
         doc.setFont('times', 'bold');
         doc.setFontSize(16);
@@ -1207,19 +1223,20 @@ export const generarInformeINPSASELPDF = async (data: any) => {
         doc.text(`Edad: ${data.paciente.edad || 'N/A'}`, 15, 70);
         doc.text(`Sexo: ${data.paciente.sexo || 'N/A'}`, 120, 70);
         doc.text(`Cargo Actual: ${data.paciente.cargo || 'No especificado'}`, 15, 76);
+        doc.text(`Fecha Evaluación: ${formatFechaES(data.consulta.fecha)}`, 120, 76);
 
         doc.setFont('helvetica', 'bold');
-        doc.text(`3. DATOS OCUPACIONALES Y RIESGOS`, 15, 82);
+        doc.text(`3. DATOS OCUPACIONALES Y RIESGOS`, 15, 86);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Riesgos Expuestos: ${data.consulta.riesgos_ocupacionales || 'No especificado'}`, 15, 88);
+        doc.text(`Riesgos Expuestos: ${data.consulta.riesgos_ocupacionales || 'No especificado'}`, 15, 92);
 
         doc.setFont('helvetica', 'bold');
-        doc.text(`4. EXAMEN FÍSICO`, 15, 100);
+        doc.text(`4. EXAMEN FÍSICO`, 15, 104);
         doc.setFont('helvetica', 'normal');
         const exmSplit = doc.splitTextToSize(data.consulta.examen_fisico || 'Aparentemente Sano', 180);
-        doc.text(exmSplit, 15, 106);
+        doc.text(exmSplit, 15, 110);
 
-        let nY = 106 + (exmSplit.length * 6) + 6;
+        let nY = 110 + (exmSplit.length * 6) + 6;
 
         doc.setFont('helvetica', 'bold');
         doc.text(`5. CONCLUSIÓN DE APTITUD MÉDICA OCUPACIONAL`, 15, nY);
@@ -1230,6 +1247,10 @@ export const generarInformeINPSASELPDF = async (data: any) => {
         doc.text(`RESULTADO: ${data.consulta.aptitud}`, 15, nY + 14);
 
         nY += 35;
+        if (nY > 255) {
+            doc.addPage();
+            nY = 45;
+        }
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');

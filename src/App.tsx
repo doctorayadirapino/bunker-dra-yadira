@@ -278,7 +278,7 @@ export default function App() {
           <nav className="nav-links">
             {userRole === 'laboral' && (
               <>
-                <button className="new-eval-btn-sidebar" onClick={() => { setShowForm(true); setIsSidebarOpen(false); }} style={{ marginBottom: '20px' }}>
+                <button className="new-eval-btn-sidebar" onClick={() => { setPrefilledCedula(undefined); setShowForm(true); setIsSidebarOpen(false); }} style={{ marginBottom: '20px' }}>
                   <PlusCircle size={20} /> Nueva Evaluación
                 </button>
                 <button className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}><Activity size={20} /> Dashboard</button>
@@ -379,7 +379,7 @@ export default function App() {
           )}
         </main>
 
-        {showForm && <NewEvaluationForm onClose={() => { setShowForm(false); fetchDashboardData(); }} prefilledCedula={prefilledCedula} />}
+        {showForm && <NewEvaluationForm onClose={() => { setShowForm(false); setPrefilledCedula(undefined); fetchDashboardData(); }} prefilledCedula={prefilledCedula} />}
 
         {showResetPassword && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000 }}>

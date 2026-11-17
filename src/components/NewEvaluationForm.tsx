@@ -72,12 +72,12 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                 setPaciente({
                     nombre_completo: pacData.nombre_completo,
                     cedula: pacData.cedula,
-                    sexo: pacData.sexo,
+                    sexo: pacData.sexo === 'M' ? 'Masculino' : (pacData.sexo === 'F' ? 'Femenino' : (pacData.sexo || 'Femenino')),
                     alergias: pacData.alergias || '',
                     patologias_previas: pacData.patologias_previas || '',
                     fecha_nacimiento: pacData.fecha_nacimiento || '',
                     telefono: pacData.telefono || '',
-                    cargo: '' // No se carga de la BD para evitar problemas de esquema antiguo
+                    cargo: pacData.cargo || ''
                 });
 
                 if (pacData.empresas) {
@@ -141,7 +141,7 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
             setPaciente({
                 nombre_completo: c.pacientes.nombre_completo || '',
                 cedula: c.pacientes.cedula || '',
-                sexo: c.pacientes.sexo || 'Femenino',
+                sexo: c.pacientes.sexo === 'M' ? 'Masculino' : (c.pacientes.sexo === 'F' ? 'Femenino' : (c.pacientes.sexo || 'Femenino')),
                 alergias: c.pacientes.alergias || '',
                 patologias_previas: c.pacientes.patologias_previas || '',
                 fecha_nacimiento: c.pacientes.fecha_nacimiento || '',
@@ -228,7 +228,11 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
 
                     if (draftData && draftData.datos_borrador) {
                         const parsedDraft = draftData.datos_borrador;
-                        if (parsedDraft.paciente) setPaciente(parsedDraft.paciente);
+                        if (parsedDraft.paciente) {
+                            const rawSexo = parsedDraft.paciente.sexo;
+                            parsedDraft.paciente.sexo = rawSexo === 'M' ? 'Masculino' : (rawSexo === 'F' ? 'Femenino' : (rawSexo || 'Femenino'));
+                            setPaciente(parsedDraft.paciente);
+                        }
                         if (parsedDraft.empresa) setEmpresa(parsedDraft.empresa);
                         if (parsedDraft.antecedentes) setAntecedentes(parsedDraft.antecedentes);
                         if (parsedDraft.consulta) {
@@ -340,7 +344,8 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
             // 2. Paciente
             let pacId = null;
             let { data: pacData } = await supabase.from('pacientes').select('id').eq('cedula', paciente.cedula).single();
-            const payloadPaciente = { ...paciente, fecha_nacimiento: paciente.fecha_nacimiento || null, empresa_id: empId };
+            const sexoNormalizado = paciente.sexo === 'M' ? 'Masculino' : (paciente.sexo === 'F' ? 'Femenino' : (paciente.sexo || 'Femenino'));
+            const payloadPaciente = { ...paciente, nombre_completo: paciente.nombre_completo.trim().toUpperCase(), sexo: sexoNormalizado, fecha_nacimiento: paciente.fecha_nacimiento || null, empresa_id: empId };
             if (!pacData) {
                 const { data: newPac, error: errPac } = await supabase.from('pacientes').insert([payloadPaciente]).select().single();
                 if (errPac) throw errPac;
@@ -678,13 +683,22 @@ export default function NewEvaluationForm({ onClose, editConsultaId, prefilledCe
                             </select>
                         </div>
                         <div className="form-grid">
-                            <select value={consulta.categoria_reposo} onChange={e => setConsulta({ ...consulta, categoria_reposo: e.target.value })}>
+                            <select value={consulta.categoria_reposo} onChange={e => {
+                                const nuevaCat = e.target.value;
+                                if (nuevaCat === 'NINGUNO') {
+                                    setConsulta({ ...consulta, categoria_reposo: 'NINGUNO', dias_reposo: 0, fecha_inicio_reposo: '', fecha_fin_reposo: '', causa_reposo: '' });
+                                } else {
+                                    setConsulta({ ...consulta, categoria_reposo: nuevaCat });
+                                }
+                            }}>
                                 <option value="NINGUNO">Sin Reposo</option>
                                 <option value="ENFERMEDAD COMUN">ENFERMEDAD COMÚN</option>
                                 <option value="ENFERMEDAD OCUPACIONAL">ENFERMEDAD OCUPACIONAL</option>
+                                <option value="ACCIDENTE LABORAL">ACCIDENTE LABORAL</option>
+                                <option value="ACCIDENTE COMUN">ACCIDENTE COMÚN</option>
                             </select>
                             <div style={{ display: 'flex', gap: '8px' }}>
-                                <input type="number" value={consulta.dias_reposo} onChange={e => setConsulta({ ...consulta, dias_reposo: parseInt(e.target.value) || 0 })} disabled={consulta.categoria_reposo === 'NINGUNO'} style={{ width: '100px' }} />
+                                <input type="number" min="0" value={consulta.dias_reposo} onChange={e => setConsulta({ ...consulta, dias_reposo: parseInt(e.target.value) || 0 })} disabled={consulta.categoria_reposo === 'NINGUNO'} style={{ width: '100px' }} />
                                 <span style={{ display: 'flex', alignItems: 'center' }}>Días</span>
                             </div>
                         </div>

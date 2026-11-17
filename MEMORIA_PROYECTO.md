@@ -238,3 +238,16 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
   3. Se actualizaron directamente en Supabase los datos de la paciente **YUJEISIKA VIDALINA GIL CORTES** (CI: `21469788`, Cargo: `OPERADOR JUNIOR`, Empresa: `INVERSIONES WELL ROSES C.A`).
 - **¿Qué quedó pendiente?:** Confirmación visual por parte de la Dra. Yadira Pino.
 - **Para el próximo agente:** Mantener siempre la simetría entre los `<select>` de `PatientsList.tsx` y `NewEvaluationForm.tsx` respecto a los `CHECK CONSTRAINTS` de Supabase (`Masculino` / `Femenino`).
+
+
+---
+### 📅 [17/11/2026] - Auditoría Forense Integral 360° y Optimización Zero-Loss
+- **¿Qué se hizo hoy?:** 
+  1. **Recuperación de Cargo en Pacientes Recurrentes (`NewEvaluationForm.tsx`):** Al cargar un paciente existente por cédula, ahora se recupera automáticamente su `cargo` (`pacData.cargo || ''`) en lugar de vaciarlo en blanco.
+  2. **Saneamiento Total de `sexo` y `categoria_reposo` (`NewEvaluationForm.tsx`):** Se normalizó `sexo` en carga de borradores, edición y envío (`M -> Masculino`, `F -> Femenino`), y se completaron las 5 opciones válidas del constraint `consultas_categoria_reposo_check` (`NINGUNO`, `ENFERMEDAD COMUN`, `ENFERMEDAD OCUPACIONAL`, `ACCIDENTE LABORAL`, `ACCIDENTE COMUN`), limpiando automáticamente los días y fechas de reposo cuando se selecciona `NINGUNO`.
+  3. **Filtro Completo y Reimpresión Total en Historial (`ConsultasModule.tsx`):** Se agregaron los 8 tipos de consulta al filtro del historial y se habilitó la reimpresión bajo demanda de **Examen Físico Ocupacional** e **Informe INPSASEL** directamente desde el Historial de Consultas.
+  4. **Corrección de Fuga de Estado (`App.tsx`):** Se limpia `prefilledCedula` al cerrar `NewEvaluationForm` o al abrir una evaluación nueva desde la barra lateral.
+  5. **Formato de Fecha y Paginación Segura en PDFs (`pdfService.ts` & `SurveillanceModule.tsx`):** Se formatearon las fechas a `DD/MM/YYYY` en Examen Físico e INPSASEL, se añadió control de salto de página (`addPage`) para evitar que la firma se salga de la hoja, y se corrigió el cálculo exacto de edad sin desfase UTC.
+  6. **Limpieza de `.env`:** Se eliminó la línea duplicada con token de prueba en `.env`, dejando únicamente la llave de producción activa.
+  7. **Garantía Zero-Loss:** 0 registros eliminados o alterados destructivamente en la base de datos.
+- **Estado del Sistema:** `tsc -b` con 0 errores. Desplegado a producción en Vercel vía GitHub (`main`).

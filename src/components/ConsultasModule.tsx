@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Search, Printer, Calendar, Filter, Trash2, Edit } from 'lucide-react';
-import { generarCertificadoPDF, generarReposoPDF } from '../services/pdfService';
+import { generarCertificadoPDF, generarReposoPDF, generarExamenFisicoPDF, generarInformeINPSASELPDF } from '../services/pdfService';
 import NewEvaluationForm from './NewEvaluationForm';
 
 export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selectedCompany?: string }) {
@@ -49,7 +49,7 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
             .from('consultas')
             .select(`
                 *,
-                pacientes (nombre_completo, cedula),
+                pacientes (nombre_completo, cedula, sexo, fecha_nacimiento, cargo),
                 empresas (nombre, rif)
             `)
             .order('fecha_consulta', { ascending: false });
@@ -68,7 +68,7 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
     };
 
     const handlePrint = (c: any) => {
-        const conFirma = window.confirm("¿Desea incluir la FIRMA DIGITAL en el certificado?\n\n• [Aceptar]: Para enviar por correo electrónico.\n• [Cancelar]: Para imprimir y sellar físicamente.");
+        const conFirma = window.confirm("¿Desea incluir la FIRMA DIGITAL en los documentos?\n\n• [Aceptar]: Para enviar por correo electrónico.\n• [Cancelar]: Para imprimir y sellar físicamente.");
 
         const ciudadDefault = "GUARENAS";
         const ciudadPersonalizada = window.prompt("Ingrese la CIUDAD de emisión:", ciudadDefault);
@@ -76,11 +76,26 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
 
         const ciudadFinal = ciudadPersonalizada ? ciudadPersonalizada.toUpperCase() : ciudadDefault;
 
-        // 1. REPORTE DE APTITUD MÉDICA
-        generarCertificadoPDF({
+        const calcularEdad = (fechaNac: string) => {
+            if (!fechaNac) return '';
+            const partes = fechaNac.split('T')[0].split('-');
+            if (partes.length === 3) {
+                const hoy = new Date();
+                let edad = hoy.getFullYear() - parseInt(partes[0]);
+                const m = (hoy.getMonth() + 1) - parseInt(partes[1]);
+                if (m < 0 || (m === 0 && hoy.getDate() < parseInt(partes[2]))) edad--;
+                return Math.max(0, edad).toString();
+            }
+            return '';
+        };
+
+        const pdfData = {
             paciente: {
-                nombre: c.pacientes.nombre_completo,
-                cedula: c.pacientes.cedula
+                nombre: c.pacientes?.nombre_completo || '',
+                cedula: c.pacientes?.cedula || '',
+                edad: calcularEdad(c.pacientes?.fecha_nacimiento),
+                sexo: c.pacientes?.sexo || '',
+                cargo: c.pacientes?.cargo || ''
             },
             empresa: {
                 nombre: c.empresas?.nombre || 'Independiente',
@@ -93,18 +108,34 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                 examen_fisico: c.examen_fisico,
                 causa_reposo: c.causa_reposo,
                 dias_reposo: c.dias_reposo,
+                riesgos_ocupacionales: c.riesgos_ocupacionales,
                 ciudad: ciudadFinal,
                 fecha: c.fecha_consulta
             },
+            conFirmaDigital: conFirma
+        };
+
+        // 1. REPORTE DE APTITUD MÉDICA
+        generarCertificadoPDF({
+            ...pdfData,
             doctora: {
                 nombre: "YADIRA PINO",
                 especialidad: "Fisiatra",
                 ci: "6.871.964",
                 mpps: "41.171",
                 cmm: "13.012"
-            },
-            conFirmaDigital: conFirma
+            }
         });
+
+        // 1.1 EXAMEN FÍSICO (Opcional bajo demanda)
+        if (window.confirm("¿Desea imprimir también la hoja de EXAMEN FÍSICO OCUPACIONAL?")) {
+            generarExamenFisicoPDF(pdfData);
+        }
+
+        // 1.2 INFORME INPSASEL (Opcional bajo demanda)
+        if (window.confirm("¿Desea imprimir también el INFORME MÉDICO INPSASEL?")) {
+            generarInformeINPSASELPDF(pdfData);
+        }
 
         // 2. REPORTE DE REPOSO O ASISTENCIA (Si existe)
         if (c.dias_reposo > 0 || c.categoria_reposo !== 'NINGUNO') {
@@ -240,6 +271,9 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                         <option value="PRE-VACACIONAL">Pre-vacacional</option>
                         <option value="POST-VACACIONAL">Post-vacacional</option>
                         <option value="EGRESO">Egreso</option>
+                        <option value="REINTEGRO REPOSO">Reintegro de reposo</option>
+                        <option value="CONSULTA">Consulta</option>
+                        <option value="LIMITACION">Limitación</option>
                         <option value="CERTIFICADO SALUD">Certificado Salud</option>
                     </select>
                 </div>

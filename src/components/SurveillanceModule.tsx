@@ -107,8 +107,13 @@ export default function SurveillanceModule({
                 // Demografía
                 let age = 30; // Default
                 if (row.pacientes?.fecha_nacimiento) {
-                    const birth = new Date(row.pacientes.fecha_nacimiento);
-                    age = new Date().getFullYear() - birth.getFullYear();
+                    const partes = String(row.pacientes.fecha_nacimiento).split('T')[0].split('-');
+                    if (partes.length === 3) {
+                        const hoy = new Date();
+                        age = hoy.getFullYear() - parseInt(partes[0]);
+                        const m = (hoy.getMonth() + 1) - parseInt(partes[1]);
+                        if (m < 0 || (m === 0 && hoy.getDate() < parseInt(partes[2]))) age--;
+                    }
                 }
                 let group = '55+';
                 if (age < 26) group = '18-25';
