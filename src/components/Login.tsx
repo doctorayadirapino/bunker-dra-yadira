@@ -1,7 +1,7 @@
 /* © 2026 MSc. Carlos Fuentes. Todos los derechos reservados. Uso Propietario. */
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Lock, User, ChevronRight, Shield, Eye, EyeOff, HeartPulse } from 'lucide-react';
+import { Lock, User, ChevronRight, Shield, Eye, EyeOff } from 'lucide-react';
 import './Login.css';
 
 export default function Login() {
@@ -109,13 +109,7 @@ export default function Login() {
             <div className="aurora-main-layout">
                 {/* COLUMNA IZQUIERDA: IDENTIDAD MÉDICA ESTILO AURORA */}
                 <div className="aurora-hero-column fade-in">
-                    <div className="aurora-specialty-tag">
-                        <HeartPulse size={15} color="#0bdada" />
-                        <span>PLATAFORMA MÉDICA ESPECIALIZADA</span>
-                    </div>
-
                     <h1 className="aurora-hero-title">
-                        DRA. YADIRA PINO<br />
                         <span>MÉDICO FISIATRA Y OCUPACIONAL</span>
                     </h1>
 
@@ -131,7 +125,7 @@ export default function Login() {
                             <div className="login-logo-container">
                                 <img src="/pwa-512x512.png" alt="Logo Consultorio Dra. Yadira Pino" className="login-brand-logo" />
                             </div>
-                            <h2 className="login-title">Acceso Clínico</h2>
+                            <h2 className="login-title">DRA. YADIRA PINO</h2>
                             <p className="login-subtitle">Ingrese sus credenciales autorizadas</p>
                         </div>
 

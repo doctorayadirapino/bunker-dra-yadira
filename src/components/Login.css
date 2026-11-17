@@ -255,10 +255,9 @@
 
 .aurora-hero-title span {
     display: block;
-    margin-top: 6px;
-    font-size: clamp(1.35rem, 2.3vw, 2.1rem);
-    font-weight: 500;
-    background: linear-gradient(90deg, #0bdada 0%, #38bdf8 55%, #a7f3d0 100%);
+    font-size: clamp(2rem, 3.6vw, 3.3rem);
+    font-weight: 700;
+    background: linear-gradient(90deg, #ffffff 0%, #0bdada 60%, #a7f3d0 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
