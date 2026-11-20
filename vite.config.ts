@@ -8,6 +8,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
+        navigateFallbackDenylist: [/^\/api/]
+      },
       includeAssets: ['logo-consultorio.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'Consultorio Yadira Pino',

@@ -240,11 +240,18 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (session) {
+    if (session?.user?.id) {
+      const isFisiatria = (session.user.email || '').trim().toLowerCase() === 'doctora.fisiatria@bunker.com';
       fetchUserRole(session.user.id, session.user.email);
-      fetchDashboardData();
+      if (isFisiatria) {
+        setLoading(false);
+      } else {
+        fetchDashboardData();
+      }
       const channel = supabase.channel('schema-db-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => { fetchDashboardData(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'consultas' }, () => {
+          if (!isFisiatria) fetchDashboardData();
+        })
         .subscribe();
 
       // AUTO-LOGOUT POR INACTIVIDAD (45 MINUTOS - PROTOCOLO ZERO TRUST CARLOS FUENTES)
@@ -268,7 +275,7 @@ export default function App() {
     } else {
       setUserRole(null);
     }
-  }, [session]);
+  }, [session?.user?.id]);
 
   useEffect(() => {
     if (allConsultations.length > 0) processAnalytics(allConsultations, selectedCompany);

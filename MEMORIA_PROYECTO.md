@@ -306,3 +306,14 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
 - **Problema:** Al iniciar sesión en Fisiatría (`doctora.fisiatria@bunker.com`), el evento de sesión disparaba `fetchUserRole(session.user.id)` antes de que el token JWT se propagara en la consulta PostgREST a `perfiles_usuarios` (o ante una latencia momentánea), devolviendo `data: null` en el primer intento y ejecutando `await supabase.auth.signOut()`, lo que sacaba a la doctora inmediatamente del sistema tras entrar.
 - **Solución (Zero Trust Determinista):** En `src/App.tsx`, `fetchUserRole` ahora valida de forma determinista e instantánea el correo autenticado en el JWT firmado por Supabase (`doctora.fisiatria@bunker.com` -> `'fisiatria'`, `yadirapinorujano288@gmail.com` -> `'laboral'`), con respaldo a `perfiles_usuarios` y eliminando el `signOut()` prematuro por condición de carrera.
 - **Estado del Sistema:** `tsc -b` 0 errores. Desplegado a producción en Vercel (`main`).
+
+
+---
+### 📅 [20/11/2026] - Purgado Automático de Caché PWA (Service Worker) y Estabilización de Sesión Fisiatría
+- **Problema:** Aunque el fix de sesión estaba en producción en Vercel, el Service Worker (`sw.js`) instalado por `vite-plugin-pwa` en el navegador de la Dra. Pino servía en modo `Cache-First` el bundle JS antiguo guardado localmente en su equipo, el cual contenía la llamada a `supabase.auth.signOut()`.
+- **Solución:**
+  1. Se configuró `workbox: { skipWaiting: true, clientsClaim: true, cleanupOutdatedCaches: true }` en `vite.config.ts`.
+  2. Se añadió `reg.update()` automático de todos los Service Workers al iniciar `src/main.tsx`.
+  3. Se agregó la cabecera `Cache-Control: no-cache, no-store, must-revalidate` para `sw.js`, `index.html` y `manifest.webmanifest` en `vercel.json`.
+  4. En `src/App.tsx`, se ancló el `useEffect` de sesión a `session?.user?.id` (evitando re-ejecuciones por refresco de token) y se omitió la carga innecesaria del dashboard laboral cuando el usuario autenticado es `fisiatria`.
+- **Estado del Sistema:** `tsc -b` 0 errores. Desplegado a producción en Vercel (`main`).
