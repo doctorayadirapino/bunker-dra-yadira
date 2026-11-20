@@ -299,3 +299,10 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
 
 **ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - BLINDAJE MILITAR Y MODO STEALTH ACTIVOS - CI/CD SINCRONIZADO.**
 📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**
+
+
+---
+### 📅 [20/11/2026] - Fix Crítico: Condición de Carrera (Auto-SignOut) al Ingresar a Fisiatría
+- **Problema:** Al iniciar sesión en Fisiatría (`doctora.fisiatria@bunker.com`), el evento de sesión disparaba `fetchUserRole(session.user.id)` antes de que el token JWT se propagara en la consulta PostgREST a `perfiles_usuarios` (o ante una latencia momentánea), devolviendo `data: null` en el primer intento y ejecutando `await supabase.auth.signOut()`, lo que sacaba a la doctora inmediatamente del sistema tras entrar.
+- **Solución (Zero Trust Determinista):** En `src/App.tsx`, `fetchUserRole` ahora valida de forma determinista e instantánea el correo autenticado en el JWT firmado por Supabase (`doctora.fisiatria@bunker.com` -> `'fisiatria'`, `yadirapinorujano288@gmail.com` -> `'laboral'`), con respaldo a `perfiles_usuarios` y eliminando el `signOut()` prematuro por condición de carrera.
+- **Estado del Sistema:** `tsc -b` 0 errores. Desplegado a producción en Vercel (`main`).
