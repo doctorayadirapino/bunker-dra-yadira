@@ -4,11 +4,11 @@ import { supabase } from './lib/supabase';
 import {
   Activity, Users, FileText, CalendarDays, AlertTriangle,
   PlusCircle, BriefcaseMedical, Printer, LogOut, BookOpen,
-  Menu, X
+  Menu, X, Search, ArrowUpRight
 } from 'lucide-react';
 import {
-  PieChart, Pie, Cell, Tooltip as RechartsTooltip,
-  BarChart, Bar, XAxis, YAxis, Legend, ResponsiveContainer
+  Tooltip as RechartsTooltip,
+  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, AreaChart, Area, Cell
 } from 'recharts';
 import Login from './components/Login';
 
@@ -298,78 +298,166 @@ export default function App() {
         <span style={{ color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '1px' }}>INICIANDO NÚCLEO...</span>
       </div>
     }>
-      <div className="app-container" style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-primary)' }}>
+      <div className="cd-app-shell">
         <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
         <div className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)} />
 
-        <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-          <div className="sidebar-header">
-            <h1 className="brand-title">
-              <Activity className="brand-icon" size={28} />
-              {userRole === 'fisiatria' ? 'CONSULTA FISIATRICA' : 'Salud Laboral'}
-            </h1>
-          </div>
-          <nav className="nav-links">
-            {userRole === 'laboral' && (
+        {/* RIEL VERTICAL FLOTANTE ESTILO SCROLLTIDE CLIENT DESK */}
+        <aside className={`cd-icon-rail ${isSidebarOpen ? 'open' : ''}`}>
+          <div className="cd-rail-top">
+            {userRole === 'laboral' ? (
               <>
-                <button className="new-eval-btn-sidebar" onClick={() => { setPrefilledCedula(undefined); setShowForm(true); setIsSidebarOpen(false); }} style={{ marginBottom: '20px' }}>
-                  <PlusCircle size={20} /> Nueva Evaluación
+                <button
+                  className={`cd-rail-btn ${activeView === 'dashboard' ? 'active' : ''}`}
+                  onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}
+                  title="Dashboard"
+                >
+                  <Activity size={19} />
                 </button>
-                <button className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}><Activity size={20} /> Dashboard</button>
-                <button className={`nav-item ${activeView === 'patients' ? 'active' : ''}`} onClick={() => { setActiveView('patients'); setIsSidebarOpen(false); }}><Users size={20} /> Pacientes</button>
-                <button className={`nav-item ${activeView === 'companies' ? 'active' : ''}`} onClick={() => { setActiveView('companies'); setIsSidebarOpen(false); }}><BriefcaseMedical size={20} /> Empresas</button>
-                <button className={`nav-item ${activeView === 'surveillance' ? 'active' : ''}`} onClick={() => { setActiveView('surveillance'); setIsSidebarOpen(false); }}><FileText size={20} /> Vigilancia</button>
-                <button className={`nav-item ${activeView === 'consultas' ? 'active' : ''}`} onClick={() => { setActiveView('consultas'); setIsSidebarOpen(false); }}><Printer size={20} /> Consultas</button>
-                <button className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`} onClick={() => { setActiveView('reposo'); setIsSidebarOpen(false); }}><CalendarDays size={20} /> Reposo</button>
-                <button className={`nav-item ${activeView === 'bi_analytics' ? 'active' : ''}`} onClick={() => { setActiveView('bi_analytics'); setIsSidebarOpen(false); }}><Activity size={20} /> BI & Analytics</button>
+                <button
+                  className={`cd-rail-btn ${activeView === 'patients' ? 'active' : ''}`}
+                  onClick={() => { setActiveView('patients'); setIsSidebarOpen(false); }}
+                  title="Pacientes"
+                >
+                  <Users size={19} />
+                </button>
+                <button
+                  className={`cd-rail-btn ${activeView === 'companies' ? 'active' : ''}`}
+                  onClick={() => { setActiveView('companies'); setIsSidebarOpen(false); }}
+                  title="Empresas"
+                >
+                  <BriefcaseMedical size={19} />
+                </button>
+                <button
+                  className={`cd-rail-btn ${activeView === 'surveillance' ? 'active' : ''}`}
+                  onClick={() => { setActiveView('surveillance'); setIsSidebarOpen(false); }}
+                  title="Vigilancia Epidemiológica"
+                >
+                  <FileText size={19} />
+                </button>
+                <button
+                  className={`cd-rail-btn ${activeView === 'consultas' ? 'active' : ''}`}
+                  onClick={() => { setActiveView('consultas'); setIsSidebarOpen(false); }}
+                  title="Historial de Consultas"
+                >
+                  <Printer size={19} />
+                </button>
+                <button
+                  className={`cd-rail-btn ${activeView === 'reposo' ? 'active' : ''}`}
+                  onClick={() => { setActiveView('reposo'); setIsSidebarOpen(false); }}
+                  title="Reposo Médico"
+                >
+                  <CalendarDays size={19} />
+                </button>
+                <button
+                  className={`cd-rail-btn ${activeView === 'bi_analytics' ? 'active' : ''}`}
+                  onClick={() => { setActiveView('bi_analytics'); setIsSidebarOpen(false); }}
+                  title="BI & Analytics"
+                >
+                  <ArrowUpRight size={19} />
+                </button>
               </>
-            )}
-            {userRole === 'fisiatria' && (
+            ) : (
               <>
-                <button className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}><Activity size={20} /> Fisiatría</button>
-                <button className={`nav-item ${activeView === 'vademecum' ? 'active' : ''}`} onClick={() => { setActiveView('vademecum'); setIsSidebarOpen(false); }}><BookOpen size={20} /> Vademécum</button>
-                <button className={`nav-item ${activeView === 'reposo' ? 'active' : ''}`} onClick={() => { setActiveView('reposo'); setIsSidebarOpen(false); }}><CalendarDays size={20} /> Reposo</button>
+                <button
+                  className={`cd-rail-btn ${activeView === 'dashboard' ? 'active' : ''}`}
+                  onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }}
+                  title="Fisiatría"
+                >
+                  <Activity size={19} />
+                </button>
+                <button
+                  className={`cd-rail-btn ${activeView === 'vademecum' ? 'active' : ''}`}
+                  onClick={() => { setActiveView('vademecum'); setIsSidebarOpen(false); }}
+                  title="Vademécum"
+                >
+                  <BookOpen size={19} />
+                </button>
+                <button
+                  className={`cd-rail-btn ${activeView === 'reposo' ? 'active' : ''}`}
+                  onClick={() => { setActiveView('reposo'); setIsSidebarOpen(false); }}
+                  title="Reposo"
+                >
+                  <CalendarDays size={19} />
+                </button>
               </>
             )}
-            <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
-              <button className="nav-item" onClick={() => setShowResetPassword(true)} style={{ color: 'var(--text-primary)', width: '100%' }}><AlertTriangle size={20} /> Seguridad</button>
-              <button className="nav-item" onClick={handleLogout} style={{ color: 'var(--danger)', width: '100%' }}><LogOut size={20} /> Salir</button>
-              <div style={{ textAlign: 'center', marginTop: '15px', paddingBottom: '15px' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                  Desarrollado por <b style={{ color: 'var(--text-primary)' }}>MSc. Carlos Fuentes</b>
-                </span>
-              </div>
-            </div>
-          </nav>
+          </div>
+
+          <div className="cd-rail-bottom">
+            <button className="cd-rail-btn" onClick={() => setShowResetPassword(true)} title="Seguridad / Contraseña">
+              <AlertTriangle size={18} />
+            </button>
+            <button className="cd-rail-btn cd-rail-logout" onClick={handleLogout} title="Salir del Sistema">
+              <LogOut size={18} />
+            </button>
+          </div>
         </aside>
 
-        <main className="main-content">
-          <header className="top-bar">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              {userRole === 'fisiatria' && (
-                <div style={{ borderLeft: '6px solid #e91e63', paddingLeft: '15px' }}>
-                  <h2 style={{ color: '#e91e63', fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.5px', margin: 0, lineHeight: 1 }}>CONSULTA FISIATRICA</h2>
-                  <p style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.8rem', margin: 0, marginTop: '5px' }}>Gestión Inteligente de Rehabilitación y Medicina Física</p>
-                </div>
-              )}
+        {/* LIENZO PRINCIPAL ESTILO CLIENT DESK */}
+        <main className="cd-workspace">
+          {/* BARRA SUPERIOR CON PÍLDORAS DE NAVEGACIÓN */}
+          <header className="cd-topbar">
+            <div className="cd-topbar-left">
+              <div className="cd-logo-mark" onClick={() => setActiveView('dashboard')}>
+                <img src="/pwa-512x512.png" alt="Logo" />
+              </div>
+
+              <nav className="cd-top-pills">
+                {userRole === 'laboral' ? (
+                  <>
+                    <button className={`cd-nav-pill ${activeView === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveView('dashboard')}>Dashboard</button>
+                    <button className={`cd-nav-pill ${activeView === 'patients' ? 'active' : ''}`} onClick={() => setActiveView('patients')}>Pacientes</button>
+                    <button className={`cd-nav-pill ${activeView === 'companies' ? 'active' : ''}`} onClick={() => setActiveView('companies')}>Empresas</button>
+                    <button className={`cd-nav-pill ${activeView === 'surveillance' ? 'active' : ''}`} onClick={() => setActiveView('surveillance')}>Vigilancia</button>
+                    <button className={`cd-nav-pill ${activeView === 'consultas' ? 'active' : ''}`} onClick={() => setActiveView('consultas')}>Consultas</button>
+                    <button className={`cd-nav-pill ${activeView === 'reposo' ? 'active' : ''}`} onClick={() => setActiveView('reposo')}>Reposo</button>
+                    <button className={`cd-nav-pill ${activeView === 'bi_analytics' ? 'active' : ''}`} onClick={() => setActiveView('bi_analytics')}>BI & Analytics</button>
+                  </>
+                ) : (
+                  <>
+                    <button className={`cd-nav-pill ${activeView === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveView('dashboard')}>Consulta Fisiátrica</button>
+                    <button className={`cd-nav-pill ${activeView === 'vademecum' ? 'active' : ''}`} onClick={() => setActiveView('vademecum')}>Vademécum</button>
+                    <button className={`cd-nav-pill ${activeView === 'reposo' ? 'active' : ''}`} onClick={() => setActiveView('reposo')}>Reposo Fisiátrico</button>
+                  </>
+                )}
+              </nav>
+            </div>
+
+            <div className="cd-topbar-right">
+              {/* GRUPO DE AVATARES ESTILO CLIENT DESK */}
+              <div className="cd-avatar-cluster">
+                <span style={{ background: '#e07a5f' }}>YP</span>
+                <span style={{ background: '#4a7c9b' }}>SO</span>
+                <span style={{ background: '#5b9a6f' }}>MF</span>
+                <span style={{ background: '#111827' }}>+{availableCompanies.length || 3}</span>
+              </div>
+
               {userRole === 'laboral' && (
-                <div style={{ padding: '8px 12px', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <select value={selectedCompany} onChange={(e) => setSelectedCompany(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontWeight: 600 }}>
-                    <option value="GENERAL">📊 GLOBAL</option>
-                    {availableCompanies.map(c => <option key={c} value={c}>🏢 {c}</option>)}
+                <div className="cd-company-pill">
+                  <select value={selectedCompany} onChange={(e) => setSelectedCompany(e.target.value)}>
+                    <option value="GENERAL">+ Filtro: Global</option>
+                    {availableCompanies.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               )}
-            </div>
-            <div className="user-profile">
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Dra. Yadira Pino</div>
-                <div style={{ color: 'var(--medical-turquoise)', fontSize: '0.7rem', fontWeight: 800 }}>MÉDICO ESPECIALISTA</div>
+
+              {userRole === 'laboral' && (
+                <button className="cd-add-manager-btn" onClick={() => { setPrefilledCedula(undefined); setShowForm(true); }}>
+                  <PlusCircle size={15} /> Nueva evaluación
+                </button>
+              )}
+
+              <div className="cd-user-badge" title="Dra. Yadira Pino - Médico Fisiatra y Ocupacional">
+                <div className="cd-user-info">
+                  <strong>Dra. Yadira Pino</strong>
+                  <small>MSc. Carlos Fuentes</small>
+                </div>
+                <div className="cd-user-circle">YP</div>
               </div>
-              <div className="user-avatar" style={{ background: 'linear-gradient(135deg, var(--doctora-pink), var(--corporate-blue))' }}>YP</div>
             </div>
           </header>
 
@@ -387,21 +475,249 @@ export default function App() {
               ) : (
                 <>
                   {activeView === 'dashboard' && (
-                    <div className="dashboard-view fade-in">
-                      <section className="kpi-grid">
-                        <div className="kpi-card"><span>Población</span><div className="kpi-value">{kpis.total_pacientes}</div></div>
-                        <div className="kpi-card"><span>Consultas</span><div className="kpi-value">{kpis.consultas_mes}</div></div>
-                        <div className="kpi-card"><span>Días Médicos</span><div className="kpi-value">{kpis.dias_reposo}</div></div>
-                        <div className="kpi-card"><span>% Ausentismo</span><div className="kpi-value">{kpis.ausentismo}%</div></div>
-                      </section>
-                      <section className="charts-grid">
-                        <div className="chart-card"><h3 className="chart-title">Sexo</h3><div style={{ height: 200 }}><ResponsiveContainer><PieChart><Pie data={genderData} innerRadius={60} outerRadius={80} dataKey="value" stroke="none">{genderData.map((e, i) => <Cell key={i} fill={e.color} />)}</Pie><RechartsTooltip /><Legend /></PieChart></ResponsiveContainer></div></div>
-                        <div className="chart-card"><h3 className="chart-title">Consultas</h3><div style={{ height: 200 }}><ResponsiveContainer><BarChart data={consultationData}><XAxis dataKey="name" hide /><YAxis hide /><RechartsTooltip /><Bar dataKey="val" fill="var(--medical-turquoise)" radius={5} /></BarChart></ResponsiveContainer></div></div>
-                      </section>
-                      <section className="data-table-card">
+                    <div className="cd-bento-wrapper fade-in">
+                      {/* ENCABEZADO ESTILO CLIENT DESK */}
+                      <div className="cd-header-row">
+                        <div>
+                          <div className="cd-breadcrumb">
+                            <span>Inicio</span> <span>→</span> <span>Dashboard Clínico</span>
+                          </div>
+                          <h2 className="cd-main-title">Panel Clínico Ocupacional</h2>
+                        </div>
+                        <div className="cd-header-actions">
+                          <button className="cd-circle-btn" onClick={() => setActiveView('patients')} title="Buscar Paciente">
+                            <Search size={17} />
+                          </button>
+                          <div className="cd-pill-select">
+                            <CalendarDays size={15} />
+                            <span>{new Date().toLocaleDateString('es-VE', { month: 'short', year: 'numeric' }).toUpperCase()}</span>
+                          </div>
+                          <button className="cd-pill-light" onClick={() => setActiveView('surveillance')}>
+                            + Vigilancia
+                          </button>
+                          <button className="cd-pill-dark" onClick={() => { setPrefilledCedula(undefined); setShowForm(true); }}>
+                            Nueva evaluación
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* BENTO GRID 4 COLUMNAS ESTILO SCROLLTIDE CLIENT DESK */}
+                      <div className="cd-bento-grid">
+                        {/* 1. TARJETA VERTICAL LAVANDA (IZQUIERDA, 2 FILAS DE ALTO) */}
+                        <div className="cd-card cd-card-lavender">
+                          <div className="cd-card-top">
+                            <span className="cd-card-label">Búnker Clínico</span>
+                            <span className="cd-mini-close">✦</span>
+                          </div>
+
+                          <div className="cd-crystal-stage">
+                            <div className="cd-crystal-diamond">
+                              <div className="cd-crystal-facet-left" />
+                              <div className="cd-crystal-facet-right" />
+                            </div>
+                            <div className="cd-crystal-pedestal" />
+                          </div>
+
+                          <div className="cd-lavender-inner">
+                            <div className="cd-inner-header">
+                              <strong>Salud Ocupacional</strong>
+                              <span className="cd-lime-badge">● Activo</span>
+                            </div>
+                            <p className="cd-inner-sub">Control integral INPSASEL, aptitud médica y vigilancia epidemiológica.</p>
+                            <div className="cd-dashed-wave" />
+                            <button className="cd-learn-btn" onClick={() => { setPrefilledCedula(undefined); setShowForm(true); }}>
+                              <span>Evaluar paciente</span>
+                              <span className="cd-arrow-dot"><ArrowUpRight size={13} /></span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 2. TARJETA ACTIVIDAD / HISTOGRAMA CON BARRA LIMA */}
+                        <div className="cd-card cd-card-white">
+                          <div className="cd-card-top">
+                            <span className="cd-card-title">Actividad</span>
+                            <button className="cd-icon-chip" onClick={() => setActiveView('consultas')}><ArrowUpRight size={14} /></button>
+                          </div>
+                          <span className="cd-card-sub">Consultas registradas</span>
+                          <div className="cd-big-metric">
+                            {allConsultations.length}<span className="cd-metric-unit">.total</span>
+                          </div>
+
+                          <div style={{ width: '100%', height: 175, marginTop: '8px' }}>
+                            <ResponsiveContainer>
+                              <BarChart data={consultationData}>
+                                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                                <YAxis hide />
+                                <RechartsTooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }} />
+                                <Bar dataKey="val" radius={[12, 12, 12, 12]} barSize={32}>
+                                  {consultationData.map((_, idx) => (
+                                    <Cell key={idx} fill={idx === 0 ? '#c3f53c' : '#f1f3f7'} />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+
+                        {/* 3. TARJETA POBLACIÓN Y BARRAS DE DISTRIBUCIÓN */}
+                        <div className="cd-card cd-card-white">
+                          <div className="cd-card-top">
+                            <span className="cd-card-title">Población evaluada</span>
+                            <button className="cd-icon-chip" onClick={() => setActiveView('patients')}><ArrowUpRight size={14} /></button>
+                          </div>
+                          <span className="cd-card-sub">Pacientes únicos en nómina</span>
+                          <div className="cd-big-metric">
+                            {kpis.total_pacientes}<span className="cd-metric-muted">.pac</span>
+                          </div>
+                          <div className="cd-positive-tag">↗ +{kpis.consultas_mes} este mes</div>
+
+                          <div className="cd-alloc-bars">
+                            {(() => {
+                              const fem = genderData.find(g => g.name === 'Femenino')?.value || 0;
+                              const masc = genderData.find(g => g.name === 'Masculino')?.value || 0;
+                              const tot = Math.max(1, fem + masc);
+                              const femPct = Math.round((fem / tot) * 100);
+                              const mascPct = 100 - femPct;
+                              return (
+                                <>
+                                  <div className="cd-alloc-row" style={{ width: '100%' }}>
+                                    <span>Femenino</span>
+                                    <strong>{femPct}%</strong>
+                                  </div>
+                                  <div className="cd-alloc-row" style={{ width: `${Math.max(48, mascPct)}%` }}>
+                                    <span>Masculino</span>
+                                    <strong>{mascPct}%</strong>
+                                  </div>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        </div>
+
+                        {/* 4. TARJETA VERDE SALVIA (VIRTUAL MEDICAL CARD) */}
+                        <div className="cd-card cd-card-sage" onClick={() => setActiveView('reposo')} style={{ cursor: 'pointer' }}>
+                          <div className="cd-card-top">
+                            <span className="cd-sage-chip">LOPCYMAT</span>
+                            <div className="cd-double-circle">
+                              <span /><span />
+                            </div>
+                          </div>
+
+                          <div className="cd-floating-arrow">
+                            <ArrowUpRight size={15} />
+                          </div>
+
+                          <div className="cd-sage-bottom">
+                            <div className="cd-big-metric">
+                              {kpis.dias_reposo}<span className="cd-metric-sage-muted">.días</span>
+                            </div>
+                            <div className="cd-sage-footer">
+                              <span>••• Reposos</span>
+                              <span>{kpis.ausentismo}% Ausent.</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 5. TARJETA ANCHA CENTRAL INFERIOR (CURVA + PÍLDORAS) */}
+                        <div className="cd-card cd-card-white cd-span-2">
+                          <div className="cd-card-top">
+                            <span className="cd-card-title">Evolución de consultas recientes</span>
+                            <button className="cd-icon-chip" onClick={() => setActiveView('bi_analytics')}><ArrowUpRight size={14} /></button>
+                          </div>
+                          <span className="cd-card-sub">Actividad clínica del período</span>
+
+                          <div className="cd-spent-body">
+                            <div className="cd-spent-left">
+                              <div className="cd-big-metric">
+                                {kpis.consultas_mes}<span className="cd-metric-muted">.mes</span>
+                              </div>
+                              <div className="cd-negative-tag">↘ {kpis.ausentismo}% tasa ausentismo</div>
+
+                              <div className="cd-pill-stats">
+                                <div className="cd-stat-pill" onClick={() => setActiveView('companies')} style={{ cursor: 'pointer' }}>
+                                  <strong>{availableCompanies.length}</strong> <span>Empresas</span>
+                                </div>
+                                <div className="cd-stat-pill" onClick={() => setActiveView('patients')} style={{ cursor: 'pointer' }}>
+                                  <strong>{kpis.total_pacientes}</strong> <span>Pacientes</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="cd-spent-chart">
+                              <ResponsiveContainer width="100%" height={150}>
+                                <AreaChart data={consultationData}>
+                                  <defs>
+                                    <linearGradient id="cdCurveGrad" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="0%" stopColor="#111827" stopOpacity={0.16} />
+                                      <stop offset="100%" stopColor="#111827" stopOpacity={0.0} />
+                                    </linearGradient>
+                                  </defs>
+                                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                                  <YAxis hide />
+                                  <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }} />
+                                  <Area type="monotone" dataKey="val" stroke="#111827" strokeWidth={2.2} fill="url(#cdCurveGrad)" />
+                                </AreaChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 6. TARJETA BURBUJAS TURQUESA (DERECHA INFERIOR) */}
+                        <div className="cd-card cd-card-white">
+                          <div className="cd-card-top">
+                            <span className="cd-card-title">Distribución clínica</span>
+                            <button className="cd-icon-chip" onClick={() => setActiveView('surveillance')}><ArrowUpRight size={14} /></button>
+                          </div>
+                          <span className="cd-card-sub">Balance operativo</span>
+
+                          <div className="cd-bubbles-stage">
+                            <div className="cd-bubble cd-bubble-sm">
+                              <strong>{kpis.ausentismo}%</strong>
+                            </div>
+                            <div className="cd-bubble cd-bubble-lg">
+                              <strong>{Math.max(1, 100 - Math.round(kpis.ausentismo))}%</strong>
+                            </div>
+                            <div className="cd-bubble cd-bubble-md">
+                              <strong>{availableCompanies.length}</strong>
+                            </div>
+                          </div>
+
+                          <div className="cd-contract-metrics">
+                            <div>
+                              <strong>{allConsultations.length}</strong>
+                              <span>Consultas</span>
+                            </div>
+                            <div>
+                              <strong>{kpis.total_pacientes}</strong>
+                              <span>Pacientes</span>
+                            </div>
+                            <div>
+                              <strong>{kpis.dias_reposo}</strong>
+                              <span>Días Rep.</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* TABLA COMPACTA DE ÚLTIMAS EVALUACIONES */}
+                      <section className="cd-card cd-card-white" style={{ marginTop: '20px' }}>
+                        <div className="cd-card-top" style={{ marginBottom: '12px' }}>
+                          <span className="cd-card-title">Últimas evaluaciones registradas</span>
+                          <button className="cd-pill-light" onClick={() => setActiveView('consultas')}>Ver historial completo →</button>
+                        </div>
                         <table className="data-table">
-                          <thead><tr><th>Fecha</th><th>Paciente</th><th>Patología</th><th>Días</th></tr></thead>
-                          <tbody>{latestConsultations.map(c => (<tr key={c.id}><td>{c.fecha_consulta.split('T')[0]}</td><td>{c.pacientes?.nombre_completo}</td><td>{c.tipo_patologia}</td><td>{c.dias_reposo}</td></tr>))}</tbody>
+                          <thead><tr><th>Fecha</th><th>Paciente</th><th>Empresa</th><th>Patología</th><th>Días</th></tr></thead>
+                          <tbody>
+                            {latestConsultations.map(c => (
+                              <tr key={c.id}>
+                                <td>{c.fecha_consulta.split('T')[0]}</td>
+                                <td style={{ fontWeight: 600 }}>{c.pacientes?.nombre_completo}</td>
+                                <td>{c.empresas?.nombre || 'Particular'}</td>
+                                <td>{c.tipo_patologia}</td>
+                                <td>{c.dias_reposo}</td>
+                              </tr>
+                            ))}
+                          </tbody>
                         </table>
                       </section>
                     </div>
@@ -421,15 +737,24 @@ export default function App() {
         {showForm && <NewEvaluationForm onClose={() => { setShowForm(false); setPrefilledCedula(undefined); fetchDashboardData(); }} prefilledCedula={prefilledCedula} />}
 
         {showResetPassword && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000 }}>
-            <div style={{ background: 'var(--bg-secondary)', padding: 30, borderRadius: 15, width: 400 }}>
-              <h2 style={{ color: 'white', marginBottom: 20 }}>Cambiar Contraseña</h2>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000 }}>
+            <div style={{ background: '#ffffff', padding: '32px', borderRadius: '28px', width: '90%', maxWidth: '420px', border: '1px solid #e5e7eb', boxShadow: '0 24px 60px rgba(15, 23, 42, 0.18)' }}>
+              <h2 style={{ color: '#111827', fontSize: '1.35rem', fontWeight: 700, marginBottom: '6px' }}>Cambiar Contraseña</h2>
+              <p style={{ color: '#6b7280', fontSize: '0.84rem', marginBottom: '20px' }}>Ingrese su nueva clave de seguridad (mínimo 6 caracteres)</p>
               <form onSubmit={handleUpdatePassword}>
-                <input type="password" required minLength={6} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} style={{ width: '100%', padding: 12, marginBottom: 15, borderRadius: 8, background: '#111', color: 'white', border: '1px solid #333' }} />
-                {resetError && <p style={{ color: 'var(--danger)' }}>{resetError}</p>}
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button type="button" onClick={() => setShowResetPassword(false)} style={{ flex: 1, padding: 12, borderRadius: 8, background: 'transparent', color: 'white', border: '1px solid #333' }}>Cerrar</button>
-                  <button type="submit" disabled={resetLoading} style={{ flex: 1, padding: 12, borderRadius: 8, background: 'var(--corporate-blue)', color: 'white', border: 'none' }}>{resetLoading ? '...' : 'Actualizar'}</button>
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  placeholder="Nueva contraseña..."
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  style={{ width: '100%', padding: '13px 16px', marginBottom: '16px', borderRadius: '14px', background: '#f8f9fb', color: '#111827', border: '1px solid #e5e7eb', outline: 'none', fontSize: '0.95rem' }}
+                />
+                {resetError && <p style={{ color: 'var(--danger)', fontSize: '0.84rem', marginBottom: '12px' }}>{resetError}</p>}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button type="button" onClick={() => setShowResetPassword(false)} style={{ flex: 1, padding: '12px', borderRadius: '999px', background: '#ffffff', color: '#4b5563', border: '1px solid #e5e7eb', fontWeight: 600, cursor: 'pointer' }}>Cerrar</button>
+                  <button type="submit" disabled={resetLoading} style={{ flex: 1, padding: '12px', borderRadius: '999px', background: '#111827', color: '#ffffff', border: 'none', fontWeight: 700, cursor: 'pointer' }}>{resetLoading ? 'Actualizando...' : 'Actualizar'}</button>
                 </div>
               </form>
             </div>

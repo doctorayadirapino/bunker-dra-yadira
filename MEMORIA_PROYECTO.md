@@ -317,3 +317,21 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
   3. Se agregó la cabecera `Cache-Control: no-cache, no-store, must-revalidate` para `sw.js`, `index.html` y `manifest.webmanifest` en `vercel.json`.
   4. En `src/App.tsx`, se ancló el `useEffect` de sesión a `session?.user?.id` (evitando re-ejecuciones por refresco de token) y se omitió la carga innecesaria del dashboard laboral cuando el usuario autenticado es `fisiatria`.
 - **Estado del Sistema:** `tsc -b` 0 errores. Desplegado a producción en Vercel (`main`).
+
+
+---
+### 📌 RESUMEN DE CIERRE DE SESIÓN FINAL (24/11/2026) - VERSIÓN 18.0 (SCROLLTIDE CLIENT DESK UI)
+- **¿Qué se hizo hoy?:**
+  1. **Transformación Integral UI/UX al Estilo `Client Desk` (`Scrolltide`):** Se rediseñó por completo el interior de la plataforma (`src/App.tsx`, `src/index.css`, `src/components/FisiatriaDashboard.tsx` y `src/components/NewEvaluationForm.css`) adoptando la arquitectura Bento Grid de **Scrolltide Client Desk**:
+     - **Riel Vertical Flotante Izquierdo:** Cápsula blanca redondeada (`border-radius: 999px`) con íconos circulares y estado activo en negro carbón (`#111827`).
+     - **Barra Superior en una Sola Línea:** Pestañas de navegación tipo píldora, avatares superpuestos, selector de empresa en cápsula, botón `+ Nueva evaluación` y perfil de la Dra. Yadira Pino con firma de **MSc. Carlos Fuentes**.
+     - **Dashboard Bento Grid de 6 Módulos:** Tarjeta vertical lavanda (`#d7def2`) con cristal 3D flotante, histograma de actividad con barra destacada en verde lima (`#c3f53c`), tarjeta de población con barras de proporción (`Allocation Bars`), tarjeta verde salvia (`#b8d1be`) estilo *Virtual Medical Card*, curva suave de evolución (`AreaChart`) y gráfico de burbujas turquesa (`#51c4c8`).
+     - **Unificación Total de Módulos y Modales:** Todos los módulos internos (Pacientes, Empresas, Vigilancia, Consultas, Reposo, BI & Analytics, Fisiatría, Vademécum y Modal de Cambio de Contraseña) fueron armonizados bajo la misma paleta y geometría de bordes redondeados (`24px–28px`).
+  2. **Seguridad Zero-Trust Intacta:** Se removió el bypass temporal de vista previa local antes del commit final, manteniendo el Login obligatorio, RLS estricto en las 11 tablas y el Modo Fantasma (Anti-Indexación).
+- **¿Qué quedó pendiente?:** Sistema compilado con `tsc -b` (0 errores) y desplegado a producción en Vercel. Sin pendientes abiertos.
+- **¿Qué necesita saber otro agente para seguir mañana?:**
+  1. La arquitectura visual interna ahora utiliza el sistema de clases `.cd-*` (`Client Desk`) definido en `src/index.css`. Cualquier nuevo componente o tarjeta debe respetar este lenguaje visual (`#f3f4f6`, `#ffffff`, `#111827`, `#c3f53c`, `#b8d1be`, `#d7def2`, `#51c4c8`).
+  2. El Login conserva su estética oscura **Aurora HealthTech** (`src/components/Login.tsx` y `src/components/Login.css`), mientras que el interior de la aplicación usa la estética luminosa **Scrolltide Client Desk**.
+
+**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - VERSIÓN 18.0 SCROLLTIDE CLIENT DESK EN PRODUCCIÓN - CI/CD SINCRONIZADO.**
+📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**

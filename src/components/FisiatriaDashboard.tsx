@@ -215,121 +215,118 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
 
             <style>{`
                 :root {
-                    --fisiatria-primary: #000000;
-                    --fisiatria-bg-soft: #f8fafc;
-                    --fisiatria-border: #e2e8f0;
+                    --fisiatria-primary: #111827;
+                    --fisiatria-bg-soft: #f3f4f6;
+                    --fisiatria-border: #e5e7eb;
                 }
-                .nav-pill {
-                    padding: 10px 20px;
-                    border-radius: 12px;
-                    border: none;
-                    background: transparent;
-                    color: var(--text-secondary);
-                    cursor: pointer;
-                    font-weight: 700;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    transition: all 0.3s;
-                }
-                .nav-pill.active {
-                    background: var(--fisiatria-primary);
-                    color: white;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                .fisiatria-container {
+                    background: #f3f4f6;
+                    border-radius: 32px;
                 }
                 .stat-card-fisiatria {
-                    background: white;
-                    border: 1px solid var(--fisiatria-border);
+                    background: #ffffff;
+                    border: 1px solid #eef0f4 !important;
                     padding: 24px;
-                    border-radius: 20px;
+                    border-radius: 26px;
                     display: flex;
                     align-items: center;
-                    gap: 20px;
-                    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+                    gap: 18px;
+                    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.03);
+                }
+                .stat-card-fisiatria:nth-child(1) {
+                    background: linear-gradient(180deg, #d7def2 0%, #cfd7ee 100%);
+                }
+                .stat-card-fisiatria:nth-child(2) {
+                    background: #ffffff;
+                }
+                .stat-card-fisiatria:nth-child(3) {
+                    background: linear-gradient(145deg, #c1d7c6 0%, #b3cbb9 100%);
                 }
                 .stat-card-fisiatria .icon {
-                    color: var(--fisiatria-primary);
-                    background: var(--fisiatria-bg-soft);
+                    color: #111827 !important;
+                    background: rgba(255, 255, 255, 0.75) !important;
                     padding: 12px;
-                    border-radius: 15px;
+                    border-radius: 16px;
                     width: 50px;
                     height: 50px;
                 }
                 .stat-card-fisiatria .label {
                     display: block;
-                    font-size: 0.8rem;
-                    color: var(--text-secondary);
+                    font-size: 0.78rem;
+                    color: #4b5563;
                     font-weight: 700;
                     text-transform: uppercase;
                 }
                 .stat-card-fisiatria .value {
-                    font-size: 1.8rem;
-                    font-weight: 900;
-                    color: var(--text-primary);
+                    font-size: 1.95rem;
+                    font-weight: 800;
+                    color: #111827;
                 }
                 .btn-brand-action {
-                    background: var(--fisiatria-primary);
+                    background: #111827 !important;
                     color: white;
                     border: none;
                     padding: 12px 24px;
-                    border-radius: 15px;
+                    border-radius: 999px !important;
                     display: flex;
                     align-items: center;
                     gap: 10px;
                     cursor: pointer;
-                    font-weight: 900;
-                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                    font-weight: 700;
+                    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.14);
                 }
                 .search-box-large {
                     display: flex;
                     align-items: center;
                     gap: 12px;
-                    background: white;
-                    border: 1px solid var(--fisiatria-border);
+                    background: #ffffff;
+                    border: 1px solid #e5e7eb;
                     padding: 0 20px;
-                    border-radius: 15px;
-                    min-width: 350px;
+                    border-radius: 999px;
+                    min-width: 340px;
                 }
                 .search-box-large input {
                     border: none;
                     outline: none;
-                    padding: 14px 0;
-                    font-size: 1rem;
+                    padding: 12px 0;
+                    font-size: 0.95rem;
                     width: 100%;
+                    background: transparent;
                 }
                 .patient-card {
-                    background: white;
-                    border: 1px solid var(--border-color);
-                    padding: 15px 20px;
-                    border-radius: 18px;
+                    background: #ffffff;
+                    border: 1px solid #eef0f4;
+                    padding: 18px 22px;
+                    border-radius: 24px;
                     display: flex;
                     align-items: center;
-                    justify-content: space-between; /* Clave para evitar solapamiento */
+                    justify-content: space-between;
                     gap: 15px;
                     cursor: pointer;
                     transition: all 0.2s;
+                    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.02);
                 }
                 .patient-card:hover {
-                    border-color: var(--fisiatria-primary);
+                    border-color: #111827;
                     transform: translateY(-2px);
-                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
                 }
                 .patient-card .avatar {
-                    width: 45px;
-                    height: 45px;
-                    background: var(--fisiatria-primary);
+                    width: 44px;
+                    height: 44px;
+                    background: #111827;
                     color: white;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    border-radius: 12px;
-                    font-weight: 900;
-                    font-size: 1.3rem;
+                    border-radius: 50%;
+                    font-weight: 800;
+                    font-size: 1.15rem;
                     flex-shrink: 0;
                 }
                 .patient-card .details {
                     flex-grow: 1;
-                    min-width: 0; /* Permite truncado si es necesario */
+                    min-width: 0;
                 }
                 .patient-card h4 {
                     white-space: nowrap;
@@ -337,14 +334,13 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
                     text-overflow: ellipsis;
                 }
                 .action-tag {
-                    font-size: 0.65rem;
-                    font-weight: 900;
-                    color: white;
-                    background: var(--fisiatria-primary);
-                    padding: 6px 12px;
-                    border-radius: 8px;
+                    font-size: 0.7rem;
+                    font-weight: 800;
+                    color: #111827;
+                    background: #c3f53c;
+                    padding: 6px 14px;
+                    border-radius: 999px;
                     flex-shrink: 0;
-                    letter-spacing: 0.5px;
                 }
                 .vademecum-table {
                     width: 100%;
@@ -354,20 +350,20 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
                     text-align: left;
                     padding: 15px;
                     background: #f8fafc;
-                    border-bottom: 2px solid #e2e8f0;
-                    font-size: 0.8rem;
+                    border-bottom: 1px solid #e5e7eb;
+                    font-size: 0.78rem;
                     text-transform: uppercase;
-                    color: #475569;
+                    color: #6b7280;
                 }
                 .vademecum-table td {
                     padding: 15px;
                     border-bottom: 1px solid #f1f5f9;
                 }
                 .animate-slide-up {
-                    animation: slideUp 0.4s ease-out;
+                    animation: slideUp 0.35s ease-out;
                 }
                 @keyframes slideUp {
-                    from { opacity: 0; transform: translateY(20px); }
+                    from { opacity: 0; transform: translateY(12px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
             `}</style>
