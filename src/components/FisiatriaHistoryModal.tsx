@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '../lib/supabase';
 import { X, History, PlusCircle, Calendar, Pill, Printer, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import FisiatriaConsultationModal from './FisiatriaConsultationModal';
@@ -170,18 +171,18 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
         }
     };
 
-    return (
-        <div className="modal-overlay" style={{ zIndex: 1000 }}>
-            <div className="modal-content" style={{ maxWidth: '1000px', width: '95%' }}>
+    return createPortal(
+        <div className="modal-overlay" style={{ zIndex: 3000, position: 'fixed', inset: 0, width: '100vw', height: '100vh' }}>
+            <div className="modal-content" style={{ maxWidth: '1040px', width: '95%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <div className="modal-header">
-                    <h2 style={{ color: 'var(--fisiatria-purple)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <h2 style={{ color: 'var(--fisiatria-purple)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.25rem' }}>
                         <History size={24} />
                         Historia Clínica: {patientData.nombre_completo}
                     </h2>
                     <button onClick={onClose} className="close-btn"><X size={24} /></button>
                 </div>
 
-                <div className="modal-body responsive-grid" style={{ padding: '20px', display: 'grid', gridTemplateColumns: '280px 1fr', gap: '25px', maxHeight: '85vh', overflowY: 'auto' }}>
+                <div className="modal-body responsive-grid" style={{ padding: '20px', display: 'grid', gridTemplateColumns: '260px minmax(0, 1fr)', gap: '22px', maxHeight: 'calc(90vh - 75px)', overflowY: 'auto', overflowX: 'hidden' }}>
                     <aside style={{ height: 'fit-content', position: 'sticky', top: 0 }}>
                         <div style={{ background: 'var(--fisiatria-purple-light)', padding: '20px', borderRadius: '15px', border: '1px solid var(--fisiatria-purple-border)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '2px solid var(--fisiatria-purple-border)', paddingBottom: '8px' }}>
@@ -262,8 +263,8 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                         </div>
                     </aside>
 
-                    <main>
-                        <h3 style={{ marginBottom: '25px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.2rem', fontWeight: 800 }}>
+                    <main style={{ minWidth: 0 }}>
+                        <h3 style={{ marginBottom: '20px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.15rem', fontWeight: 800 }}>
                             <Calendar size={22} color="var(--fisiatria-purple)" />
                             EVOLUCIÓN MÉDICA
                         </h3>
@@ -278,12 +279,12 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 {consultations.map((c: any) => (
                                     <div key={c.id} style={{ background: 'white', border: '1px solid var(--border-color)', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                                        <div style={{ background: '#f5f3ff', padding: '12px 20px', borderBottom: '1px solid #ddd6fe', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        <div style={{ background: '#f5f3ff', padding: '12px 16px', borderBottom: '1px solid #ddd6fe', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                                                 <span style={{ fontWeight: 800, color: 'var(--fisiatria-purple)' }}>{formatFechaEstatica(c.fecha_consulta)}</span>
                                                 <span style={{ fontSize: '0.8rem', color: '#666' }}>REF: {c.referido_por || 'DIRECTO'}</span>
                                             </div>
-                                            <div style={{ display: 'flex', gap: '12px' }}>
+                                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                                                 <button
                                                     onClick={() => handlePrintConsultation(c)}
                                                     style={{
@@ -478,6 +479,7 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                     background: #e91e63;
                 }
             `}</style>
-        </div>
+        </div>,
+        document.body
     );
 }

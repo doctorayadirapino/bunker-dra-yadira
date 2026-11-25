@@ -318,7 +318,7 @@ export default function FisiatriaConsultationModal({ patientId, patientName, pat
     };
 
     return (
-        <div className="modal-overlay" style={{ zIndex: 1100 }}>
+        <div className="modal-overlay" style={{ zIndex: 3500 }}>
             <div className="modal-content" style={{ maxWidth: '800px', width: '95%' }}>
                 <div className="modal-header" style={{ background: 'white', borderBottom: '3px solid #e91e63' }}>
                     <h2 style={{ color: '#e91e63', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 900 }}>

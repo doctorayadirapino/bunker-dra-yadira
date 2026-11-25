@@ -63,7 +63,7 @@ export default function FisiatriaPatientModal({ onClose, onSuccess, patientToEdi
     };
 
     return (
-        <div className="modal-overlay" style={{ zIndex: 1000 }}>
+        <div className="modal-overlay" style={{ zIndex: 3500 }}>
             <div className="modal-content" style={{ maxWidth: '500px' }}>
                 <div className="modal-header">
                     <h2 style={{ color: 'var(--fisiatria-purple)', display: 'flex', alignItems: 'center', gap: '10px' }}>

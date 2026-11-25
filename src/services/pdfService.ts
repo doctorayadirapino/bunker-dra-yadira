@@ -213,37 +213,35 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'mm',
-            format: [215.9, 355.6] // Oficio Estricta 8.5 x 14 in
+            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in (Compatible 100% con impresoras estándar)
         });
 
         const textColor = '#1e293b';
 
-        // Función Helper para inyectar Cabecera Compacta (Márgenes Mínimos v9.8)
+        // Función Helper para inyectar Cabecera Compacta (Márgenes Optimizados Carta)
         const renderHeader = () => {
-            console.log('AUDITORIA v10.0-GOLD: Aplicando RenderHeader Estático...');
             doc.setTextColor('#000000');
             doc.setFont('times', 'bold');
-            doc.setFontSize(20);
-            doc.text(`Dra. YADIRA PINO R.`, 105, 12, { align: 'center' });
+            doc.setFontSize(18);
+            doc.text(`Dra. YADIRA PINO R.`, 105, 11, { align: 'center' });
 
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(10);
-            doc.text('FISIATRA', 105, 17, { align: 'center' });
+            doc.setFontSize(9.5);
+            doc.text('FISIATRA', 105, 15.5, { align: 'center' });
 
             doc.setTextColor('#000000');
             doc.setFontSize(8);
             doc.setFont('helvetica', 'bold');
-            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 22, { align: 'center' });
+            doc.text(`C.I.: V-6.871.964 | M.P.PS: 41.171 | C.M.M: 13.012`, 105, 19.5, { align: 'center' });
 
             doc.setDrawColor('#000000');
             doc.setLineWidth(0.4);
-            doc.line(10, 26, 205, 26);
+            doc.line(10, 22.5, 205, 22.5);
         };
 
         // Función v9.8: Formateo literal para evitar el "Salto de Fecha UTC"
         const formatFechaEstatica = (fechaISO: string) => {
             if (!fechaISO) return 'N/A';
-            // Si viene como YYYY-MM-DD
             const partes = fechaISO.split('T')[0].split('-');
             if (partes.length === 3) {
                 return `${partes[2]}/${partes[1]}/${partes[0]}`;
@@ -255,55 +253,64 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
 
         // --- TÍTULO COMPACTO ---
         doc.setTextColor('#000000');
-        doc.setFontSize(14);
+        doc.setFontSize(12.5);
         doc.setFont('helvetica', 'bold');
-        doc.text('INFORME DE CONSULTA FISIÁTRICA', 105, 38, { align: 'center' });
+        doc.text('INFORME DE CONSULTA FISIÁTRICA', 105, 29, { align: 'center' });
 
-        // --- DATOS DEL PACIENTE (Margen 10mm) ---
+        // --- DATOS DEL PACIENTE COMPACTOS (2 FILAS EN CARTA) ---
         doc.setFillColor('#f8fafc');
-        doc.rect(10, 45, 195, 22, 'F');
+        doc.rect(10, 32, 195, 14, 'F');
         doc.setDrawColor('#e2e8f0');
-        doc.rect(10, 45, 195, 22, 'S');
+        doc.rect(10, 32, 195, 14, 'S');
         doc.setTextColor(textColor);
-        doc.setFontSize(9);
-        doc.text(`PACIENTE: ${data.paciente.nombre}`, 15, 51);
-        doc.text(`CÉDULA: ${data.paciente.cedula}`, 15, 56);
-        doc.text(`EDAD: ${data.paciente.edad} AÑOS`, 110, 51);
-        doc.text(`FECHA: ${formatFechaEstatica(data.consulta.fecha)}`, 110, 56);
-        doc.text(`TELÉFONO: ${data.paciente.telefono || 'N/A'}`, 15, 61);
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`PACIENTE: ${data.paciente.nombre}`, 14, 37.5);
+        doc.text(`EDAD: ${data.paciente.edad} AÑOS`, 125, 37.5);
+        doc.text(`FECHA: ${formatFechaEstatica(data.consulta.fecha)}`, 162, 37.5);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`CÉDULA: ${data.paciente.cedula}`, 14, 43);
+        doc.text(`TELÉFONO: ${data.paciente.telefono || 'N/A'}`, 70, 43);
+        if (data.consulta.referido_por) {
+            doc.text(`REFERIDO POR: ${data.consulta.referido_por.toUpperCase()}`, 125, 43);
+        }
 
-        // --- CUERPO DEL INFORME ---
-        let currentY = 75; // 90 -> 75
+        // --- CUERPO DEL INFORME (PAGINADO DINÁMICO LÍNEA A LÍNEA EN HOJA CARTA) ---
+        let currentY = 52;
+        const maxTextY = 238; // Reserva 41mm inferiores en hoja Carta (279.4mm) para que la firma jamás quede huérfana
 
         const drawSection = (title: string, content: string) => {
             if (!content) return;
-            if (currentY > 315) { doc.addPage(); renderHeader(); currentY = 38; }
+            if (currentY > maxTextY - 5) {
+                doc.addPage();
+                renderHeader();
+                currentY = 30;
+            }
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(9);
+            doc.setFontSize(8.8);
             doc.text(title.toUpperCase(), 10, currentY);
-            currentY += 5;
+            currentY += 4.3;
 
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
-            const splitContent = doc.splitTextToSize(content, 190);
+            doc.setFontSize(9.5);
+            const splitContent = doc.splitTextToSize(content, 194);
             for (let i = 0; i < splitContent.length; i++) {
-                if (currentY > 322) {
+                if (currentY > maxTextY) {
                     doc.addPage();
                     renderHeader();
                     doc.setTextColor(textColor);
                     doc.setFont('helvetica', 'normal');
-                    doc.setFontSize(10);
-                    currentY = 38;
+                    doc.setFontSize(9.5);
+                    currentY = 30;
                 }
                 doc.text(splitContent[i], 10, currentY);
-                currentY += 5;
+                currentY += 4.3;
             }
-            currentY += 4;
+            currentY += 3;
         };
 
-        drawSection('Referido por:', data.consulta.referido_por);
         drawSection('Motivo de Consulta:', data.consulta.motivo_consulta);
         drawSection('Examen Físico / Evaluación:', data.consulta.examen_fisico);
         drawSection('Impresión Diagnóstica:', data.consulta.diagnostico);
@@ -336,62 +343,67 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
 
         // --- RÉCIPE SI EXISTE ---
         if (data.recipes.length > 0) {
-            if (currentY > 305) { doc.addPage(); renderHeader(); currentY = 38; }
-            doc.setFontSize(11);
+            if (currentY > maxTextY - 8) { doc.addPage(); renderHeader(); currentY = 30; }
+            doc.setFontSize(9.5);
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'bold');
-            doc.text('CONDUCTA FARMACOLÓGICA / INDICACIONES:', 15, currentY);
-            currentY += 8;
+            doc.text('CONDUCTA FARMACOLÓGICA / INDICACIONES:', 10, currentY);
+            currentY += 5.5;
 
             data.recipes.forEach(r => {
-                if (currentY > 315) { doc.addPage(); renderHeader(); currentY = 38; }
+                if (currentY > maxTextY - 4) { doc.addPage(); renderHeader(); currentY = 30; }
                 doc.setTextColor(textColor);
-                doc.setFontSize(10);
+                doc.setFontSize(9.5);
                 doc.setFont('helvetica', 'bold');
-                doc.text(`• ${r.medicamento}:`, 20, currentY);
-                currentY += 5;
+                doc.text(`• ${r.medicamento}:`, 14, currentY);
+                currentY += 4.3;
                 doc.setFont('helvetica', 'normal');
-                const ind = doc.splitTextToSize(r.indicaciones, 160);
+                const ind = doc.splitTextToSize(r.indicaciones, 175);
                 for (let i = 0; i < ind.length; i++) {
-                    if (currentY > 322) {
+                    if (currentY > maxTextY) {
                         doc.addPage();
                         renderHeader();
                         doc.setTextColor(textColor);
                         doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(10);
-                        currentY = 38;
+                        doc.setFontSize(9.5);
+                        currentY = 30;
                     }
-                    doc.text(ind[i], 30, currentY);
-                    currentY += 5;
+                    doc.text(ind[i], 20, currentY);
+                    currentY += 4.3;
                 }
-                currentY += 4;
+                currentY += 2.5;
             });
         }
 
-        // --- FIRMA CENTRADA (MÁXIMA EFICIENCIA v9.6) ---
-        let footerY = currentY + 25;
-        if (footerY > 325) { doc.addPage(); renderHeader(); footerY = 55; }
+        // --- FIRMA CENTRADA (GARANTÍA ANTI-HUÉRFANA EN HOJA CARTA) ---
+        // Como currentY <= 238, footerY = currentY + 22 <= 260, cabiendo SIEMPRE en la misma hoja Carta (279.4mm)
+        let footerY = Math.max(currentY + 22, Math.min(currentY + 26, 258));
+        if (footerY > 262) {
+            doc.addPage();
+            renderHeader();
+            footerY = 55;
+        }
 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 85.5, footerY - 28, 45, 30);
+                doc.addImage(img, 'PNG', 87, footerY - 24, 42, 26);
             } catch (e) { console.error('Error firma:', e); }
         }
 
         doc.setDrawColor('#000000');
         doc.line(78, footerY, 138, footerY);
 
-        doc.setFontSize(11);
+        doc.setFontSize(10);
         doc.setTextColor('#000000');
         doc.setFont('helvetica', 'bold');
-        doc.text(`Dra. YADIRA PINO R.`, 108, footerY + 6, { align: 'center' });
-        doc.setFontSize(9);
-        doc.text('FISIATRA', 108, footerY + 11, { align: 'center' });
+        doc.text(`Dra. YADIRA PINO R.`, 108, footerY + 5, { align: 'center' });
+        doc.setFontSize(8.5);
+        doc.text('FISIATRA', 108, footerY + 9.5, { align: 'center' });
 
         doc.setTextColor('#94a3b8');
         doc.setFontSize(6);
-        doc.text('DESARROLLADOR : LIC CARLOS FUENTES 04129581040', 10, 350);
+        doc.text('DESARROLLADOR : LIC CARLOS FUENTES 04129581040', 10, 275);
 
         doc.save(`Consulta_${data.paciente.cedula}_v10.0.pdf`);
     } catch (error) {
@@ -949,7 +961,7 @@ export const generarReferenciaFisiatriaPDF = async (data: FisiatriaConsultaData)
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'mm',
-            format: [215.9, 355.6]
+            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
         });
 
         const textColor = '#1e293b';
@@ -1020,7 +1032,7 @@ export const generarReferenciaFisiatriaPDF = async (data: FisiatriaConsultaData)
         doc.setFont('helvetica', 'normal');
         const motivoLine = doc.splitTextToSize(motivo, 170);
         for (let i = 0; i < motivoLine.length; i++) {
-            if (currentY > 320) {
+            if (currentY > 235) {
                 doc.addPage();
                 renderHeader();
                 doc.setTextColor(textColor);
@@ -1032,8 +1044,8 @@ export const generarReferenciaFisiatriaPDF = async (data: FisiatriaConsultaData)
             currentY += 6;
         }
 
-        let footerY = Math.max(currentY + 35, 305);
-        if (footerY > 325) {
+        let footerY = Math.max(currentY + 25, Math.min(currentY + 35, 250));
+        if (footerY > 258) {
             doc.addPage();
             renderHeader();
             footerY = 60;
@@ -1067,7 +1079,7 @@ export const generarRadiodiagnosticoFisiatriaPDF = async (data: FisiatriaConsult
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'mm',
-            format: [215.9, 355.6]
+            format: [215.9, 279.4] // Carta Estricta 8.5 x 11 in
         });
 
         const textColor = '#1e293b';
@@ -1125,7 +1137,7 @@ export const generarRadiodiagnosticoFisiatriaPDF = async (data: FisiatriaConsult
         doc.setFont('helvetica', 'normal');
         const detalleLine = doc.splitTextToSize(detalle, 170);
         for (let i = 0; i < detalleLine.length; i++) {
-            if (currentY > 320) {
+            if (currentY > 235) {
                 doc.addPage();
                 renderHeader();
                 doc.setTextColor(textColor);
@@ -1137,8 +1149,8 @@ export const generarRadiodiagnosticoFisiatriaPDF = async (data: FisiatriaConsult
             currentY += 6;
         }
 
-        let footerY = Math.max(currentY + 35, 305);
-        if (footerY > 325) {
+        let footerY = Math.max(currentY + 25, Math.min(currentY + 35, 250));
+        if (footerY > 258) {
             doc.addPage();
             renderHeader();
             footerY = 60;
