@@ -539,15 +539,11 @@
         text-align: center;
     }
     .aurora-hero-column {
-        align-items: center;
-    }
-    .aurora-hero-description {
-        max-width: 560px;
-    }
-    .aurora-hero-pills {
-        justify-content: center;
+        display: none !important;
     }
     .login-card-wrapper {
         justify-self: center;
+        width: 100%;
+        max-width: 440px;
     }
 }

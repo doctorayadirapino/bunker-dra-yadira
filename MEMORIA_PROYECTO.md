@@ -374,6 +374,10 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
   4. **Bottom Sheet Drawer (`.mobile-sheet-drawer`):** Menú deslizable desde abajo (*drawer*) con barra de agarre táctil (*handle*) para acceder fluidamente a BI & Analytics, Empresas, Vigilancia, Consultas, Seguridad de Contraseña y Cierre de Sesión.
   5. **Modales en Formato Bottom Sheet:** En dispositivos móviles, los modales de evaluación e historia clínica emergen suavemente desde el fondo ocupando la pantalla completa de forma ergonómica.
   6. **Compilación y Cero Deuda:** `npx tsc -b` validado con 0 errores.
+  7. **Depuración de Vista Móvil en Login (`src/components/Login.css` & `src/index.css`):**
+     - Por requerimiento explícito de Carlos Fuentes, se ocultó de forma exclusiva en dispositivos móviles (< 980px / < 768px) el bloque heroico `.aurora-hero-column` que contenía el título *"MÉDICO FISIATRA Y OCUPACIONAL"* y el párrafo descriptivo *"Gestión clínica inteligente de rehabilitación física..."*.
+     - En computadoras y laptops se mantiene visible e intacto dicho bloque heroico lateral.
+     - En smartphones, la pantalla de inicio ahora enfoca de forma inmediata y limpia la tarjeta de acceso seguro (Login Card), eliminando desplazamientos innecesarios.
 
 **ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - SISTEMA MÓVIL NATIVO ADAPTATIVO EN PRODUCCIÓN - CI/CD SINCRONIZADO.**
 📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**

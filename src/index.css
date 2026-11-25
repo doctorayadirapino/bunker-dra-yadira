@@ -1738,7 +1738,8 @@ body {
   /* OCULTAR ELEMENTOS DE ESCRITORIO EN MÓVILES */
   .cd-icon-rail,
   .mobile-menu-btn,
-  .cd-topbar {
+  .cd-topbar,
+  .aurora-hero-column {
     display: none !important;
   }
 
