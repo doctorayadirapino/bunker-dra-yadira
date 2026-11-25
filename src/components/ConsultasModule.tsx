@@ -217,8 +217,8 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                 </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
-                <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 240px', position: 'relative' }}>
                     <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
                     <input
                         placeholder="Buscar por nombre o cédula..."
@@ -227,12 +227,12 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                         style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                     />
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-secondary)', padding: '0 15px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-secondary)', padding: '0 12px', borderRadius: '12px', border: '1px solid var(--border-color)', flexWrap: 'nowrap' }}>
                     <Calendar size={18} color="var(--corporate-blue)" />
                     <select
                         value={selectedMonth}
                         onChange={e => setSelectedMonth(parseInt(e.target.value))}
-                        style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', padding: '12px 0' }}
+                        style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', padding: '12px 0', fontSize: '0.85rem' }}
                     >
                         <option value={1}>Enero</option>
                         <option value={2}>Febrero</option>
@@ -251,7 +251,7 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                     <select
                         value={selectedYear}
                         onChange={e => setSelectedYear(parseInt(e.target.value))}
-                        style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', padding: '12px 0' }}
+                        style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', padding: '12px 0', fontSize: '0.85rem' }}
                     >
                         {[2023, 2024, 2025, 2026, 2027].map(y => (
                             <option key={y} value={y}>{y}</option>
@@ -259,12 +259,12 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
                     </select>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-secondary)', padding: '0 15px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-secondary)', padding: '0 12px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                     <Filter size={18} color="var(--corporate-blue)" />
                     <select
                         value={filterTipo}
                         onChange={e => setFilterTipo(e.target.value)}
-                        style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', padding: '12px 0' }}
+                        style={{ border: 'none', background: 'transparent', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', padding: '12px 0', fontSize: '0.85rem' }}
                     >
                         <option value="TODOS">Todos los tipos</option>
                         <option value="PRE-EMPLEO">Pre-empleo</option>
@@ -282,8 +282,8 @@ export default function ConsultasModule({ selectedCompany = 'GENERAL' }: { selec
             {loading ? (
                 <div style={{ textAlign: 'center', padding: '100px', color: 'var(--corporate-blue)' }}>Accediendo a los registros...</div>
             ) : (
-                <div style={{ background: 'var(--bg-secondary)', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <div className="table-container" style={{ background: 'var(--bg-secondary)', borderRadius: '24px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', border: '1px solid var(--border-color)' }}>
+                    <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ background: 'var(--bg-tertiary)', textAlign: 'left' }}>
                                 <th style={{ padding: '15px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>FECHA</th>

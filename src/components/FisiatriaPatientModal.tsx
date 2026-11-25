@@ -85,7 +85,7 @@ export default function FisiatriaPatientModal({ onClose, onSuccess, patientToEdi
                         />
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                    <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <label className="label">Cédula</label>
                             <input

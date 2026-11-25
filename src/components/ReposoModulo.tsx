@@ -213,7 +213,7 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
             {activeTab === 'nuevo' && (
                 <div style={{ background: 'var(--bg-secondary)', padding: '30px', borderRadius: '24px', border: '1px solid var(--border-color)', maxWidth: '800px', margin: '0 auto', animation: 'fadeIn 0.4s' }}>
                     <form onSubmit={handleSubmit}>
-                        <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', background: 'var(--bg-primary)', padding: '10px', borderRadius: '15px', border: '1px solid var(--border-color)' }}>
+                        <div style={{ display: 'flex', gap: '12px', marginBottom: '30px', background: 'var(--bg-primary)', padding: '10px', borderRadius: '15px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
                             <button
                                 type="button"
                                 onClick={() => setPaciente({ ...paciente, tipoDocumento: 'REPOSO' })}
@@ -355,7 +355,7 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                         </div>
 
                         {/* v6.4: Opción de Firma Digital */}
-                        <div style={{ padding: '15px', background: 'var(--bg-secondary)', borderRadius: '15px', border: '1px solid var(--border-color)', marginBottom: '25px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ padding: '15px', background: 'var(--bg-secondary)', borderRadius: '15px', border: '1px solid var(--border-color)', marginBottom: '25px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: useDigitalSignature ? 'rgba(16, 185, 129, 0.1)' : 'rgba(100, 116, 139, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <FileText size={20} color={useDigitalSignature ? '#10b981' : '#64748b'} />
@@ -405,8 +405,8 @@ export default function ReposoModulo({ selectedCompany = 'GENERAL', userRole = '
                             <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '10px' }}>Si cree que esto es un error, contacte al DESARROLLADOR : LIC CARLOS FUENTES 04129581040 para verificar la tabla 'historial_reposos'.</p>
                         </div>
                     ) : (
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
+                        <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                            <table style={{ width: '100%', minWidth: '620px', borderCollapse: 'collapse', background: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
                                  <thead>
                                      <tr style={{ background: userRole === 'fisiatria' ? '#fdf2f8' : '#f0f9ff', borderBottom: '2px solid var(--border-color)' }}>
                                          <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-primary)', fontWeight: 800 }}>Fecha de Emisión</th>

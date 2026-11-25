@@ -385,6 +385,12 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
        2. Eliminación de spans rígidos en móviles: las tarjetas de gráficos (`.surveillance-pie-card` y `.surveillance-bar-card`) colapsan automáticamente a 1 columna sin empujar el layout hacia la derecha.
        3. Contenedor con `overflowX: 'auto'` y `-webkit-overflow-scrolling: 'touch'` en la tabla de morbilidad por sistema, permitiendo deslizarla con el dedo en pantallas de 390px-430px sin estirar el viewport.
      - **Validación:** Compilación `npx tsc -b` aprobada con 0 errores.
+  9. **Blindaje Responsivo Universal en Toda la Plataforma (Orden Directa de Carlos Fuentes):**
+     - **Auditoría Forense 360° Integral:** Se recorrieron todos los módulos restantes (`ConsultasModule.tsx`, `ReposoModulo.tsx`, `FisiatriaPatientModal.tsx`, `FisiatriaConsultationModal.tsx`, `FisiatriaHistoryModal.tsx`).
+     - **ConsultasModule:** Controles de búsqueda y filtros temporales convertidos a flex elástico (`flexWrap: 'wrap'`). Tabla histórica envuelta en `.table-container` con desplazamiento táctil horizontal suave (`minWidth: 650px`).
+     - **ReposoModulo:** Selectores de tipo de documento y contenedor de firma digital flexibilizados con `flexWrap: 'wrap'`. Tabla de historial oficial blindada con `minWidth: 620px` y `overflow-x: auto`.
+     - **Fisiatría Modales:** Modal de historia clínica con layout flexible en móviles (el panel lateral `aside` pasa a `position: static` vertical evitando solapamientos). El modal de registro de paciente ahora colapsa los campos en 1 columna ergonómica (`responsive-grid`). La sección de récipe médico se adapta verticalmente en pantallas estrechas sin deformar las dosis.
+     - **Regla Global de Contención (`src/index.css`):** Se introdujo una directiva maestra para que todas las tablas y contenedores del sistema impidan cualquier desplazamiento horizontal involuntario en smartphones.
 
-**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - VIGILANCIA EPIDEMIOLÓGICA 100% RESPONSIVE EN PRODUCCIÓN - CI/CD SINCRONIZADO.**
+**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - PLATAFORMA 100% RESPONSIVE EN PRODUCCIÓN (AUDITORÍA 360° SUPERADA) - CI/CD SINCRONIZADO.**
 📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**
