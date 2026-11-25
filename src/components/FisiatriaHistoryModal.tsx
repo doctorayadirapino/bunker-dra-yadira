@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { supabase } from '../lib/supabase';
 import { X, History, PlusCircle, Calendar, Pill, Printer, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import FisiatriaConsultationModal from './FisiatriaConsultationModal';
@@ -47,33 +46,37 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
         return fechaISO;
     };
 
-    const handlePrintConsultation = (c: any) => {
+    const handlePrintConsultation = async (c: any, e?: React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         const conFirma = window.confirm("¿Desea incluir su FIRMA DIGITAL en este reporte?");
         const payload = {
             paciente: {
-                nombre: patientData.nombre_completo,
-                cedula: patientData.cedula,
+                nombre: patientData.nombre_completo || '',
+                cedula: patientData.cedula || '',
                 edad: patientData.edad?.toString() || '',
-                telefono: patientData.telefono
+                telefono: patientData.telefono || ''
             },
             consulta: {
-                fecha: c.fecha_consulta,
+                fecha: c.fecha_consulta || '',
                 referido_por: c.referido_por || 'PACIENTE DIRECTO',
-                motivo_consulta: c.motivo_consulta,
-                examen_fisico: c.examen_fisico,
-                diagnostico: c.diagnostico,
-                plan_sugerencia: c.plan_sugerencia,
-                referencia: c.referencia,
-                reposo_constancia: c.reposo_constancia,
-                referencia_medico: c.referencia_medico,
-                referencia_especialidad: c.referencia_especialidad,
-                referencia_motivo: c.referencia_motivo,
-                radiodiagnostico_detalle: c.radiodiagnostico_detalle
+                motivo_consulta: c.motivo_consulta || '',
+                examen_fisico: c.examen_fisico || '',
+                diagnostico: c.diagnostico || '',
+                plan_sugerencia: c.plan_sugerencia || '',
+                referencia: c.referencia || '',
+                reposo_constancia: c.reposo_constancia || '',
+                referencia_medico: c.referencia_medico || '',
+                referencia_especialidad: c.referencia_especialidad || '',
+                referencia_motivo: c.referencia_motivo || '',
+                radiodiagnostico_detalle: c.radiodiagnostico_detalle || ''
             },
-            recipes: c.fisiatria_recipes || [],
+            recipes: Array.isArray(c.fisiatria_recipes) ? c.fisiatria_recipes : [],
             conFirmaDigital: conFirma
         };
-        generarConsultaFisiatriaPDF(payload as any);
+        await generarConsultaFisiatriaPDF(payload as any);
     };
 
     const handlePrintRadiodiagnostico = (c: any) => {
@@ -171,7 +174,7 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
         }
     };
 
-    return createPortal(
+    return (
         <div className="modal-overlay" style={{ zIndex: 3000, position: 'fixed', inset: 0, width: '100vw', height: '100vh' }}>
             <div className="modal-content" style={{ maxWidth: '1040px', width: '95%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <div className="modal-header">
@@ -286,7 +289,8 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                                             </div>
                                             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                                                 <button
-                                                    onClick={() => handlePrintConsultation(c)}
+                                                    type="button"
+                                                    onClick={(e) => handlePrintConsultation(c, e)}
                                                     style={{
                                                         background: '#0284c7',
                                                         color: 'white',
@@ -479,7 +483,6 @@ export default function FisiatriaHistoryModal({ patient, onClose }: Props) {
                     background: #e91e63;
                 }
             `}</style>
-        </div>,
-        document.body
+        </div>
     );
 }

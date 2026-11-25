@@ -265,14 +265,14 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         doc.setTextColor(textColor);
         doc.setFontSize(8.5);
         doc.setFont('helvetica', 'bold');
-        doc.text(`PACIENTE: ${data.paciente.nombre}`, 14, 37.5);
-        doc.text(`EDAD: ${data.paciente.edad} AÑOS`, 125, 37.5);
-        doc.text(`FECHA: ${formatFechaEstatica(data.consulta.fecha)}`, 162, 37.5);
+        doc.text(`PACIENTE: ${String(data.paciente?.nombre || '')}`, 14, 37.5);
+        doc.text(`EDAD: ${String(data.paciente?.edad || '')} AÑOS`, 125, 37.5);
+        doc.text(`FECHA: ${formatFechaEstatica(String(data.consulta?.fecha || ''))}`, 162, 37.5);
         doc.setFont('helvetica', 'normal');
-        doc.text(`CÉDULA: ${data.paciente.cedula}`, 14, 43);
-        doc.text(`TELÉFONO: ${data.paciente.telefono || 'N/A'}`, 70, 43);
-        if (data.consulta.referido_por) {
-            doc.text(`REFERIDO POR: ${data.consulta.referido_por.toUpperCase()}`, 125, 43);
+        doc.text(`CÉDULA: ${String(data.paciente?.cedula || '')}`, 14, 43);
+        doc.text(`TELÉFONO: ${String(data.paciente?.telefono || 'N/A')}`, 70, 43);
+        if (data.consulta?.referido_por) {
+            doc.text(`REFERIDO POR: ${String(data.consulta.referido_por).toUpperCase()}`, 125, 43);
         }
 
         // --- CUERPO DEL INFORME (PAGINADO DINÁMICO LÍNEA A LÍNEA EN HOJA CARTA) ---
@@ -280,7 +280,8 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         const maxTextY = 238; // Reserva 41mm inferiores en hoja Carta (279.4mm) para que la firma jamás quede huérfana
 
         const drawSection = (title: string, content: string) => {
-            if (!content) return;
+            const cleanContent = String(content || '').trim();
+            if (!cleanContent) return;
             if (currentY > maxTextY - 5) {
                 doc.addPage();
                 renderHeader();
@@ -295,7 +296,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(9.5);
-            const splitContent = doc.splitTextToSize(content, 194);
+            const splitContent = doc.splitTextToSize(cleanContent, 194);
             for (let i = 0; i < splitContent.length; i++) {
                 if (currentY > maxTextY) {
                     doc.addPage();
@@ -305,7 +306,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
                     doc.setFontSize(9.5);
                     currentY = 30;
                 }
-                doc.text(splitContent[i], 10, currentY);
+                doc.text(String(splitContent[i] || ''), 10, currentY);
                 currentY += 4.3;
             }
             currentY += 3;
@@ -342,7 +343,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         }
 
         // --- RÉCIPE SI EXISTE ---
-        if (data.recipes.length > 0) {
+        if (Array.isArray(data.recipes) && data.recipes.length > 0) {
             if (currentY > maxTextY - 8) { doc.addPage(); renderHeader(); currentY = 30; }
             doc.setFontSize(9.5);
             doc.setTextColor(textColor);
@@ -355,10 +356,10 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
                 doc.setTextColor(textColor);
                 doc.setFontSize(9.5);
                 doc.setFont('helvetica', 'bold');
-                doc.text(`• ${r.medicamento}:`, 14, currentY);
+                doc.text(`• ${String(r.medicamento || '')}:`, 14, currentY);
                 currentY += 4.3;
                 doc.setFont('helvetica', 'normal');
-                const ind = doc.splitTextToSize(r.indicaciones, 175);
+                const ind = doc.splitTextToSize(String(r.indicaciones || ''), 175);
                 for (let i = 0; i < ind.length; i++) {
                     if (currentY > maxTextY) {
                         doc.addPage();
@@ -368,7 +369,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
                         doc.setFontSize(9.5);
                         currentY = 30;
                     }
-                    doc.text(ind[i], 20, currentY);
+                    doc.text(String(ind[i] || ''), 20, currentY);
                     currentY += 4.3;
                 }
                 currentY += 2.5;
@@ -405,9 +406,17 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         doc.setFontSize(6);
         doc.text('DESARROLLADOR : LIC CARLOS FUENTES 04129581040', 10, 275);
 
-        doc.save(`Consulta_${data.paciente.cedula}_v10.0.pdf`);
-    } catch (error) {
+        const fechaTag = String(data.consulta?.fecha || '').split('T')[0] || 'informe';
+        try {
+            const blobUrl = doc.output('bloburl');
+            window.open(blobUrl, '_blank');
+        } catch (e) {
+            console.warn('No se pudo abrir vista previa en pestaña:', e);
+        }
+        doc.save(`Consulta_${data.paciente?.cedula || 'Fisiatria'}_${fechaTag}.pdf`);
+    } catch (error: any) {
         console.error('Error Fisiatria PDF:', error);
+        alert('Error al generar el informe PDF: ' + (error?.message || String(error)));
     }
 };
 
@@ -574,6 +583,12 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
         doc.setFontSize(9);
         doc.text('FISIATRA', 108, indFooterY + 11, { align: 'center' });
 
+        try {
+            const blobUrl = doc.output('bloburl');
+            window.open(blobUrl, '_blank');
+        } catch (e) {
+            console.warn('No se pudo abrir vista previa en pestaña:', e);
+        }
         doc.save(`Recipe_Indicaciones_${data.paciente.cedula}.pdf`);
     } catch (error) {
         console.error('Error Recipe PDF:', error);
@@ -1068,6 +1083,12 @@ export const generarReferenciaFisiatriaPDF = async (data: FisiatriaConsultaData)
         doc.setFontSize(9);
         doc.text('FISIATRA', 108, footerY + 11, { align: 'center' });
 
+        try {
+            const blobUrl = doc.output('bloburl');
+            window.open(blobUrl, '_blank');
+        } catch (e) {
+            console.warn('No se pudo abrir vista previa en pestaña:', e);
+        }
         doc.save(`Referencia_${data.paciente.cedula}.pdf`);
     } catch (e) {
         console.error('Error Referencia PDF:', e);
@@ -1173,6 +1194,12 @@ export const generarRadiodiagnosticoFisiatriaPDF = async (data: FisiatriaConsult
         doc.setFontSize(9);
         doc.text('FISIATRA', 108, footerY + 11, { align: 'center' });
 
+        try {
+            const blobUrl = doc.output('bloburl');
+            window.open(blobUrl, '_blank');
+        } catch (e) {
+            console.warn('No se pudo abrir vista previa en pestaña:', e);
+        }
         doc.save(`Radiodiagnostico_${data.paciente.cedula}.pdf`);
     } catch (e) {
         console.error('Error Radiodiagnostico PDF:', e);

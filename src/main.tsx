@@ -13,6 +13,10 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+window.addEventListener('vite:preloadError', () => {
+  window.location.reload();
+});
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
