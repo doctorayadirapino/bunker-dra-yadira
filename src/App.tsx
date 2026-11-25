@@ -53,6 +53,7 @@ export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
   const [session, setSession] = useState<Session | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const [prefilledCedula, setPrefilledCedula] = useState<string | undefined>(undefined);
 
   // Estados de Datos Reales (Supabase Cloud)
@@ -399,7 +400,36 @@ export default function App() {
 
         {/* LIENZO PRINCIPAL ESTILO CLIENT DESK */}
         <main className="cd-workspace">
-          {/* BARRA SUPERIOR CON PÍLDORAS DE NAVEGACIÓN */}
+          {/* HEADER MÓVIL NATIVO (VISIBLE SOLO EN MÓVILES < 768px) */}
+          <header className="mobile-app-header">
+            <div className="mobile-header-top">
+              <div className="mobile-header-profile" onClick={() => setActiveView('dashboard')}>
+                <div className="mobile-header-avatar">YP</div>
+                <div className="mobile-header-title">
+                  <strong>Dra. Yadira Pino</strong>
+                  <small>Búnker Clínico • Carlos Fuentes</small>
+                </div>
+              </div>
+              <span className="mobile-role-badge">
+                {userRole === 'fisiatria' ? 'Fisiatría' : 'Ocupacional'}
+              </span>
+            </div>
+
+            {userRole === 'laboral' && (
+              <div className="mobile-header-bottom">
+                <select
+                  className="mobile-company-select"
+                  value={selectedCompany}
+                  onChange={(e) => setSelectedCompany(e.target.value)}
+                >
+                  <option value="GENERAL">🏢 Empresa: Filtro Global</option>
+                  {availableCompanies.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            )}
+          </header>
+
+          {/* BARRA SUPERIOR DE ESCRITORIO CON PÍLDORAS */}
           <header className="cd-topbar">
             <div className="cd-topbar-left">
               <div className="cd-logo-mark" onClick={() => setActiveView('dashboard')}>
@@ -760,6 +790,142 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* BOTTOM NAVIGATION BAR NATIVA (PULGAR ERGONÓMICO < 768px) */}
+        <nav className="mobile-bottom-nav">
+          <button
+            className={`mobile-nav-item ${activeView === 'dashboard' && !isMobileSheetOpen ? 'active' : ''}`}
+            onClick={() => { setActiveView('dashboard'); setIsMobileSheetOpen(false); }}
+          >
+            <Activity size={20} />
+            <span>Inicio</span>
+          </button>
+
+          {userRole === 'laboral' ? (
+            <button
+              className={`mobile-nav-item ${activeView === 'patients' && !isMobileSheetOpen ? 'active' : ''}`}
+              onClick={() => { setActiveView('patients'); setIsMobileSheetOpen(false); }}
+            >
+              <Users size={20} />
+              <span>Pacientes</span>
+            </button>
+          ) : (
+            <button
+              className={`mobile-nav-item ${activeView === 'vademecum' && !isMobileSheetOpen ? 'active' : ''}`}
+              onClick={() => { setActiveView('vademecum'); setIsMobileSheetOpen(false); }}
+            >
+              <BookOpen size={20} />
+              <span>Vademécum</span>
+            </button>
+          )}
+
+          {/* BOTÓN CENTRAL DESTACADO (NUEVA EVALUACIÓN) */}
+          {userRole === 'laboral' && (
+            <button
+              className="mobile-nav-fab"
+              onClick={() => { setPrefilledCedula(undefined); setShowForm(true); setIsMobileSheetOpen(false); }}
+              title="Nueva Evaluación"
+            >
+              <PlusCircle size={26} />
+            </button>
+          )}
+
+          <button
+            className={`mobile-nav-item ${activeView === 'reposo' && !isMobileSheetOpen ? 'active' : ''}`}
+            onClick={() => { setActiveView('reposo'); setIsMobileSheetOpen(false); }}
+          >
+            <CalendarDays size={20} />
+            <span>Reposo</span>
+          </button>
+
+          <button
+            className={`mobile-nav-item ${isMobileSheetOpen ? 'active' : ''}`}
+            onClick={() => setIsMobileSheetOpen(!isMobileSheetOpen)}
+          >
+            <Menu size={20} />
+            <span>Menú</span>
+          </button>
+        </nav>
+
+        {/* BOTTOM SHEET DRAWER CON MÓDULOS AVANZADOS */}
+        <div
+          className={`mobile-sheet-overlay ${isMobileSheetOpen ? 'open' : ''}`}
+          onClick={() => setIsMobileSheetOpen(false)}
+        />
+        <aside className={`mobile-sheet-drawer ${isMobileSheetOpen ? 'open' : ''}`}>
+          <div className="mobile-sheet-handle" />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#111827', margin: 0 }}>Panel de Módulos</h3>
+            <button
+              onClick={() => setIsMobileSheetOpen(false)}
+              style={{ background: 'transparent', border: 'none', color: '#6b7280', cursor: 'pointer', padding: '4px' }}
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '14px' }}>Navegación clínica y herramientas corporativas</p>
+
+          <div className="mobile-sheet-grid">
+            {userRole === 'laboral' && (
+              <>
+                <div
+                  className="mobile-sheet-card"
+                  onClick={() => { setActiveView('bi_analytics'); setIsMobileSheetOpen(false); }}
+                >
+                  <div className="mobile-sheet-card-icon"><Activity size={18} /></div>
+                  <strong>BI & Analytics</strong>
+                  <small>Epidemiología y curvas</small>
+                </div>
+
+                <div
+                  className="mobile-sheet-card"
+                  onClick={() => { setActiveView('companies'); setIsMobileSheetOpen(false); }}
+                >
+                  <div className="mobile-sheet-card-icon"><BriefcaseMedical size={18} /></div>
+                  <strong>Empresas</strong>
+                  <small>Directorio y nómina</small>
+                </div>
+
+                <div
+                  className="mobile-sheet-card"
+                  onClick={() => { setActiveView('surveillance'); setIsMobileSheetOpen(false); }}
+                >
+                  <div className="mobile-sheet-card-icon"><Printer size={18} /></div>
+                  <strong>Vigilancia</strong>
+                  <small>Mapas y reportes</small>
+                </div>
+
+                <div
+                  className="mobile-sheet-card"
+                  onClick={() => { setActiveView('consultas'); setIsMobileSheetOpen(false); }}
+                >
+                  <div className="mobile-sheet-card-icon"><FileText size={18} /></div>
+                  <strong>Consultas</strong>
+                  <small>Historial clínico</small>
+                </div>
+              </>
+            )}
+
+            <div
+              className="mobile-sheet-card"
+              onClick={() => { setShowResetPassword(true); setIsMobileSheetOpen(false); }}
+            >
+              <div className="mobile-sheet-card-icon"><AlertTriangle size={18} /></div>
+              <strong>Seguridad</strong>
+              <small>Cambiar clave</small>
+            </div>
+
+            <div
+              className="mobile-sheet-card"
+              onClick={handleLogout}
+              style={{ borderColor: '#fecaca', background: '#fff5f5' }}
+            >
+              <div className="mobile-sheet-card-icon" style={{ color: '#ef4444' }}><LogOut size={18} /></div>
+              <strong style={{ color: '#ef4444' }}>Cerrar Sesión</strong>
+              <small style={{ color: '#b91c1c' }}>Salir del Búnker</small>
+            </div>
+          </div>
+        </aside>
       </div>
     </Suspense>
   );

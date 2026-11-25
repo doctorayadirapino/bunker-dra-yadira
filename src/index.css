@@ -1637,6 +1637,61 @@ body {
    ADAPTABILIDAD MULTIPLATAFORMA Y RESPONSIVE (TABLETS Y MÓVILES)
    ========================================================================== */
 
+/* ==========================================================================
+   ARQUITECTURA MÓVIL NATIVA DE ÉLITE (MOBILE-FIRST ADAPTIVE SYSTEM)
+   ========================================================================== */
+.mobile-app-header {
+  display: none;
+}
+
+.mobile-bottom-nav {
+  display: none;
+}
+
+.mobile-sheet-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 2500;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobile-sheet-overlay.open {
+  display: block;
+  opacity: 1;
+}
+
+.mobile-sheet-drawer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  border-radius: 28px 28px 0 0;
+  padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 16px));
+  box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.16);
+  z-index: 2600;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.mobile-sheet-drawer.open {
+  transform: translateY(0);
+}
+
+.mobile-sheet-handle {
+  width: 44px;
+  height: 5px;
+  background: #d1d5db;
+  border-radius: 999px;
+  margin: 0 auto 16px auto;
+}
+
 @media (max-width: 1024px) {
   .cd-app-shell {
     gap: 12px;
@@ -1680,119 +1735,237 @@ body {
 }
 
 @media (max-width: 768px) {
+  /* OCULTAR ELEMENTOS DE ESCRITORIO EN MÓVILES */
+  .cd-icon-rail,
+  .mobile-menu-btn,
+  .cd-topbar {
+    display: none !important;
+  }
+
   .cd-app-shell {
-    padding: 8px 8px 70px 8px; /* Espacio inferior para mobile-menu-btn */
-    gap: 0;
-  }
-
-  .cd-icon-rail {
-    position: fixed;
-    left: -90px;
-    top: 10px;
-    height: calc(100vh - 20px);
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1200;
-  }
-
-  .cd-icon-rail.open {
-    left: 10px;
-  }
-
-  .mobile-menu-btn {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #111827;
-    color: #ffffff;
-    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.35);
-    z-index: 1300;
+    padding: 0 !important;
+    gap: 0 !important;
+    background: #f3f4f6 !important;
   }
 
   .cd-workspace {
-    padding: 14px 12px 24px;
-    border-radius: 20px;
-    min-height: calc(100vh - 16px);
-    width: 100%;
+    padding: 12px 14px 95px 14px !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    min-height: 100vh !important;
+    background: #f3f4f6 !important;
   }
 
-  /* BARRA SUPERIOR MÓVIL REORGANIZADA */
-  .cd-topbar {
+  /* 1. HEADER MÓVIL NATIVO */
+  .mobile-app-header {
+    display: flex !important;
     flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #eef0f4;
+    gap: 12px;
+    background: #ffffff;
+    padding: 14px 16px;
+    border-radius: 24px;
+    border: 1px solid #eef0f4;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+    margin-bottom: 14px;
   }
 
-  .cd-topbar-left {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 8px;
-    width: 100%;
-    overflow-x: hidden;
-  }
-
-  .cd-top-pills {
-    width: 100%;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-    padding: 3px 4px;
-  }
-
-  .cd-nav-pill {
-    padding: 6px 12px;
-    font-size: 0.74rem;
-    flex-shrink: 0;
-  }
-
-  .cd-topbar-right {
-    width: 100%;
+  .mobile-header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
+    gap: 12px;
   }
 
-  .cd-avatar-cluster {
-    display: none !important; /* Ocultar en smartphones para no saturar */
+  .mobile-header-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
-  .cd-company-pill {
-    flex: 1;
-    min-width: 120px;
-    padding: 6px 10px;
-  }
-
-  .cd-company-pill select {
-    width: 100%;
-    font-size: 0.75rem;
-  }
-
-  .cd-add-manager-btn {
-    padding: 6px 12px;
-    font-size: 0.75rem;
-    white-space: nowrap;
-  }
-
-  .cd-user-info {
-    display: none; /* Dejar solo el círculo con iniciales YP en teléfonos */
-  }
-
-  .cd-user-badge {
-    padding: 4px;
+  .mobile-header-avatar {
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
+    background: #111827;
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.2);
   }
 
-  /* DASHBOARD BENTO GRID */
+  .mobile-header-title {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+
+  .mobile-header-title strong {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .mobile-header-title small {
+    font-size: 0.7rem;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  .mobile-role-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #c3f53c;
+    color: #111827;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .mobile-header-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .mobile-company-select {
+    flex: 1;
+    background: #f8f9fb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    color: #111827;
+    font-weight: 600;
+    outline: none;
+    font-family: inherit;
+  }
+
+  /* 2. BOTTOM NAVIGATION BAR NATIVA */
+  .mobile-bottom-nav {
+    display: flex !important;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(64px + env(safe-area-inset-bottom, 10px));
+    padding-bottom: env(safe-area-inset-bottom, 10px);
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -6px 24px rgba(15, 23, 42, 0.06);
+    z-index: 2000;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    font-size: 0.68rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 0;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .mobile-nav-item.active {
+    color: #111827;
+    font-weight: 800;
+  }
+
+  .mobile-nav-item.active svg {
+    color: #111827;
+    transform: scale(1.1);
+  }
+
+  .mobile-nav-fab {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #111827;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #ffffff;
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.35);
+    margin-top: -24px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .mobile-nav-fab:active {
+    transform: scale(0.92);
+  }
+
+  /* 3. BOTTOM SHEET DRAWER Y OPCIONES */
+  .mobile-sheet-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .mobile-sheet-card {
+    background: #f8f9fb;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-family: inherit;
+  }
+
+  .mobile-sheet-card:active {
+    background: #eef0f4;
+    transform: scale(0.97);
+  }
+
+  .mobile-sheet-card strong {
+    font-size: 0.85rem;
+    color: #111827;
+    font-weight: 700;
+  }
+
+  .mobile-sheet-card small {
+    font-size: 0.72rem;
+    color: #6b7280;
+  }
+
+  .mobile-sheet-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111827;
+    margin-bottom: 4px;
+  }
+
+  /* DASHBOARD BENTO GRID EN MÓVILES */
   .cd-bento-grid {
     grid-template-columns: 1fr !important;
     gap: 12px;
@@ -1849,19 +2022,23 @@ body {
     min-width: 580px;
   }
 
-  /* MODALES RESPONSIVOS Y TOUCH FRIENDLY */
+  /* 4. MODALES EN MÓVILES (FORMATO BOTTOM SHEET) */
   .modal-overlay {
-    padding: 8px;
-    align-items: flex-end;
+    padding: 0 !important;
+    align-items: flex-end !important;
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(6px) !important;
   }
 
   .modal-content {
     width: 100% !important;
     max-width: 100% !important;
-    max-height: 92vh !important;
-    border-radius: 24px 24px 16px 16px !important;
-    padding: 16px !important;
+    max-height: 94vh !important;
+    border-radius: 28px 28px 0 0 !important;
+    padding: 20px 18px calc(30px + env(safe-area-inset-bottom, 16px)) !important;
+    box-shadow: 0 -16px 40px rgba(15, 23, 42, 0.25) !important;
     overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

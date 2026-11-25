@@ -357,5 +357,23 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
 - **¿Qué quedó pendiente?:** Pruebas de campo táctiles en dispositivos móviles y confirmación de despliegue por parte de Carlos Fuentes.
 - **Para el próximo agente:** Los estilos móviles centrales están gobernados por las media queries al final de `src/index.css`. Mantener siempre el uso de la clase `.responsive-grid` para cualquier nuevo formulario o conjunto de campos en 2 o más columnas.
 
-**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - PLATAFORMA 100% MULTIPLATAFORMA Y RESPONSIVE EN REPOSO - COMPILACIÓN VERIFICADA (0 ERRORES).**
+---
+### 📅 [25/11/2026] - Evolución Arquitectónica: Sistema Móvil Nativo Adaptativo (Mobile-First Real)
+- **Problema Detectado por Carlos Fuentes:** El responsive tradicional basado en comprimir el diseño de escritorio con media queries resulta precario e incómodo en smartphones, careciendo de la ergonomía táctil y solidez de una aplicación móvil moderna.
+- **Solución Implementada (Arquitectura Híbrida Adaptativa):**
+  1. **Separación de Paradigmas de Interfaz:**
+     - En Escritorio / Tablets: Se mantiene la experiencia inmersiva **Scrolltide Client Desk** con su riel vertical flotante y Bento Grid de 4 columnas.
+     - En Smartphones (< 768px): Se activa automáticamente una **interfaz nativa para móviles** que oculta los elementos de escritorio y renderiza una experiencia app de élite.
+  2. **Header Móvil Nativo (`.mobile-app-header`):** Encabezado compacto con avatar de la Dra. Yadira Pino, subtítulo corporativo de Carlos Fuentes, badge de rol y selector de empresa táctil directo.
+  3. **Bottom Navigation Bar Fija (`.mobile-bottom-nav`):** Barra inferior anclada a la zona del pulgar con efecto blur cristalino (`backdrop-filter: blur(18px)`), integrando:
+     - 🏠 Inicio / Dashboard
+     - 👥 Pacientes (o Vademécum en Fisiatría)
+     - ➕ Botón Flotante Central (FAB) para Nueva Evaluación Médica
+     - 📑 Reposo
+     - ☰ Menú de Módulos Secundarios
+  4. **Bottom Sheet Drawer (`.mobile-sheet-drawer`):** Menú deslizable desde abajo (*drawer*) con barra de agarre táctil (*handle*) para acceder fluidamente a BI & Analytics, Empresas, Vigilancia, Consultas, Seguridad de Contraseña y Cierre de Sesión.
+  5. **Modales en Formato Bottom Sheet:** En dispositivos móviles, los modales de evaluación e historia clínica emergen suavemente desde el fondo ocupando la pantalla completa de forma ergonómica.
+  6. **Compilación y Cero Deuda:** `npx tsc -b` validado con 0 errores.
+
+**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - SISTEMA MÓVIL NATIVO ADAPTATIVO EN PRODUCCIÓN - CI/CD SINCRONIZADO.**
 📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**
