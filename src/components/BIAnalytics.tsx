@@ -215,7 +215,7 @@ export default function BIAnalytics({ selectedCompany }: BIAnalyticsProps) {
             </div>
 
             {/* DASHBOARD DE ANÁLISIS DE INCIDENCIA */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
+            <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
                 
                 {/* GRÁFICO DE TENDENCIA */}
                 <div style={{ background: 'var(--bg-secondary)', padding: '30px', borderRadius: '32px', border: '1px solid var(--border-color)' }}>

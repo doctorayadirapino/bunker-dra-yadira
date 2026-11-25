@@ -109,13 +109,13 @@ export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsult
 
     return (
         <div style={{ padding: '20px', animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '15px' }}>
                 <div>
                     <h2 style={{ color: 'var(--text-primary)', fontSize: '1.8rem', fontWeight: 700 }}>Directorio de Pacientes</h2>
                     <p style={{ color: 'var(--text-secondary)' }}>Base de datos histórica de personal evaluado</p>
                 </div>
 
-                <div style={{ position: 'relative', width: '350px' }}>
+                <div style={{ position: 'relative', width: '100%', maxWidth: '350px' }}>
                     <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
                         type="text"
@@ -251,7 +251,7 @@ export default function PatientsList({ selectedCompany = 'GENERAL', onNewConsult
                             </button>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px', background: 'var(--bg-secondary)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+                        <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px', background: 'var(--bg-secondary)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
                             <div>
                                 <small style={{ color: 'var(--text-muted)', display: 'block' }}>Cédula</small>
                                 <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{selectedPatient.cedula}</span>

@@ -75,7 +75,7 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
             </div>
 
             {/* KPIs Rápidos */}
-            <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
+            <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '30px' }}>
                 <div className="stat-card-fisiatria">
                     <Users className="icon" />
                     <div className="info">
@@ -104,13 +104,13 @@ export default function FisiatriaDashboard({ initialView }: { initialView?: 'hom
             {
                 view === 'home' && (
                     <div className="history-section animate-slide-up">
-                        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', background: '#f8fafc', padding: '20px', borderRadius: '15px', border: '1px solid #e2e8f0' }}>
+                        <div className="card-header responsive-grid" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', background: '#f8fafc', padding: '20px', borderRadius: '15px', border: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '15px' }}>
                             <div>
                                 <h3 style={{ color: '#000000', fontWeight: 800 }}>BÚSQUEDA RÁPIDA DE HISTORIAS</h3>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Localice al paciente por Cédula o Nombre para iniciar consulta</p>
                             </div>
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <div className="search-box-large">
+                            <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', width: '100%', maxWidth: '520px' }}>
+                                <div className="search-box-large" style={{ flex: 1, minWidth: '220px' }}>
                                     <Search size={20} color="#000000" />
                                     <input
                                         placeholder="Cédula o Nombre del paciente..."

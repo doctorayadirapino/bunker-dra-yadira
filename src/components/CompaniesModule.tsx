@@ -130,13 +130,13 @@ export default function CompaniesModule({ onAudit }: { onAudit?: (companyName: s
 
     return (
         <div style={{ padding: '20px', animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '15px' }}>
                 <div>
                     <h2 style={{ color: 'var(--text-primary)', fontSize: '1.8rem', fontWeight: 700 }}>Gestión de Empresas</h2>
                     <p style={{ color: 'var(--text-secondary)' }}>Directorio corporativo y auditoría de personal</p>
                 </div>
 
-                <div style={{ position: 'relative', width: '350px' }}>
+                <div style={{ position: 'relative', width: '100%', maxWidth: '350px' }}>
                     <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
                         type="text"

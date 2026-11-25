@@ -1397,6 +1397,15 @@ body {
   padding: 4px;
   border-radius: 999px;
   flex-wrap: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cd-top-pills::-webkit-scrollbar {
+  display: none;
 }
 
 .cd-nav-pill {
@@ -1608,22 +1617,274 @@ body {
   border-radius: 28px 28px 0 0 !important;
 }
 
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 1150;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.open {
+  display: block;
+  opacity: 1;
+}
+
+/* ==========================================================================
+   ADAPTABILIDAD MULTIPLATAFORMA Y RESPONSIVE (TABLETS Y MÓVILES)
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .cd-app-shell {
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .cd-topbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .cd-topbar-left {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .cd-top-pills {
+    flex: 1;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cd-topbar-right {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .cd-bento-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .cd-card-lavender {
+    grid-column: span 2;
+    grid-row: auto !important;
+  }
+
+  .cd-span-2 {
+    grid-column: span 2 !important;
+  }
+}
+
 @media (max-width: 768px) {
   .cd-app-shell {
-    padding: 10px;
+    padding: 8px 8px 70px 8px; /* Espacio inferior para mobile-menu-btn */
+    gap: 0;
   }
+
   .cd-icon-rail {
     position: fixed;
-    left: -80px;
+    left: -90px;
     top: 10px;
     height: calc(100vh - 20px);
-    transition: left 0.3s ease;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1200;
   }
+
   .cd-icon-rail.open {
-    left: 12px;
+    left: 10px;
   }
+
+  .mobile-menu-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #111827;
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.35);
+    z-index: 1300;
+  }
+
   .cd-workspace {
-    padding: 16px;
-    border-radius: 24px;
+    padding: 14px 12px 24px;
+    border-radius: 20px;
+    min-height: calc(100vh - 16px);
+    width: 100%;
+  }
+
+  /* BARRA SUPERIOR MÓVIL REORGANIZADA */
+  .cd-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eef0f4;
+  }
+
+  .cd-topbar-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .cd-top-pills {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding: 3px 4px;
+  }
+
+  .cd-nav-pill {
+    padding: 6px 12px;
+    font-size: 0.74rem;
+    flex-shrink: 0;
+  }
+
+  .cd-topbar-right {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .cd-avatar-cluster {
+    display: none !important; /* Ocultar en smartphones para no saturar */
+  }
+
+  .cd-company-pill {
+    flex: 1;
+    min-width: 120px;
+    padding: 6px 10px;
+  }
+
+  .cd-company-pill select {
+    width: 100%;
+    font-size: 0.75rem;
+  }
+
+  .cd-add-manager-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .cd-user-info {
+    display: none; /* Dejar solo el círculo con iniciales YP en teléfonos */
+  }
+
+  .cd-user-badge {
+    padding: 4px;
+    border-radius: 50%;
+  }
+
+  /* DASHBOARD BENTO GRID */
+  .cd-bento-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .cd-card-lavender {
+    grid-column: span 1 !important;
+    grid-row: auto !important;
+  }
+
+  .cd-span-2 {
+    grid-column: span 1 !important;
+  }
+
+  .cd-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .cd-header-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .cd-header-actions button,
+  .cd-header-actions .cd-pill-select {
+    font-size: 0.72rem;
+    padding: 6px 10px;
+  }
+
+  .cd-spent-body {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  .cd-floating-arrow {
+    display: none;
+  }
+
+  /* TABLAS Y LISTAS TÁCTILES */
+  .table-container,
+  .patient-list-card,
+  .data-table-card {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 18px !important;
+  }
+
+  .data-table {
+    min-width: 580px;
+  }
+
+  /* MODALES RESPONSIVOS Y TOUCH FRIENDLY */
+  .modal-overlay {
+    padding: 8px;
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 92vh !important;
+    border-radius: 24px 24px 16px 16px !important;
+    padding: 16px !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .cd-workspace {
+    padding: 10px 8px 20px;
+    border-radius: 16px;
+  }
+
+  .cd-main-title {
+    font-size: 1.25rem !important;
+  }
+
+  .cd-big-metric {
+    font-size: 1.8rem !important;
+  }
+
+  .cd-company-pill {
+    width: 100%;
+  }
+
+  .cd-add-manager-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
