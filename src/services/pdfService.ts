@@ -154,11 +154,21 @@ export const generarCertificadoPDF = async (data: CertificadoData) => {
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
             doc.text('OBSERVACIONES:', 15, nextY);
+            nextY += 6;
             doc.setFont('helvetica', 'normal');
             const obs = doc.splitTextToSize(data.consulta.observaciones, 180);
-            doc.text(obs, 15, nextY + 6);
-            // v4.0: Actualización dinámica del puntero Y
-            nextY += (obs.length * 6) + 12;
+            for (let i = 0; i < obs.length; i++) {
+                if (nextY > 250) {
+                    doc.addPage();
+                    doc.setTextColor(textColor);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    nextY = 30;
+                }
+                doc.text(obs[i], 15, nextY);
+                nextY += 6;
+            }
+            nextY += 6;
         }
 
         // v8.9: Ajustes Geométricos Híbridos (Firma + Texto Garantizado)
@@ -267,17 +277,30 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
 
         const drawSection = (title: string, content: string) => {
             if (!content) return;
-            if (currentY > 320) { doc.addPage(); renderHeader(); currentY = 40; }
+            if (currentY > 315) { doc.addPage(); renderHeader(); currentY = 38; }
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(9);
             doc.text(title.toUpperCase(), 10, currentY);
+            currentY += 5;
+
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(10);
-            const splitContent = doc.splitTextToSize(content, 190); // Más ancho
-            doc.text(splitContent, 10, currentY + 5);
-            currentY += (splitContent.length * 5) + 8;
+            const splitContent = doc.splitTextToSize(content, 190);
+            for (let i = 0; i < splitContent.length; i++) {
+                if (currentY > 322) {
+                    doc.addPage();
+                    renderHeader();
+                    doc.setTextColor(textColor);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    currentY = 38;
+                }
+                doc.text(splitContent[i], 10, currentY);
+                currentY += 5;
+            }
+            currentY += 4;
         };
 
         drawSection('Referido por:', data.consulta.referido_por);
@@ -313,7 +336,7 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
 
         // --- RÉCIPE SI EXISTE ---
         if (data.recipes.length > 0) {
-            if (currentY > 300) { doc.addPage(); renderHeader(); currentY = 45; }
+            if (currentY > 305) { doc.addPage(); renderHeader(); currentY = 38; }
             doc.setFontSize(11);
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'bold');
@@ -321,19 +344,33 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
             currentY += 8;
 
             data.recipes.forEach(r => {
+                if (currentY > 315) { doc.addPage(); renderHeader(); currentY = 38; }
+                doc.setTextColor(textColor);
+                doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
                 doc.text(`• ${r.medicamento}:`, 20, currentY);
+                currentY += 5;
                 doc.setFont('helvetica', 'normal');
                 const ind = doc.splitTextToSize(r.indicaciones, 160);
-                doc.text(ind, 30, currentY + 5);
-                currentY += (ind.length * 5) + 10;
-                if (currentY > 320) { doc.addPage(); renderHeader(); currentY = 45; }
+                for (let i = 0; i < ind.length; i++) {
+                    if (currentY > 322) {
+                        doc.addPage();
+                        renderHeader();
+                        doc.setTextColor(textColor);
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(10);
+                        currentY = 38;
+                    }
+                    doc.text(ind[i], 30, currentY);
+                    currentY += 5;
+                }
+                currentY += 4;
             });
         }
 
         // --- FIRMA CENTRADA (MÁXIMA EFICIENCIA v9.6) ---
         let footerY = currentY + 25;
-        if (footerY > 330) { doc.addPage(); renderHeader(); footerY = 50; }
+        if (footerY > 325) { doc.addPage(); renderHeader(); footerY = 55; }
 
         if (data.conFirmaDigital) {
             try {
@@ -473,19 +510,29 @@ export const generarRecipeFisiatriaPDF = async (data: FisiatriaConsultaData) => 
 
         let indY = 62;
         data.recipes.forEach((r, idx) => {
+            if (indY > 240) { doc.addPage(); renderHeader(); indY = 45; }
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(11);
             doc.text(`${idx + 1}. ${r.medicamento}:`, 20, indY);
+            indY += 6;
 
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(10);
             const indicationsText = doc.splitTextToSize(r.indicaciones, 160);
-            doc.text(indicationsText, 25, indY + 6);
-
-            indY += (indicationsText.length * 5) + 8;
-
-            if (indY > 240) { doc.addPage(); renderHeader(); indY = 45; }
+            for (let i = 0; i < indicationsText.length; i++) {
+                if (indY > 245) {
+                    doc.addPage();
+                    renderHeader();
+                    doc.setTextColor(textColor);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    indY = 45;
+                }
+                doc.text(indicationsText[i], 25, indY);
+                indY += 5;
+            }
+            indY += 4;
         });
 
         // Firma en Indicaciones
@@ -972,9 +1019,20 @@ export const generarReferenciaFisiatriaPDF = async (data: FisiatriaConsultaData)
         currentY += 8;
         doc.setFont('helvetica', 'normal');
         const motivoLine = doc.splitTextToSize(motivo, 170);
-        doc.text(motivoLine, 20, currentY);
+        for (let i = 0; i < motivoLine.length; i++) {
+            if (currentY > 320) {
+                doc.addPage();
+                renderHeader();
+                doc.setTextColor(textColor);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                currentY = 45;
+            }
+            doc.text(motivoLine[i], 20, currentY);
+            currentY += 6;
+        }
 
-        let footerY = Math.max(currentY + (motivoLine.length * 6) + 35, 305);
+        let footerY = Math.max(currentY + 35, 305);
         if (footerY > 325) {
             doc.addPage();
             renderHeader();
@@ -1066,9 +1124,20 @@ export const generarRadiodiagnosticoFisiatriaPDF = async (data: FisiatriaConsult
 
         doc.setFont('helvetica', 'normal');
         const detalleLine = doc.splitTextToSize(detalle, 170);
-        doc.text(detalleLine, 20, currentY);
+        for (let i = 0; i < detalleLine.length; i++) {
+            if (currentY > 320) {
+                doc.addPage();
+                renderHeader();
+                doc.setTextColor(textColor);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                currentY = 45;
+            }
+            doc.text(detalleLine[i], 20, currentY);
+            currentY += 6;
+        }
 
-        let footerY = Math.max(currentY + (detalleLine.length * 6) + 35, 305);
+        let footerY = Math.max(currentY + 35, 305);
         if (footerY > 325) {
             doc.addPage();
             renderHeader();
@@ -1149,17 +1218,42 @@ export const generarExamenFisicoPDF = async (data: any) => {
         
         doc.setFont('helvetica', 'normal');
         const splitExamen = doc.splitTextToSize(data.consulta.examen_fisico || 'Sin hallazgos documentados.', 180);
-        doc.text(splitExamen, 15, 94);
+        let nextY = 94;
+        for (let i = 0; i < splitExamen.length; i++) {
+            if (nextY > 250) {
+                doc.addPage();
+                doc.setTextColor('#000000');
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                nextY = 30;
+            }
+            doc.text(splitExamen[i], 15, nextY);
+            nextY += 6;
+        }
+        nextY += 6;
 
-        let nextY = 94 + (splitExamen.length * 6) + 10;
-
+        if (nextY > 245) {
+            doc.addPage();
+            nextY = 30;
+        }
         doc.setFont('helvetica', 'bold');
         doc.text('OBSERVACIONES ADICIONALES:', 15, nextY);
+        nextY += 8;
         doc.setFont('helvetica', 'normal');
         const splitObs = doc.splitTextToSize(data.consulta.observaciones || 'Ninguna.', 180);
-        doc.text(splitObs, 15, nextY + 8);
+        for (let i = 0; i < splitObs.length; i++) {
+            if (nextY > 250) {
+                doc.addPage();
+                doc.setTextColor('#000000');
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                nextY = 30;
+            }
+            doc.text(splitObs[i], 15, nextY);
+            nextY += 6;
+        }
         
-        nextY += 8 + (splitObs.length * 6) + 25;
+        nextY += 25;
         if (nextY > 255) {
             doc.addPage();
             nextY = 45;
@@ -1234,9 +1328,24 @@ export const generarInformeINPSASELPDF = async (data: any) => {
         doc.text(`4. EXAMEN FÍSICO`, 15, 104);
         doc.setFont('helvetica', 'normal');
         const exmSplit = doc.splitTextToSize(data.consulta.examen_fisico || 'Aparentemente Sano', 180);
-        doc.text(exmSplit, 15, 110);
+        let nY = 110;
+        for (let i = 0; i < exmSplit.length; i++) {
+            if (nY > 250) {
+                doc.addPage();
+                doc.setTextColor('#000000');
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                nY = 30;
+            }
+            doc.text(exmSplit[i], 15, nY);
+            nY += 6;
+        }
+        nY += 6;
 
-        let nY = 110 + (exmSplit.length * 6) + 6;
+        if (nY > 235) {
+            doc.addPage();
+            nY = 30;
+        }
 
         doc.setFont('helvetica', 'bold');
         doc.text(`5. CONCLUSIÓN DE APTITUD MÉDICA OCUPACIONAL`, 15, nY);
