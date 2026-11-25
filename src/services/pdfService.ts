@@ -276,8 +276,8 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         }
 
         // --- CUERPO DEL INFORME (PAGINADO DINÁMICO LÍNEA A LÍNEA EN HOJA CARTA) ---
-        let currentY = 52;
-        const maxTextY = 238; // Reserva 41mm inferiores en hoja Carta (279.4mm) para que la firma jamás quede huérfana
+        let currentY = 50;
+        const maxTextY = 232; // Garantía matemática: max currentY post-sección = 238 -> footerY = 254 <= 262 (CERO firma huérfana)
 
         const drawSection = (title: string, content: string) => {
             const cleanContent = String(content || '').trim();
@@ -285,31 +285,31 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
             if (currentY > maxTextY - 5) {
                 doc.addPage();
                 renderHeader();
-                currentY = 30;
+                currentY = 28;
             }
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(8.8);
+            doc.setFontSize(8.5);
             doc.text(title.toUpperCase(), 10, currentY);
-            currentY += 4.3;
+            currentY += 3.8;
 
             doc.setTextColor(textColor);
             doc.setFont('helvetica', 'normal');
-            doc.setFontSize(9.5);
-            const splitContent = doc.splitTextToSize(cleanContent, 194);
+            doc.setFontSize(9);
+            const splitContent = doc.splitTextToSize(cleanContent, 195);
             for (let i = 0; i < splitContent.length; i++) {
                 if (currentY > maxTextY) {
                     doc.addPage();
                     renderHeader();
                     doc.setTextColor(textColor);
                     doc.setFont('helvetica', 'normal');
-                    doc.setFontSize(9.5);
-                    currentY = 30;
+                    doc.setFontSize(9);
+                    currentY = 28;
                 }
                 doc.text(String(splitContent[i] || ''), 10, currentY);
-                currentY += 4.3;
+                currentY += 3.8;
             }
-            currentY += 3;
+            currentY += 2.2;
         };
 
         drawSection('Motivo de Consulta:', data.consulta.motivo_consulta);
@@ -377,18 +377,18 @@ export const generarConsultaFisiatriaPDF = async (data: FisiatriaConsultaData) =
         }
 
         // --- FIRMA CENTRADA (GARANTÍA ANTI-HUÉRFANA EN HOJA CARTA) ---
-        // Como currentY <= 238, footerY = currentY + 22 <= 260, cabiendo SIEMPRE en la misma hoja Carta (279.4mm)
-        let footerY = Math.max(currentY + 22, Math.min(currentY + 26, 258));
+        // Con maxTextY = 232, currentY final es <= 238, y footerY = currentY + 16 <= 254 (siempre cabe en la misma hoja Carta de 279.4mm)
+        let footerY = currentY + 16;
         if (footerY > 262) {
             doc.addPage();
             renderHeader();
-            footerY = 55;
+            footerY = 50;
         }
 
         if (data.conFirmaDigital) {
             try {
                 const img = await loadImage('/firma_doctora.png');
-                doc.addImage(img, 'PNG', 87, footerY - 24, 42, 26);
+                doc.addImage(img, 'PNG', 88, footerY - 21, 40, 23);
             } catch (e) { console.error('Error firma:', e); }
         }
 
