@@ -378,6 +378,13 @@ Para asegurar que el **Consultorio Yadira Pino** escale con el mayor estÃ¡ndar
      - Por requerimiento explícito de Carlos Fuentes, se ocultó de forma exclusiva en dispositivos móviles (< 980px / < 768px) el bloque heroico `.aurora-hero-column` que contenía el título *"MÉDICO FISIATRA Y OCUPACIONAL"* y el párrafo descriptivo *"Gestión clínica inteligente de rehabilitación física..."*.
      - En computadoras y laptops se mantiene visible e intacto dicho bloque heroico lateral.
      - En smartphones, la pantalla de inicio ahora enfoca de forma inmediata y limpia la tarjeta de acceso seguro (Login Card), eliminando desplazamientos innecesarios.
+  8. **Blindaje Responsivo Total en Vigilancia Epidemiológica (`SurveillanceModule.tsx` & `src/index.css`):**
+     - **Problema:** El módulo de vigilancia forzaba un ancho rígido de más de 800px debido al encabezado sin wrap (`flex-wrap: nowrap`) que contenía los selectores y dos botones de descarga de reportes PDF, un `gridColumn: '2 / span 2'` forzado en el gráfico de barras por edad (que desbordaba cualquier pantalla de 1 columna), y la tabla de morbilidad sin contenedor táctil de desplazamiento horizontal.
+     - **Solución:**
+       1. Reorganización del encabezado con `flexWrap: 'wrap'` y botones táctiles adaptativos (`.surveillance-btn`).
+       2. Eliminación de spans rígidos en móviles: las tarjetas de gráficos (`.surveillance-pie-card` y `.surveillance-bar-card`) colapsan automáticamente a 1 columna sin empujar el layout hacia la derecha.
+       3. Contenedor con `overflowX: 'auto'` y `-webkit-overflow-scrolling: 'touch'` en la tabla de morbilidad por sistema, permitiendo deslizarla con el dedo en pantallas de 390px-430px sin estirar el viewport.
+     - **Validación:** Compilación `npx tsc -b` aprobada con 0 errores.
 
-**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - SISTEMA MÓVIL NATIVO ADAPTATIVO EN PRODUCCIÓN - CI/CD SINCRONIZADO.**
+**ESTADO DEL SISTEMA: 🟢 ESTADO ZERO - VIGILANCIA EPIDEMIOLÓGICA 100% RESPONSIVE EN PRODUCCIÓN - CI/CD SINCRONIZADO.**
 📦 **BÚNKER SELLADO Y EN REPOSO ABSOLUTO.**

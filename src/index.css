@@ -2066,3 +2066,53 @@ body {
     justify-content: center;
   }
 }
+
+/* ==========================================================================
+   VIGILANCIA EPIDEMIOLÓGICA RESPONSIVE RULES (100% MULTIPLATAFORMA)
+   ========================================================================== */
+.surveillance-pie-card {
+  grid-column: span 1;
+}
+
+.surveillance-bar-card {
+  grid-column: span 2;
+}
+
+.surveillance-table-card {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+  .surveillance-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 14px !important;
+  }
+
+  .surveillance-controls {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .surveillance-btn {
+    flex: 1 1 calc(50% - 6px);
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  .surveillance-bar-card,
+  .surveillance-pie-card,
+  .surveillance-table-card {
+    grid-column: span 1 !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .surveillance-btn {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    justify-content: center;
+  }
+}

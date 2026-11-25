@@ -184,36 +184,37 @@ export default function SurveillanceModule({
     };
 
     return (
-        <div style={{ padding: '20px', animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <div className="surveillance-wrapper" style={{ padding: '16px 8px', animation: 'fadeIn 0.5s ease' }}>
+            <div className="surveillance-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
-                    <h2 style={{ color: 'var(--text-primary)', fontSize: '1.8rem', fontWeight: 700 }}>Vigilancia Epidemiológica</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>Análisis mensual: {selectedMonth} {selectedYear}</p>
+                    <h2 style={{ color: 'var(--text-primary)', fontSize: '1.75rem', fontWeight: 700, margin: 0 }}>Vigilancia Epidemiológica</h2>
+                    <p style={{ color: 'var(--text-secondary)', marginTop: '4px', fontSize: '0.9rem' }}>Análisis mensual: {selectedMonth} {selectedYear}</p>
                 </div>
 
-                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <div className="surveillance-controls" style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                     {/* Selectores Temporales v12.4 (Carlos Fuentes) */}
-                    <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div style={{ display: 'flex', background: 'var(--bg-secondary)', borderRadius: '12px', padding: '4px', border: '1px solid var(--border-color)' }}>
                         <select
                             value={selectedMonth}
                             onChange={(e) => setSelectedMonth(e.target.value)}
-                            style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none', padding: '8px', fontWeight: 600, outline: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                            style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none', padding: '8px', fontWeight: 600, outline: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem' }}
                         >
-                            {meses.map(m => <option key={m} value={m} style={{ background: '#111' }}>{m}</option>)}
+                            {meses.map(m => <option key={m} value={m}>{m}</option>)}
                         </select>
                         <select
                             value={selectedYear}
                             onChange={(e) => setSelectedYear(e.target.value)}
-                            style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none', padding: '8px', fontWeight: 600, outline: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                            style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none', padding: '8px', fontWeight: 600, outline: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem' }}
                         >
-                            {anos.map(y => <option key={y} value={y} style={{ background: '#111' }}>{y}</option>)}
+                            {anos.map(y => <option key={y} value={y}>{y}</option>)}
                         </select>
                     </div>
 
                     <button
                         onClick={handleDownloadReport}
                         disabled={loading || downloading || !analytics}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: (loading || downloading || !analytics) ? 'var(--text-secondary)' : 'var(--corporate-blue)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading || !analytics) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading || !analytics) ? 0.7 : 1 }}
+                        className="surveillance-btn"
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: (loading || downloading || !analytics) ? 'var(--text-secondary)' : 'var(--corporate-blue)', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading || !analytics) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading || !analytics) ? 0.7 : 1, fontSize: '0.85rem' }}
                     >
                         {downloading ? "Procesando..." : (
                             selectedEmpresa === 'GENERAL'
@@ -225,7 +226,8 @@ export default function SurveillanceModule({
                     <button
                         onClick={handleDownloadList}
                         disabled={loading || downloading || !analytics}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: (loading || downloading || !analytics) ? 'var(--text-secondary)' : 'var(--medical-turquoise)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading || !analytics) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading || !analytics) ? 0.7 : 1 }}
+                        className="surveillance-btn"
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: (loading || downloading || !analytics) ? 'var(--text-secondary)' : 'var(--medical-turquoise)', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '12px', fontWeight: 600, cursor: (loading || downloading || !analytics) ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease', opacity: (loading || downloading || !analytics) ? 0.7 : 1, fontSize: '0.85rem' }}
                     >
                         {downloading ? "Buscando..." : (
                             selectedEmpresa === 'GENERAL'
@@ -245,47 +247,47 @@ export default function SurveillanceModule({
                     <p style={{ color: 'var(--text-secondary)' }}>Asegúrese de que existan consultas registradas en este periodo.</p>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+                <div className="surveillance-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
                     {/* KPI CARDS */}
-                    <div className="stat-card" style={{ background: 'var(--bg-secondary)', padding: '25px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', gap: '20px', alignItems: 'center' }}>
-                        <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '15px', borderRadius: '15px', color: 'var(--corporate-blue)' }}>
-                            <Users size={30} />
+                    <div className="stat-card" style={{ background: 'var(--bg-secondary)', padding: '22px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '14px', borderRadius: '15px', color: 'var(--corporate-blue)' }}>
+                            <Users size={28} />
                         </div>
                         <div>
                             <small style={{ color: 'var(--text-secondary)', display: 'block' }}>Población Evaluada</small>
-                            <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>{analytics?.totalPatients}</span>
+                            <span style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>{analytics?.totalPatients}</span>
                         </div>
                     </div>
 
-                    <div className="stat-card" style={{ background: 'var(--bg-secondary)', padding: '25px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', gap: '20px', alignItems: 'center' }}>
-                        <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '15px', borderRadius: '15px', color: 'var(--success)' }}>
-                            <TrendingUp size={30} />
+                    <div className="stat-card" style={{ background: 'var(--bg-secondary)', padding: '22px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '14px', borderRadius: '15px', color: 'var(--success)' }}>
+                            <TrendingUp size={28} />
                         </div>
                         <div>
                             <small style={{ color: 'var(--text-secondary)', display: 'block' }}>Índice de Ausentismo</small>
-                            <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>{analytics?.absenteeismRate}%</span>
+                            <span style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>{analytics?.absenteeismRate}%</span>
                         </div>
                     </div>
 
-                    <div className="stat-card" style={{ background: 'var(--bg-secondary)', padding: '25px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', gap: '20px', alignItems: 'center' }}>
-                        <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '15px', borderRadius: '15px', color: 'var(--danger)' }}>
-                            <AlertCircle size={30} />
+                    <div className="stat-card" style={{ background: 'var(--bg-secondary)', padding: '22px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '14px', borderRadius: '15px', color: 'var(--danger)' }}>
+                            <AlertCircle size={28} />
                         </div>
                         <div>
                             <small style={{ color: 'var(--text-secondary)', display: 'block' }}>Total Consultas</small>
-                            <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>{analytics?.totalConsultations}</span>
+                            <span style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>{analytics?.totalConsultations}</span>
                         </div>
                     </div>
 
                     {/* GRÁFICAS */}
-                    <div id="gender-pie" style={{ gridColumn: '1 / span 1', background: 'var(--bg-secondary)', padding: '25px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
-                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div id="gender-pie" className="surveillance-pie-card" style={{ background: 'var(--bg-secondary)', padding: '22px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', fontWeight: 700 }}>
                             <PieIcon size={20} color="var(--corporate-blue)" /> Distribución por Sexo
                         </h3>
                         <div style={{ width: '100%', height: 260 }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
-                                    <Pie data={analytics?.genderData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
+                                    <Pie data={analytics?.genderData} innerRadius={55} outerRadius={78} paddingAngle={5} dataKey="value" stroke="none">
                                         {analytics?.genderData.map((entry: any, index: number) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
@@ -297,8 +299,8 @@ export default function SurveillanceModule({
                         </div>
                     </div>
 
-                    <div id="age-bar" style={{ gridColumn: '2 / span 2', background: 'var(--bg-secondary)', padding: '25px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
-                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div id="age-bar" className="surveillance-bar-card" style={{ background: 'var(--bg-secondary)', padding: '22px', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', fontWeight: 700 }}>
                             <BarIcon size={20} color="var(--medical-turquoise)" /> Evolución de Consultas por Edad
                         </h3>
                         <div style={{ width: '100%', height: 260 }}>
@@ -316,35 +318,37 @@ export default function SurveillanceModule({
                     </div>
 
                     {/* TABLA DE MORBILIDAD */}
-                    <div style={{ gridColumn: '1 / -1', background: 'var(--bg-secondary)', borderRadius: '24px', padding: '30px', border: '1px solid var(--border-color)' }}>
-                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <FileBarChart size={24} color="var(--corporate-blue)" /> Distribución de Morbilidad por Sistema
+                    <div className="surveillance-table-card" style={{ background: 'var(--bg-secondary)', borderRadius: '24px', padding: '24px 18px', border: '1px solid var(--border-color)' }}>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.15rem', fontWeight: 700 }}>
+                            <FileBarChart size={22} color="var(--corporate-blue)" /> Distribución de Morbilidad por Sistema
                         </h3>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>
-                                    <th style={{ padding: '12px', color: 'var(--text-muted)' }}>Patología / Diagnóstico</th>
-                                    <th style={{ padding: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>Total Casos</th>
-                                    <th style={{ padding: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>% Prevalencia</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {analytics?.topPathologies.map((p: any, i: number) => (
-                                    <tr key={i} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                        <td style={{ padding: '15px', color: 'var(--text-primary)', fontWeight: 600 }}>{p.name}</td>
-                                        <td style={{ padding: '15px', color: 'var(--text-primary)', textAlign: 'center' }}>{p.value}</td>
-                                        <td style={{ padding: '15px', textAlign: 'center' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
-                                                <div style={{ width: '100px', height: '8px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
-                                                    <div style={{ width: `${(p.value / analytics.totalConsultations) * 100}%`, height: '100%', background: 'var(--corporate-blue)' }}></div>
-                                                </div>
-                                                <small style={{ color: 'var(--text-secondary)' }}>{((p.value / analytics.totalConsultations) * 100).toFixed(1)}%</small>
-                                            </div>
-                                        </td>
+                        <div className="table-container" style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                            <table style={{ width: '100%', minWidth: '460px', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>
+                                        <th style={{ padding: '12px', color: 'var(--text-muted)' }}>Patología / Diagnóstico</th>
+                                        <th style={{ padding: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>Total Casos</th>
+                                        <th style={{ padding: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>% Prevalencia</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {analytics?.topPathologies.map((p: any, i: number) => (
+                                        <tr key={i} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                            <td style={{ padding: '14px 12px', color: 'var(--text-primary)', fontWeight: 600 }}>{p.name}</td>
+                                            <td style={{ padding: '14px 12px', color: 'var(--text-primary)', textAlign: 'center' }}>{p.value}</td>
+                                            <td style={{ padding: '14px 12px', textAlign: 'center' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                                                    <div style={{ width: '80px', height: '8px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                                                        <div style={{ width: `${(p.value / analytics.totalConsultations) * 100}%`, height: '100%', background: 'var(--corporate-blue)' }}></div>
+                                                    </div>
+                                                    <small style={{ color: 'var(--text-secondary)' }}>{((p.value / analytics.totalConsultations) * 100).toFixed(1)}%</small>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             )}
